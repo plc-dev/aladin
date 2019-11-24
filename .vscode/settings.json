@@ -1,0 +1,21 @@
+{
+  "editor.formatOnSave": true,
+  "vetur.validation.template": false,
+  "eslint.autoFixOnSave": true,
+  "eslint.validate": [
+    {
+      "language": "vue",
+      "autoFix": true
+    },
+    {
+      "language": "javascript",
+      "autoFix": true
+    },
+    {
+      "language": "css",
+      "autoFix": true
+    }
+  ],
+  "prettier.printWidth": 150,
+  "prettier.htmlWhitespaceSensitivity": "ignore"
+}
