@@ -21,5 +21,9 @@
         </a>
       </div>
       <div>
-        <a href="#" class="no-underline inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-tea
+        <a href="#" class="no-underline inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-tea"</a>
 </template>
+
+<style lang="postcss">
+header{box-shadow: inset 0 -7px 9px -7px rgba(0,0,0,0.4);}
+</style>

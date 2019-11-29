@@ -12,7 +12,7 @@
 </template>
 
 <style lang="postcss">
-.input {
+/* .input {
   @apply block w-full px-3 py-2 border rounded text-sm outline-none;
   transition: border-color 0.15s;
 }
@@ -25,7 +25,7 @@
 }
 .submit:hover {
   @apply bg-light-blue-darker;
-}
+} */
 </style>
 
 <script>

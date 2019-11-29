@@ -1,13 +1,17 @@
 <template>
   <div class="app">
     <div class="app__header app__nav">
-      <router-link class="app__nav-item" to="/">Home</router-link>
-      |
-      <router-link class="app__nav-item" to="/about">About</router-link>
-      |
-      <a class="app__nav-item" style="cursor:pointer" v-if="installBtn" @click="installer()">
-        Install
-      </a>
+      <router-link class="app__nav-item" to="/">Home</router-link>|
+      <router-link class="app__nav-item" to="/exercise/gozintograph"
+        >Gozintograph</router-link
+      >|
+      <a
+        class="app__nav-item"
+        style="cursor:pointer"
+        v-if="installBtn"
+        @click="installer()"
+        >Install</a
+      >
     </div>
     <router-view class="app__main" />
   </div>
@@ -17,13 +21,29 @@
 html {
   @apply bg-brown_sugar m-0 p-0;
 }
+body::-webkit-scrollbar {
+  width: 11px;
+}
+body {
+  scrollbar-width: thin;
+  scrollbar-color: whitesmoke whitesmoke;
+}
+body::-webkit-scrollbar-track {
+  background: grey;
+}
+body::-webkit-scrollbar-thumb {
+  background-color: whitesmoke;
+  border-radius: 6px;
+  border: 3px solid whitesmoke;
+}
+
 .app {
-  @apply mx-auto my-0 text-russet bg-white_chocolate rounded shadow;
-  width: 100vw;
+  @apply flex flex-col mx-auto my-0 text-russet bg-white_chocolate rounded shadow h-screen w-screen;
   line-height: 1.7;
 }
 .app__header {
-  @apply p-6 text-lg font-bold text-sunray;
+  @apply h-navigation p-6 text-lg font-bold text-sunray;
+  box-shadow: inset 0 -7px 9px -7px rgba(0, 0, 0, 0.4);
 }
 .app__nav {
   @apply flex py-2 px-6 bg-brown_sugar;
@@ -38,26 +58,26 @@ html {
 .app__nav-item.router-link-exact-active {
   @apply bg-russet text-white_chocolate;
 }
-.app__main {
-  @apply p-6;
-}
 </style>
 
 <script>
+import { urlBase64ToUint8Array } from "@/lib/helper";
+
+import { createNamespacedHelpers } from "vuex";
+const { mapState } = createNamespacedHelpers("user");
 export default {
   data() {
     return {
       installBtn: false,
-      installer: undefined,
-      publicVapidKey: "BHaC5UbbkQBKz6v-I-JQ2abGaTZYfvO6j1CtPQYIBqJJeXdNcETen-BMP0rqZTscCkjPtJDFwqFYwdPPGtX5Tzo"
+      installer: undefined
     };
   },
   created() {
     let installPrompt;
 
-    window.addEventListener("beforeinstallprompt", e => {
-      e.preventDefault();
-      installPrompt = e;
+    window.addEventListener("beforeinstallprompt", event => {
+      event.preventDefault();
+      installPrompt = event;
       this.installBtn = true;
     });
 
@@ -70,13 +90,18 @@ export default {
       }
     };
   },
+  computed: {
+    ...mapState(["publicVapidKey"])
+  },
   methods: {
     async subscribe() {
-      const register = await navigator.serviceWorker.register("service-worker.js");
+      const register = await navigator.serviceWorker.register(
+        "service-worker.js"
+      );
 
       const subscription = await register.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(this.publicVapidKey)
+        applicationServerKey: urlBase64ToUint8Array(this.publicVapidKey)
       });
       const payload = {
         subscription,
@@ -89,18 +114,6 @@ export default {
           "content-type": "application/json"
         }
       });
-    },
-    urlBase64ToUint8Array(base64String) {
-      const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-      const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-
-      const rawData = window.atob(base64);
-      const outputArray = new Uint8Array(rawData.length);
-
-      for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-      }
-      return outputArray;
     }
   }
 };
