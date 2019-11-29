@@ -35,8 +35,12 @@
   @apply invisible;
 }
 
-.line:hover {
+.line:hover .showOnHover {
   @apply visible text-center text-regalia text-4xl;
+}
+
+.line:hover .edgeValue {
+  @apply text-center text-regalia text-4xl;
 }
 
 .graph__node:hover {
@@ -82,7 +86,7 @@ export default {
       setTimeout(() => {
         collisionDetection(
           Array.from(document.querySelectorAll(".edgeValue")),
-          node => (node.classList += " sshowOnHover"),
+          node => (node.classList += " showOnHover"),
           Array.from(document.querySelectorAll(".graph__node"))
         );
       }, 50);

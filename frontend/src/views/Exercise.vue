@@ -51,7 +51,7 @@
 }
 
 .exercise__scope--tabs {
-  @apply flex w-full pt-1;
+  @apply flex flex-wrap w-full pt-1;
   margin: 0 auto;
   overflow: hidden;
   transition: border 250ms ease;
@@ -66,7 +66,7 @@
 }
 
 .exercise__scope--body {
-  @apply mt-2;
+  @apply flex flex-col mt-2;
   min-height: 90%;
   overflow: auto;
 }

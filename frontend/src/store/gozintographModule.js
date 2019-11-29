@@ -53,7 +53,26 @@ export default {
       }, {});
     },
     getPrimary(state) {
-      return Object.keys(state.graph).length ? [state.graph.level[0]] : null;
+      return Object.keys(state.graph).length
+        ? [{ Primary: state.graph.level[0] }]
+        : null;
+    },
+    getStartMatrix(state) {
+      const edges = state.graph.connections;
+      return state.graph.level.map((parent, index, nodes) => {
+        return {
+          [parent.id]: nodes.map(child => {
+            const edge = edges.filter(
+              edge => edge.parent === parent && edge.child === child
+            );
+            if (edge.length) {
+              return { id: edge.child, amount: edge.value };
+            } else {
+              return { id: child.id, amount: 0 };
+            }
+          })
+        };
+      });
     }
   },
   mutations: {

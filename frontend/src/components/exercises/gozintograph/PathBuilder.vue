@@ -2,7 +2,9 @@
   <div class="pathbuilder">
     <ul class="pathbuilder__paths">
       <li class="pathbuilder__path">
-        <div class="pathbuilder__remove--path" style="visibility: hidden">-</div>
+        <div class="pathbuilder__remove--path" style="visibility: hidden">
+          -
+        </div>
         <input class="pathbuilder__path--node" type="text" maxlength="2" />
         <div class="pathbuilder__path--edge">
           <input class="path__edge--value" type="number" />
@@ -10,13 +12,20 @@
         </div>
         <input class="pathbuilder__path--node" type="text" maxlength="2" />
         <div class="pathbuilder__add--node" @click="addNode($event)">+</div>
-        <div class="pathbuilder__remove--node hidden" @click="removeNode($event)">-</div>
+        <div
+          class="pathbuilder__remove--node hidden"
+          @click="removeNode($event)"
+        >
+          -
+        </div>
       </li>
       <div
         v-if="!hasMaxDepth"
         class="pathbuilder__add--path"
         @click="addPath($event.target.parentNode)"
-      >+</div>
+      >
+        +
+      </div>
     </ul>
   </div>
 </template>

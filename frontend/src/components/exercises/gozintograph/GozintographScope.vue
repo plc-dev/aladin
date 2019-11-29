@@ -2,7 +2,6 @@
   <div class="description">
     <span>asdkjasdlasjd</span>
     <div class="primary" v-if="primary">
-      {{ "Primärbedarf: " }}
       <Matrix :show="true" :matrix="primary" type="primary"></Matrix>
     </div>
   </div>
