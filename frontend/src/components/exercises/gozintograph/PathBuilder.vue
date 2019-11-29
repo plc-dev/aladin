@@ -2,35 +2,21 @@
   <div class="pathbuilder">
     <ul class="pathbuilder__paths">
       <li class="pathbuilder__path">
-        <div class="pathbuilder__remove--path" style="visibility: hidden">
-          -
-        </div>
-        <input class="pathbuilder__path--node" type="number" />
+        <div class="pathbuilder__remove--path" style="visibility: hidden">-</div>
+        <input class="pathbuilder__path--node" type="text" maxlength="2" />
         <div class="pathbuilder__path--edge">
           <input class="path__edge--value" type="number" />
           <span class="path__edge--arrow">&zigrarr;</span>
         </div>
-        <input class="pathbuilder__path--node" type="number" />
-        <div
-          class="pathbuilder__add--node"
-          @click="addNode($event.target.parentNode)"
-        >
-          +
-        </div>
-        <div
-          class="pathbuilder__remove--node hidden"
-          @click="removeNode($event.target.parentNode)"
-        >
-          -
-        </div>
+        <input class="pathbuilder__path--node" type="text" maxlength="2" />
+        <div class="pathbuilder__add--node" @click="addNode($event)">+</div>
+        <div class="pathbuilder__remove--node hidden" @click="removeNode($event)">-</div>
       </li>
       <div
         v-if="!hasMaxDepth"
         class="pathbuilder__add--path"
         @click="addPath($event.target.parentNode)"
-      >
-        +
-      </div>
+      >+</div>
     </ul>
   </div>
 </template>
@@ -45,7 +31,7 @@
 }
 
 .pathbuilder__path--node {
-  @apply w-8 border border-russet self-auto mt-3 ml-2;
+  @apply w-8 border border-russet text-center self-auto mt-3 ml-2;
 }
 
 .pathbuilder__path--edge {
@@ -96,7 +82,7 @@ export default {
   methods: {
     createNode() {
       const node = document.createElement("input");
-      node.inputMode = "number";
+      node.maxLength = "2";
       node.classList.add("pathbuilder__path--node");
       return node;
     },
@@ -143,7 +129,29 @@ export default {
         .querySelector(".pathbuilder__path:last-of-type")
         .insertAdjacentElement("afterend", path);
     },
-    addNode() {}
+    addNode(event) {
+      const button = event.target;
+      button.nextSibling.classList.remove("hidden");
+      button.insertAdjacentElement("beforebegin", this.createEdge());
+      button.insertAdjacentElement("beforebegin", this.createNode());
+      if (this.hasMaxDepth) {
+        button.classList.add("hidden");
+      }
+    },
+    removeNode(event) {
+      const path = event.target.parentNode;
+      path.querySelector(".pathbuilder__path--node:last-of-type").remove();
+      path
+        .querySelector(".pathbuilder__path--edge:nth-last-of-type(3)")
+        .remove();
+      if (path.querySelectorAll(".pathbuilder__path--edge").length <= 1) {
+        event.target.classList.add("hidden");
+      }
+    },
+    removePath(event) {
+      const path = event.target.parentNode;
+      path.parentNode.removeChild(path);
+    }
   }
 };
 </script>
