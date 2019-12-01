@@ -2,16 +2,13 @@
   <div class="app">
     <div class="app__header app__nav">
       <router-link class="app__nav-item" to="/">Home</router-link>|
-      <router-link class="app__nav-item" to="/exercise/gozintograph"
-        >Gozintograph</router-link
-      >|
+      <router-link class="app__nav-item" to="/exercise/gozintograph">Gozintograph</router-link>|
       <a
         class="app__nav-item"
         style="cursor:pointer"
         v-if="installBtn"
         @click="installer()"
-        >Install</a
-      >
+      >Install</a>
     </div>
     <router-view class="app__main" />
   </div>
@@ -20,6 +17,7 @@
 <style lang="postcss">
 html {
   @apply bg-brown_sugar m-0 p-0;
+  font-family: "Noto Sans", Times, serif;
 }
 body::-webkit-scrollbar {
   width: 11px;

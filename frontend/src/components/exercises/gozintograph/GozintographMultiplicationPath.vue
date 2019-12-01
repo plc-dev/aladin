@@ -1,8 +1,6 @@
 <template>
   <div>
-    <span class="path__description">
-      {{ "Liste alle Pfade des Graphen auf!" }}
-    </span>
+    <span class="path__description">{{ "Liste alle Pfade des Graphen auf!" }}</span>
     <PathBuilder />
   </div>
 </template>

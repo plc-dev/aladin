@@ -1,64 +1,106 @@
 <template>
   <div class="pathbuilder">
+    {{ paths }}
     <ul class="pathbuilder__paths">
-      <li class="pathbuilder__path">
-        <div class="pathbuilder__remove--path" style="visibility: hidden">
-          -
-        </div>
-        <input class="pathbuilder__path--node" type="text" maxlength="2" />
-        <div class="pathbuilder__path--edge">
-          <input class="path__edge--value" type="number" />
-          <span class="path__edge--arrow">&zigrarr;</span>
-        </div>
-        <input class="pathbuilder__path--node" type="text" maxlength="2" />
-        <div class="pathbuilder__add--node" @click="addNode($event)">+</div>
+      <li
+        :class="`pathbuilder__path--${pIndex}`"
+        v-for="(path, pIndex) in userPaths"
+        :key="pIndex"
+      >
         <div
-          class="pathbuilder__remove--node hidden"
-          @click="removeNode($event)"
+          :class="pIndex ? 'pathbuilder__remove--path' : 'placeholder'"
+          :pathIndex="pIndex"
+          @click="removePath(pIndex)"
         >
-          -
+          &minus;
+        </div>
+        <div
+          class="pathbuilder__path__connection"
+          v-for="(connection, cIndex) in path"
+          :key="cIndex"
+        >
+          <input
+            class="connection__node"
+            v-if="!cIndex"
+            v-model="connection.child"
+            type="text"
+            maxlength="2"
+          />
+          <div class="connection__edge">
+            <input
+              class="connection__edge--value"
+              v-model="connection.value"
+              type="number"
+            />
+            <span class="connection__edge--arrow">&zigrarr;</span>
+          </div>
+          <input
+            class="connection__node"
+            :value="connection.parent"
+            @keyup="updateValues($event.target.value, pIndex, cIndex)"
+            type="text"
+            maxlength="2"
+          />
+          <div
+            class="pathbuilder__add--connection"
+            v-if="cIndex === path.length - 1"
+            @click="addConnection(pIndex)"
+          >
+            &plus;
+          </div>
+          <div
+            class="pathbuilder__remove--connection"
+            v-if="cIndex === path.length - 1 && cIndex"
+            @click="removeConnection(pIndex)"
+          >
+            &minus;
+          </div>
         </div>
       </li>
-      <div
-        v-if="!hasMaxDepth"
-        class="pathbuilder__add--path"
-        @click="addPath($event.target.parentNode)"
-      >
-        +
-      </div>
+      <div class="pathbuilder__add--path" @click="addPath()">&plus;</div>
     </ul>
   </div>
 </template>
 
 <style lang="postcss">
 .pathbuilder__paths {
-  @apply flex flex-col h-full justify-between items-stretch;
+  @apply flex flex-col h-full;
 }
 
-.pathbuilder__path {
+[class*="pathbuilder__path--"] {
   @apply flex flex-wrap items-center;
 }
 
-.pathbuilder__path--node {
+.pathbuilder__path__connection {
+  @apply flex items-center;
+}
+
+.connection__node {
   @apply w-8 border border-russet text-center self-auto mt-3 ml-2;
 }
 
-.pathbuilder__path--edge {
+.connection__edge {
   @apply flex flex-col relative w-10 ml-2;
 }
 
-.path__edge--value {
+.connection__edge--value {
   @apply flex w-8 border border-russet text-center rounded-full outline-none absolute self-center;
 }
 
-.path__edge--arrow {
+.connection__edge--arrow {
   @apply text-brown_sugar;
   font-size: 50px;
 }
 
-[class*="remove"] {
+[class*="remove"],
+.placeholder {
   @apply mt-3 ml-2 text-white_chocolate text-center bg-alabama_crimson rounded cursor-pointer;
   width: 28px;
+}
+
+.placeholder {
+  font-size: 0;
+  pointer-events: none;
 }
 
 [class*="add"] {
@@ -66,7 +108,7 @@
   width: 28px;
 }
 
-.pathbuilder__path--add {
+.pathbuilder__add--connection {
   @apply mt-3 ml-6;
 }
 
@@ -81,85 +123,48 @@
 </style>
 
 <script>
+//@group [Gozintograph]
 export default {
   data() {
     return {
+      userPaths: [
+        [
+          {
+            child: "",
+            parent: "",
+            value: ""
+          }
+        ]
+      ],
       hasPathAmount: false,
       hasMaxDepth: false
     };
   },
+  computed: {
+    paths: function() {
+      return this.$store.getters["gozintograph/getPaths"];
+    }
+  },
   methods: {
-    createNode() {
-      const node = document.createElement("input");
-      node.maxLength = "2";
-      node.classList.add("pathbuilder__path--node");
-      return node;
+    addConnection(pathIndex) {
+      const path = this.userPaths[pathIndex];
+      const child = path[path.length - 1].parent;
+      path.push({ child, parent: "", value: "" });
     },
-    createEdge() {
-      const edge = document.createElement("div");
-      edge.classList.add("pathbuilder__path--edge");
-
-      const value = document.createElement("input");
-      value.inputMode = "number";
-      value.classList.add("path__edge--value");
-
-      const arrow = document.createElement("span");
-      arrow.classList.add("path__edge--arrow");
-      arrow.innerHTML = "&zigrarr;";
-
-      edge.appendChild(value);
-      edge.appendChild(arrow);
-      return edge;
+    removeConnection(pathIndex) {
+      const path = this.userPaths[pathIndex];
+      path.pop();
     },
-    createControl(type, scope, hidden) {
-      const button = document.createElement("div");
-      button.classList += `pathbuilder__${type}--${scope} ${hidden}`;
-      button.textContent = type === "add" ? "+" : "-";
-      const eventlistener =
-        scope === "node"
-          ? type === "add"
-            ? this.addNode
-            : this.removeNode
-          : this.removePath;
-      button.addEventListener("click", eventlistener);
-      return button;
+    addPath() {
+      this.userPaths.push([{ child: "", parent: "", value: "" }]);
     },
-    addPath(paths) {
-      const path = document.createElement("li");
-      path.classList.add("pathbuilder__path");
-
-      path.appendChild(this.createControl("remove", "path", ""));
-      path.appendChild(this.createNode());
-      path.appendChild(this.createEdge());
-      path.appendChild(this.createNode());
-      path.appendChild(this.createControl("add", "node", ""));
-      path.appendChild(this.createControl("remove", "node", "hidden"));
-      paths
-        .querySelector(".pathbuilder__path:last-of-type")
-        .insertAdjacentElement("afterend", path);
+    removePath(pathIndex) {
+      this.userPaths.splice(pathIndex, 1);
     },
-    addNode(event) {
-      const button = event.target;
-      button.nextSibling.classList.remove("hidden");
-      button.insertAdjacentElement("beforebegin", this.createEdge());
-      button.insertAdjacentElement("beforebegin", this.createNode());
-      if (this.hasMaxDepth) {
-        button.classList.add("hidden");
-      }
-    },
-    removeNode(event) {
-      const path = event.target.parentNode;
-      path.querySelector(".pathbuilder__path--node:last-of-type").remove();
-      path
-        .querySelector(".pathbuilder__path--edge:nth-last-of-type(3)")
-        .remove();
-      if (path.querySelectorAll(".pathbuilder__path--edge").length <= 1) {
-        event.target.classList.add("hidden");
-      }
-    },
-    removePath(event) {
-      const path = event.target.parentNode;
-      path.parentNode.removeChild(path);
+    updateValues(value, pathIndex, connectionIndex) {
+      const path = this.userPaths[pathIndex];
+      path[connectionIndex].parent = value;
+      if (path.length - 1 > pathIndex) path[connectionIndex + 1].child = value;
     }
   }
 };

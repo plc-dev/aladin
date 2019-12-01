@@ -16,13 +16,15 @@ export function getRandomInt(min, max) {
 
 /**
  * Takes an array of HTML elements to fix if they overlap
- * The passed fix function is called on collision and is passed the current node
+ * The passed fix function is called on collision and handles the current node
  * Optional array of HTML elements to check overlapping, but don't need fixing
+ * Returns Boolean, True if a collision occured, else False
  * @param {array} nodesToFix
  * @param {function} fix
  * @param {array} nodes
  */
 export function collisionDetection(nodesToFix, fix, nodes) {
+  let collision = false;
   nodes = nodes || [];
   nodesToFix = nodesToFix.map(node => {
     return { node, rect: node.getBoundingClientRect() };
@@ -43,10 +45,12 @@ export function collisionDetection(nodesToFix, fix, nodes) {
         i !== index
       ) {
         fix(current.node);
+        collision = true;
         break;
       }
     }
   });
+  return collision;
 }
 
 /**
@@ -64,4 +68,49 @@ export function urlBase64ToUint8Array(base64String) {
     outputArray[i] = rawData.charCodeAt(i);
   }
   return outputArray;
+}
+
+/**
+ * Retrieves a matrix in the proper dimension from the passed connections and nodes.
+ * Can apply an optional value to the fields != 0. The standard value is the value of the connection.
+ * empty = true returns a matrix filled with empty strings.
+ * @param {Array} connections
+ * @param {Array} nodes
+ * @param {any} applyValue
+ * @param {Boolean} empty
+ */
+export function retrieveMatrix(connections, nodes, applyValue, empty) {
+  return nodes.map(parent => {
+    return {
+      [parent.id]: nodes.map(child => {
+        const connection = connections.filter(
+          connection =>
+            connection.parent === parent.id && connection.child === child.id
+        );
+        if (connection.length) {
+          return {
+            id: child.id,
+            amount:
+              empty !== undefined
+                ? ""
+                : applyValue !== undefined
+                ? applyValue
+                : connection[0].value
+          };
+        } else {
+          return { id: child.id, amount: empty !== undefined ? "" : 0 };
+        }
+      })
+    };
+  });
+}
+
+/**
+ * Returns a deep copy of the passed object
+ * @param {Object} object
+ */
+export function deepCopy(object) {
+  if (object !== undefined && object !== null) {
+    return JSON.parse(JSON.stringify(object));
+  }
 }

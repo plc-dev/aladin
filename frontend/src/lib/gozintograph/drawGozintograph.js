@@ -1,10 +1,31 @@
+import { collisionDetection } from "@/lib/helper";
+
+/**
+ * Draws Gozintograph from passed object and applies strategy for colliding edge-values
+ * @param {object} graph
+ */
+export function drawGozintograph(graph) {
+  document.querySelector(".graph").innerHTML = "";
+  graph.level.forEach((nodes, level, levels) =>
+    drawNodes(nodes, level, levels.length)
+  );
+  drawConnections(graph.connections);
+  setTimeout(() => {
+    collisionDetection(
+      Array.from(document.querySelectorAll(".edgeValue")),
+      node => (node.classList += " showOnHover"),
+      Array.from(document.querySelectorAll(".graph__node"))
+    );
+  }, 50);
+}
+
 /**
  *
  * @param {array} nodes
  * @param {number} level
  * @param {number} depth
  */
-export function drawNodes(nodes, level, depth) {
+function drawNodes(nodes, level, depth) {
   const graph = document.querySelector(".graph");
   const exerciseHeight = document.querySelector(".exercise").offsetHeight;
   const exerciseOptionsHeight = document.querySelector(".graph__options")
@@ -30,15 +51,6 @@ export function drawNodes(nodes, level, depth) {
 
     levelElement.appendChild(nodeValue);
     nodeValue.appendChild(element);
-
-    // TODO refactor
-    // const resultTable = document.querySelector("#results");
-    // const result = document.createElement("div");
-    // result.textContent = `Amount ${node.id}: ${node.amount}`;
-    // result.style.position = "absolute;";
-    // result.style.top = heightPerLevel * (level + 1) + "px";
-    // result.style.left = widthPerNode * nodes.length + offsetPerLevel + "px";
-    // resultTable.append(result);
   });
 }
 
@@ -46,7 +58,7 @@ export function drawNodes(nodes, level, depth) {
  *
  * @param {array} connections
  */
-export function drawConnections(connections) {
+function drawConnections(connections) {
   connections.forEach(connection => {
     const { parent, child, value } = connection;
     let connector = `<connection id="${parent}${child}" class="connector" from="#${parent}" to="#${child}" color="grey" ></connection>`;

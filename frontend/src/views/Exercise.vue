@@ -1,8 +1,15 @@
 <template>
   <div class="exercise">
     <div class="exercise__graph">
-      <GraphOptions @ v-model="options" :options="options"></GraphOptions>
-      <component class="graph" :is="exercise"></component>
+      <GraphOptions v-model="options" :options="options"></GraphOptions>
+      <component class="graph__body" :is="exercise">
+        <template #zoom>
+          <div class="graph__zoom">
+            <button class="graph__zoom--in" @click="zoomIn()">+</button>
+            <button class="graph__zoom--out" @click="zoomOut()">-</button>
+          </div>
+        </template>
+      </component>
     </div>
     <div class="exercise__scope">
       <div class="exercise__scope--tabs">
@@ -13,16 +20,11 @@
             @click="changeTab($event.target)"
             v-for="tab in tabComponents"
             :key="tab"
-          >
-            {{ tab }}
-          </li>
+          >{{ tab }}</li>
         </ul>
       </div>
       <keep-alive>
-        <component
-          class="exercise__scope--body"
-          :is="currentTabComponent"
-        ></component>
+        <component class="exercise__scope--body" :is="currentTabComponent"></component>
       </keep-alive>
     </div>
   </div>
@@ -39,10 +41,11 @@
 .exercise__graph {
   @apply h-full w-1/2;
   box-shadow: inset -4px 0px 2px -2px rgba(50, 50, 50, 0.75);
+  overflow: hidden;
 }
 
 .graph__options {
-  @apply flex flex-wrap w-full;
+  @apply flex flex-wrap w-full justify-around items-center;
   box-shadow: 0 4px 2px -2px rgba(50, 50, 50, 0.75);
 }
 
@@ -66,7 +69,7 @@
 }
 
 .exercise__scope--body {
-  @apply flex flex-col mt-2;
+  @apply flex flex-col mt-2 w-full;
   min-height: 90%;
   overflow: auto;
 }
@@ -137,7 +140,7 @@ export default {
   data: function() {
     return {
       exercise: this.$route.params.exerciseName,
-      currentTabComponent: ""
+      currentTabComponent: this.currentTab
     };
   },
   methods: {
@@ -147,7 +150,15 @@ export default {
         current.classList.remove("active");
       }
       target.classList.add("active");
-      this.currentTabComponent = target.getAttribute("tab");
+      const tab = target.getAttribute("tab");
+      this.currentTabComponent = tab;
+      this.$store.commit(`${this.exercise}/SET_CURRENT_TAB`, tab);
+    },
+    zoomIn() {
+      document.querySelector(".graph").style.transform = "scale(1.2)";
+    },
+    zoomOut() {
+      document.querySelector(".graph").style.transform = "";
     }
   },
   computed: {
@@ -158,6 +169,9 @@ export default {
       set(options) {
         this.$store.dispatch(`${this.exercise}/updateOptions`, options);
       }
+    },
+    currentTab: function() {
+      return this.$store.state[this.exercise].currentTab;
     },
     tabComponents: function() {
       const regex = new RegExp(`${this.exercise}.*(scope|path|result)`, "i");
@@ -177,18 +191,25 @@ export default {
     }
   },
   mounted() {
-    this.currentTabComponent = this.tabComponents[2];
-    document.querySelector(".tab:last-child").classList.add("active");
-    Array.from(
-      document.querySelectorAll(".tab:not(:last-child)")
-    ).forEach(tab => tab.classList.add("disabled"));
-    document
-      .querySelector(".graph__options .button--submit")
-      .addEventListener("click", () =>
-        Array.from(document.querySelectorAll(".tab.disabled")).forEach(tab =>
-          tab.classList.remove("disabled")
-        )
-      );
+    if (this.currentTab) {
+      document
+        .querySelector(`[tab="${this.currentTab}"]`)
+        .classList.add("active");
+      this.currentTabComponent = this.currentTab;
+    } else {
+      this.currentTabComponent = this.tabComponents[2];
+      document.querySelector(".tab:last-child").classList.add("active");
+      Array.from(
+        document.querySelectorAll(".tab:not(:last-child)")
+      ).forEach(tab => tab.classList.add("disabled"));
+      document
+        .querySelector(".graph__options .button--submit")
+        .addEventListener("click", () =>
+          Array.from(document.querySelectorAll(".tab.disabled")).forEach(tab =>
+            tab.classList.remove("disabled")
+          )
+        );
+    }
   }
 };
 </script>

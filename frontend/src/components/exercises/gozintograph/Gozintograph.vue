@@ -1,10 +1,23 @@
 <template>
-  <div></div>
+  <div>
+    <slot name="zoom"></slot>
+    <div class="graph"></div>
+  </div>
 </template>
 
 <style lang="postcss">
 .graph {
   @apply flex flex-col flex-grow;
+}
+
+.graph__zoom {
+  @apply flex justify-end mt-4 mr-4;
+}
+
+.graph_zoom button {
+  @apply bg-alabama_crimson text-white_chocolate rounded-full;
+  width: 50px;
+  height: 50px;
 }
 
 [class^="graph__level"] {
@@ -36,11 +49,11 @@
 }
 
 .line:hover .showOnHover {
-  @apply visible text-center text-regalia text-4xl;
+  @apply visible text-center text-russet text-4xl;
 }
 
 .line:hover .edgeValue {
-  @apply text-center text-regalia text-4xl;
+  @apply text-center text-russet text-4xl;
 }
 
 .graph__node:hover {
@@ -49,15 +62,13 @@
 
 <script>
 require("@/lib/connector");
-import { collisionDetection } from "@/lib/helper";
 import { generateGraph } from "@/lib/gozintograph/generateGozintograph";
-import {
-  drawNodes,
-  drawConnections
-} from "@/lib/gozintograph/drawGozintograph";
+import { drawGozintograph } from "@/lib/gozintograph/drawGozintograph";
 
 import { createNamespacedHelpers } from "vuex";
 const { mapGetters, mapMutations } = createNamespacedHelpers("gozintograph");
+
+//@group [Gozintograph]
 export default {
   data() {
     return {};
@@ -65,12 +76,14 @@ export default {
   computed: {
     ...mapGetters({
       parameters: "getParameters"
-    })
+    }),
+    graph: function() {
+      return this.$store.getters["gozintograph/getGraph"];
+    }
   },
   methods: {
     ...mapMutations(["SET_GRAPH"]),
-    gen() {
-      document.querySelector(".graph").innerHTML = "";
+    generateGraph() {
       const graph = generateGraph(
         this.parameters.depth,
         this.parameters.rangeAmount,
@@ -79,23 +92,16 @@ export default {
         0.5
       );
       this.SET_GRAPH(graph);
-      graph.level.forEach((nodes, level, levels) =>
-        drawNodes(nodes, level, levels.length)
-      );
-      drawConnections(graph.connections);
-      setTimeout(() => {
-        collisionDetection(
-          Array.from(document.querySelectorAll(".edgeValue")),
-          node => (node.classList += " showOnHover"),
-          Array.from(document.querySelectorAll(".graph__node"))
-        );
-      }, 50);
+      drawGozintograph(graph);
     }
   },
   mounted() {
+    if (this.graph !== undefined && this.graph.hasOwnProperty("connections")) {
+      drawGozintograph(this.graph);
+    }
     document
       .querySelector(".graph__options .button--submit")
-      .addEventListener("click", this.gen);
+      .addEventListener("click", this.generateGraph);
   }
 };
 </script>

@@ -23,6 +23,7 @@
 
 <script>
 import Matrix from "@/components/exercises/gozintograph/Matrix";
+//@group [Gozintograph]
 export default {
   components: {
     Matrix

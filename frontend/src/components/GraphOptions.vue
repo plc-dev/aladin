@@ -1,42 +1,34 @@
 <template>
   <div class="graph__options">
     <div v-for="option in options" :key="option.content">
-      <div
-        :class="`graph__options-${option.optionType}`"
-        v-if="option.optionType === 'value'"
-      >
-        <FloatingLabel :config="{ label: option.label, ...config }">
-          <input
-            :value="option.value"
-            :name="option.content"
-            :type="option.valueType"
-            v-on:input="updateValue($event.target)"
-          />
-        </FloatingLabel>
+      <div :class="`graph__options-${option.optionType}`" v-if="option.optionType === 'value'">
+        <InputField
+          :value="option.value"
+          :type="option.valueType"
+          :label="option.label"
+          :name="option.content"
+          @update-value="updateValue"
+        ></InputField>
       </div>
 
-      <div
-        :class="`graph__options--${option.optionType}`"
-        v-if="option.optionType === 'range'"
-      >
-        <FloatingLabel :config="{ label: option.label[0], ...config }">
-          <input
-            :value="option.value.min"
-            :name="option.content"
-            key="min"
-            :type="option.valueType"
-            v-on:input="updateValue($event.target)"
-          />
-        </FloatingLabel>
+      <div :class="`graph__options--${option.optionType}`" v-if="option.optionType === 'range'">
+        <InputField
+          :value="option.value.min"
+          :key_value="'min'"
+          :name="option.content"
+          :type="option.valueType"
+          :label="option.label[0]"
+          @update-value="updateValue"
+        ></InputField>
 
-        <FloatingLabel :config="{ label: option.label[1], ...config }">
-          <input
-            :value="option.value.max"
-            :name="option.content"
-            key="max"
-            :type="option.valueType"
-          />
-        </FloatingLabel>
+        <InputField
+          :value="option.value.max"
+          :key_value="'max'"
+          :name="option.content"
+          :type="option.valueType"
+          :label="option.label[1]"
+          @update-value="updateValue"
+        ></InputField>
       </div>
     </div>
     <Button :text="'Submit'" :type="'submit'"></Button>
@@ -51,29 +43,17 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .graph__options--range {
-  @apply flex;
+  @apply flex flex-col;
 }
 </style>
 
 <script>
-import FloatingLabel from "vue-simple-floating-labels";
+import InputField from "@/components/InputField";
 import Button from "@/components/Button";
-const { theme } = require("@/../tailwind.config.js");
 export default {
   name: "GraphOptions",
   data() {
-    return {
-      config: {
-        color: {
-          focusColor: theme.colors.russet,
-          errorColor: theme.colors.alabama_crimson,
-          lineColor: theme.colors.russet,
-          blurredColor: "rgba(35, 35, 35, 0.5)"
-        },
-        height: 70,
-        hasClearButton: false
-      }
-    };
+    return {};
   },
   props: {
     options: {
@@ -82,47 +62,26 @@ export default {
     }
   },
   components: {
-    FloatingLabel,
+    InputField,
     Button
   },
   methods: {
     updateValue: function(target) {
       const value = target.value;
-      const key = target.key || null;
+      const key = target.getAttribute("data") || null;
       const identifier = target.name;
+      console.warn(key, value);
       this.options.forEach((option, index) => {
         if (option.content === identifier) {
           if (key) {
-            this.options[index].value[key] = value;
+            this.options[index].value[key] = parseInt(value, 10);
           } else {
-            this.options[index].value = value;
+            this.options[index].value = parseInt(value, 10);
           }
         }
       });
       this.$emit("input", this.options);
     }
-  },
-  mounted() {
-    const inputContainers = document.querySelectorAll(".input__container");
-    inputContainers.forEach(inputContainer => {
-      const input = inputContainer.querySelector("input");
-      if (input.value) {
-        inputContainer.classList += " input__container--content";
-      }
-
-      const callback = event => {
-        const input = event.target || event.srcElement;
-        const target = input.parentElement.parentElement;
-        if (input.value) {
-          setTimeout(() => {
-            target.classList += " input__container--content";
-          }, 50);
-        }
-      };
-
-      input.addEventListener("focus", callback);
-      input.addEventListener("blur", callback);
-    });
   }
 };
 </script>

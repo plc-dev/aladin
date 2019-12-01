@@ -1,7 +1,7 @@
 import { getRandomInt } from "@/lib/helper";
 
 /**
- * Returns a object containing nodes and edges
+ * Returns a object containing nodes, edges and paths
  * @param {number} depth
  * @param {object} rangeAmount
  * @param {object} rangeWidth
@@ -13,12 +13,12 @@ export function generateGraph(
   rangeAmount,
   rangeWidth,
   rangeValue,
-  connectionThreshold = 0.5
+  connectionThreshold = 0.7
 ) {
   const graph = {
     level: [],
     connections: [],
-    maxWidth: 0,
+    paths: [],
     depth
   };
   let width, currentLevel, node;
@@ -53,20 +53,20 @@ export function generateGraph(
 
   for (let i = 0; i < depth; i++) {
     width = getRandomInt(rangeWidth.min, rangeWidth.max);
-    graph.maxWidth = width > graph.maxWidth ? width : graph.maxWidth;
     graph.level.push([]);
     currentLevel = graph.level[i];
     for (let j = 0; j < width; j++) {
       node = {
         id: `${letters[i]}${j}`,
-        amount: i === 0 ? getRandomInt(rangeAmount.min, rangeAmount.max) : 0
+        amount: i === 0 ? getRandomInt(rangeAmount.min, rangeAmount.max) : 0,
+        isLeaf: true
       };
       currentLevel.push(node);
       if (i >= 1) {
         let parentLevels = [];
         let index = i - 1;
         while (index >= 0) {
-          parentLevels.push(graph.level[index]);
+          parentLevels.unshift(graph.level[index]);
           index--;
         }
         graph.connections.push(
@@ -75,7 +75,8 @@ export function generateGraph(
             parentLevels,
             rangeValue,
             connectionThreshold,
-            graph
+            graph,
+            i
           )
         );
       }
@@ -97,11 +98,12 @@ function generateConnections(
   parentLevels,
   range,
   connectionThreshold,
-  graph
+  graph,
+  currentDepth
 ) {
   const connections = parentLevels.flatMap((level, levelIndex) =>
     level.reduce((result, parent, parentIndex, parents) => {
-      // guarantee to have a connection to a root-node on every child-node
+      // guarantee a connection to a parent-node on every child-node
       let noConnectionOnChild = false;
       if (parentIndex === parents.length - 1) {
         noConnectionOnChild = ~[...graph.connections, ...result].findIndex(
@@ -110,10 +112,10 @@ function generateConnections(
           ? false
           : true;
       }
-      // guarantee to have a connection on every root-node
-      let noConnectionOnParent = false;
-      if (levelIndex === graph.depth - 2) {
-        noConnectionOnParent = ~[...graph.connections, ...result].findIndex(
+      // guarantee a connection on every root-node
+      let noConnectionOnRoot = false;
+      if (!levelIndex && currentDepth === graph.depth - 1) {
+        noConnectionOnRoot = ~[...graph.connections, ...result].findIndex(
           connection => parent.id === connection.parent
         )
           ? false
@@ -122,15 +124,25 @@ function generateConnections(
       if (
         Math.random() > connectionThreshold ||
         noConnectionOnChild ||
-        noConnectionOnParent
+        noConnectionOnRoot
       ) {
-        const connection = {
+        // console.warn(
+        //   noConnectionOnRoot,
+        //   noConnectionOnChild,
+        //   node.id,
+        //   parent.id
+        // );
+        const newConnection = {
           parent: parent.id,
           child: node.id,
-          value: getRandomInt(range.min, range.max)
+          value: getRandomInt(range.min, range.max),
+          type: !levelIndex ? "root" : ""
         };
-        node.amount += parent.amount * connection.value;
-        result.push(connection);
+        // if parent has Connection it is no longer a leaf node
+        parent.isLeaf = false;
+        // calculate secondary needs vector
+        node.amount += parent.amount * newConnection.value;
+        result.push(newConnection);
       }
       return result;
     }, [])

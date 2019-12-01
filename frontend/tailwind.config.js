@@ -17,6 +17,7 @@ module.exports = {
       white_chocolate: "#E8EBD5",
       alabama_crimson: "#A2052C",
       transparent: "transparent",
+      success: "#4BB543",
 
       gray: {
         100: "#f7fafc",
