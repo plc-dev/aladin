@@ -38,6 +38,9 @@ const app = express();
   // set static folder to compiled Vue Frontend
   app.use(express.static(__dirname + "/public/"));
 
+  // bind frontend to base route
+  app.get(/^[$\/]/, (req, res) => res.sendFile(__dirname + "/public/index.html"));
+
   // load error handling middleware to avoid verbose try/catch on every route
   app.use(require("./errorHandling/errorHandler"));
 
