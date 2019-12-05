@@ -15,33 +15,21 @@
   transition: 0.5s;
 }
 
-/* Position the content inside the overlay */
 .overlay__content {
-  height: 100vh;
-  position: relative;
-  width: 100%;
-  text-align: center;
+  @apply h-screen w-screen text-center relative;
   margin-top: 30px;
 }
 
 .overlay__close:hover,
 .overlay__close:focus {
-  color: black;
+  @apply text-highlight;
 }
 
 .overlay__close {
-  position: absolute;
+  @apply absolute text-contrast;
+  font-size: 50px;
   right: 20px;
-  font-size: 60px;
   z-index: 10000;
-}
-
-@media screen and (max-height: 450px) {
-  .overlay__close {
-    font-size: 40px;
-    top: 15px;
-    right: 35px;
-  }
 }
 </style>
 
