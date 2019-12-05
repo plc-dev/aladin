@@ -38,6 +38,11 @@ const app = express();
   // set static folder to compiled Vue Frontend
   app.use(express.static(__dirname + "/public/"));
 
+  // handle redirection for service-worker to prevent unknown MIME-Types to be interpreted as text/html
+  app.get("/service-worker.js", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "public", "service-worker.js"));
+  });
+
   // bind frontend to base route
   app.get(/^[$\/]/, (req, res) => res.sendFile(__dirname + "/public/index.html"));
 
