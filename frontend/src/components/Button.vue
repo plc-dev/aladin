@@ -3,27 +3,22 @@
 </template>
 
 <style lang="postcss">
-.button--submit {
-  @apply bg-russet text-white_chocolate w-32 rounded text-center align-middle cursor-pointer;
-  max-height: 50px;
-  line-height: 50px;
-}
-
-button {
-  color: russet;
+[class*="button--"] {
+  @apply bg-contrast text-background;
   transition: 0.25s;
 
   &:hover,
   &:focus {
-    border-color: white_chocolate;
-    color: #fff;
+    @apply border-highlight text-highlight;
+    box-shadow: 0 0.5em 0.5em -0.4em highlight;
+    transform: translateY(-0.25em);
   }
 }
 
-.button:hover,
-.button:focus {
-  box-shadow: 0 0.5em 0.5em -0.4em green;
-  transform: translateY(-0.25em);
+.button--submit {
+  @apply bg-contrast text-background w-32 rounded text-sm text-center align-middle cursor-pointer;
+  max-height: 50px;
+  line-height: 50px;
 }
 </style>
 

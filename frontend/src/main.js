@@ -7,6 +7,7 @@ import store from "./store";
 Vue.config.productionTip = false;
 
 require("@/css/main.css");
+store.dispatch("user/getLanguage");
 
 new Vue({
   router,

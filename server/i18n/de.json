@@ -1,3 +1,68 @@
 {
-    "test": "test"
+  "nav": {
+    "home": "Home",
+    "exercises": "Übungen",
+    "settings": "Einstellungen"
+  },
+  "exercises": {
+    "overview": {
+      "gozintograph": {
+        "header": "Gozintograph",
+        "body": "Lass dir einen zufälligen Gozintograph in einem individuell einstellbaren Schwierigkeitsgrad erstellen und löse ihn unter Hilfestellung mit Matrizen oder Kantenmultiplikation!",
+        "img": "/img/exercises/gozintograph.jpg",
+        "alt": "gozintograph"
+      }
+    },
+    "gozintograph": {
+      "options": {
+        "depth": "Graphentiefe",
+        "connectionThreshold": "Kantendichte",
+        "rangeAmount": {
+          "min": "Primärbedarf Min",
+          "max": "Primärbedarf Max"
+        },
+        "rangeWidth": {
+          "min": "Graphenbreite Min",
+          "max": "Graphenbreite Max"
+        },
+        "rangeValue": {
+          "min": "Kantenwert Min",
+          "max": "Kantenwert Max"
+        },
+        "button": "Generieren"
+      },
+      "tabs": {
+        "GozintographTask": {
+          "tab": "Gozintograph"
+        },
+        "GozintographScope": {
+          "tab": "Aufgabe",
+          "description": {
+            "header": "Stücklistenauflösung",
+            "body": "Generiere einen Gozintographen und berechne den Sekundärbedarfvektor anschließend entweder mit Matrizen oder Kantenmultiplikation!",
+            "primary": "Primärbedarfsvektor: ",
+            "secondary": "Sekundärbedarfsvektor: "
+          }
+        },
+        "GozintographMultiplicationPath": {
+          "tab": "Kantenmultiplikation",
+          "step1": {
+            "description": {
+              "header": "Aufgabenbeschreibung",
+              "body": "Erzeuge alle Pfade des Gozintographen und multipliziere sie entsprechend des Primärbedarfvektors auf. Trage das Ergebnis in den Sekundärbedarfsvektor ein."
+            }
+          }
+        },
+        "GozintographMatrixPath": {
+          "tab": "Matritzen",
+          "step1": {
+            "description": {
+              "header": "Aufgabenbeschreibung",
+              "body": "Fülle die Matrix mit den Kantenwerten aus dem Graph. Die Matrix liest sich von oben nach links:\n [Spalte] * B0 werden für [Zeile] 1 A0 gebraucht.\n Bilde anschließend die Einheitsmatrix daneben und subtrahiere die Direktbedarfsmatrix davon.\n Trage das Ergebnis in die Matrix darunter ein."
+            }
+          }
+        }
+      }
+    }
+  }
 }

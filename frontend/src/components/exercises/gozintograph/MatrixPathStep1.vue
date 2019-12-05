@@ -1,14 +1,11 @@
 <template>
   <div>
     <TextBox class="solution__matrix--description">
-      <template #header>{{ "Aufgabenbeschreibung" }}</template>
+      <template #header>{{ texts.description.header }}</template>
       <template #body>
-        {{
-        "Fülle die Matrix mit den Kantenwerten aus dem Graph. Die Matrix liest sich von oben nach links: [Spalte] * B0 werden für [Zeile] 1 A0 gebraucht. Bilde anschließend die Einheitsmatrix daneben."
-        }}
+        {{ texts.description.body }}
       </template>
     </TextBox>
-    {{userStartMatrix}}
     <Matrix
       type="startMatrix"
       :x-label="true"
@@ -71,6 +68,10 @@ export default {
     }
   },
   computed: {
+    texts: function() {
+      const texts = this.$store.state.user.texts;
+      return texts.exercises.gozintograph.tabs.GozintographMatrixPath.step1;
+    },
     ...mapState({
       userUnitMatrix: state => state.userUnitMatrix,
       userStartMatrix: state => state.userStartMatrix
@@ -80,8 +81,6 @@ export default {
       unitMatrix: "getUnitMatrix"
     })
   },
-  mounted() {
-    console.warn(this.userUnitMatrix);
-  }
+  updated() {}
 };
 </script>

@@ -2,14 +2,12 @@ module.exports = {
   theme: {
     extend: {
       spacing: {
-        navigation: "6vh",
-        main: "94vh",
+        navigation: "11vh",
+        main: "89vh",
         nodes: "50px"
       }
     },
     colors: {
-      black: "#000000",
-      white: "#ffffff",
       russet: "#80421F",
       brown_sugar: "#BB6949",
       regalia: "#522A83",
@@ -18,6 +16,15 @@ module.exports = {
       alabama_crimson: "#A2052C",
       transparent: "transparent",
       success: "#4BB543",
+
+      // HTW Theme
+      highlight: "#F1AD2D",
+      main: "#B1B2B4",
+      background: "#e8edf1",
+      contrast: "#57636b",
+      textColor: "#2a3841",
+      black: "#000000",
+      white: "#ffffff",
 
       gray: {
         100: "#f7fafc",

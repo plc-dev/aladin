@@ -1,9 +1,11 @@
 <template>
   <div class="description">
-    <span>asdkjasdlasjd</span>
-    <div class="primary" v-if="primary">
-      <Matrix :show="true" :matrix="primary" type="primary"></Matrix>
-    </div>
+    <TextBox class="solution__matrix--description">
+      <template #header>{{ texts.description.header }}</template>
+      <template #body>
+        {{ texts.description.body }}
+      </template>
+    </TextBox>
   </div>
 </template>
 
@@ -22,15 +24,16 @@
 </style>
 
 <script>
-import Matrix from "@/components/exercises/gozintograph/Matrix";
+import TextBox from "@/components/TextBox";
 //@group [Gozintograph]
 export default {
   components: {
-    Matrix
+    TextBox
   },
   computed: {
-    primary: function() {
-      return this.$store.getters["gozintograph/getPrimary"];
+    texts: function() {
+      const texts = this.$store.state.user.texts;
+      return texts.exercises.gozintograph.tabs.GozintographScope;
     }
   }
 };

@@ -1,6 +1,5 @@
 <template>
   <div class="pathbuilder">
-    {{ paths }}
     <ul class="pathbuilder__paths">
       <li
         :class="`pathbuilder__path--${pIndex}`"
@@ -43,7 +42,11 @@
           />
           <div
             class="pathbuilder__add--connection"
-            v-if="cIndex === path.length - 1"
+            v-if="
+              cIndex === path.length - 1 &&
+                lengthAllowed[userPaths[pIndex].length + 1] &&
+                lengthAllowed[userPaths[pIndex].length + 1].length
+            "
             @click="addConnection(pIndex)"
           >
             &plus;
@@ -57,18 +60,32 @@
           </div>
         </div>
       </li>
-      <div class="pathbuilder__add--path" @click="addPath()">&plus;</div>
+      <div
+        class="pathbuilder__add--path"
+        v-if="userPaths.length < paths.length"
+        @click="addPath()"
+      >
+        &plus;
+      </div>
     </ul>
   </div>
 </template>
 
 <style lang="postcss">
+.pathbuilder {
+  @apply mt-5;
+}
+
 .pathbuilder__paths {
   @apply flex flex-col h-full;
 }
 
 [class*="pathbuilder__path--"] {
   @apply flex flex-wrap items-center;
+}
+
+[class*="pathbuilder__path--"]:last-child {
+  @apply mb-4;
 }
 
 .pathbuilder__path__connection {
@@ -88,7 +105,7 @@
 }
 
 .connection__edge--arrow {
-  @apply text-brown_sugar;
+  @apply text-highlight;
   font-size: 50px;
 }
 
@@ -113,36 +130,67 @@
 }
 
 .pathbuilder__add--path {
-  @apply mt-3;
+  @apply mt-3 mb-4;
   margin-left: 5.55em;
 }
 
 .hidden {
   visibility: hidden;
 }
+
+.connection__node .error,
+.connection__edge .error {
+  @apply text-white_chocolate border-alabama_crimson bg-alabama_crimson;
+}
+
+.connection__node .success,
+.connection__edge .success {
+  @apply text-russet border-russet bg-success;
+}
 </style>
 
 <script>
 //@group [Gozintograph]
 export default {
-  data() {
-    return {
-      userPaths: [
-        [
-          {
-            child: "",
-            parent: "",
-            value: ""
-          }
-        ]
-      ],
-      hasPathAmount: false,
-      hasMaxDepth: false
-    };
-  },
   computed: {
     paths: function() {
-      return this.$store.getters["gozintograph/getPaths"];
+      return this.$store.state.gozintograph.graph.paths;
+    },
+    lengthAllowed: function() {
+      const userPathLengths = this.userPaths.map(path => path.length);
+      const pathLengths = this.paths.map(path => path.length);
+      const maxLength = pathLengths.reduce((max, length) => {
+        if (length > max) return length;
+        return max;
+      }, 0);
+      let lengthAmount = {};
+      // filter amount of paths per path-length
+      for (let i = 1; i <= maxLength; i++) {
+        lengthAmount[i] = pathLengths.filter(length => length === i);
+      }
+      // add amount of greater length to lower lengths
+      Object.keys(lengthAmount).forEach(
+        length =>
+          (lengthAmount[length] = [
+            ...lengthAmount[length],
+            ...Object.keys(lengthAmount).flatMap(nestedLength => {
+              if (nestedLength > length) return lengthAmount[nestedLength];
+              return [];
+            })
+          ])
+      );
+      // subtract userPathLengths of smaller/equal lengths
+      userPathLengths.forEach(userLength => {
+        for (let i = userLength; i > 0; i--) {
+          if (lengthAmount[i] && lengthAmount[i].length)
+            lengthAmount[i].shift();
+        }
+      });
+
+      return lengthAmount;
+    },
+    userPaths() {
+      return this.$store.state.gozintograph.userPaths;
     }
   },
   methods: {
@@ -157,6 +205,8 @@ export default {
     },
     addPath() {
       this.userPaths.push([{ child: "", parent: "", value: "" }]);
+      // add scrolling to parent container
+      window.scrollTo({ bottom: 0, behavior: "smooth" });
     },
     removePath(pathIndex) {
       this.userPaths.splice(pathIndex, 1);

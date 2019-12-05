@@ -13,7 +13,7 @@ export function generateGraph(
   rangeAmount,
   rangeWidth,
   rangeValue,
-  connectionThreshold = 0.7
+  connectionThreshold
 ) {
   const graph = {
     level: [],
@@ -51,10 +51,12 @@ export function generateGraph(
     "Z"
   ];
 
+  // generate levels for specified depth
   for (let i = 0; i < depth; i++) {
     width = getRandomInt(rangeWidth.min, rangeWidth.max);
     graph.level.push([]);
     currentLevel = graph.level[i];
+    // generate nodes per level
     for (let j = 0; j < width; j++) {
       node = {
         id: `${letters[i]}${j}`,
@@ -62,13 +64,16 @@ export function generateGraph(
         isLeaf: true
       };
       currentLevel.push(node);
+      // skip root level, since it has no parents to have connections with (⌣̩̩́_⌣̩̩̀)
       if (i >= 1) {
         let parentLevels = [];
         let index = i - 1;
+        // map all parent levels to generate connections with
         while (index >= 0) {
           parentLevels.unshift(graph.level[index]);
           index--;
         }
+        // generate connections per node
         graph.connections.push(
           ...generateConnections(
             node,
@@ -79,9 +84,27 @@ export function generateGraph(
             i
           )
         );
+        // map all connections of the second level nodes as base paths
+        if (i === 1) {
+          graph.paths = graph.connections.map(connection => [connection]);
+        }
       }
     }
   }
+  //get all leaf-nodes
+  const leafs = graph.level.flatMap(nodes =>
+    nodes.filter(node => node.isLeaf).map(node => node.id)
+  );
+  graph.paths = [];
+  leafs.forEach(leaf => {
+    const paths = [];
+    const path = [];
+    findPath(leaf, graph.connections, paths, path, -1);
+
+    if (paths.length) {
+      graph.paths.push(...paths);
+    }
+  });
   return graph;
 }
 
@@ -126,12 +149,10 @@ function generateConnections(
         noConnectionOnChild ||
         noConnectionOnRoot
       ) {
-        // console.warn(
-        //   noConnectionOnRoot,
-        //   noConnectionOnChild,
-        //   node.id,
-        //   parent.id
-        // );
+        // randomize parent node to prevent weighted graph on high thresholds
+        if (noConnectionOnChild) {
+          parent = parents[getRandomInt(0, parentIndex)];
+        }
         const newConnection = {
           parent: parent.id,
           child: node.id,
@@ -148,4 +169,33 @@ function generateConnections(
     }, [])
   );
   return connections;
+}
+
+/**
+ * Recursive path retrieval function, starting at a leaf node
+ * @param {string} node
+ * @param {object} connections
+ * @param {array} paths
+ * @param {number} path
+ */
+function findPath(node, connections, paths, path) {
+  // retrieve all connections to parents
+  const connectionsToParent = connections.filter(
+    connection => connection.child === node
+  );
+  // recurs for each parent node
+  if (connectionsToParent.length) {
+    for (let c = 0; c < connectionsToParent.length; c++) {
+      const connection = connectionsToParent[c];
+      // make a copy of path, to separate them
+      let newPath = [...path];
+      newPath.push(connection);
+      findPath(connection.parent, connections, paths, newPath);
+    }
+    // if there are no connections we found the path to the root node
+  } else if (path.length) {
+    paths.push(path);
+    path = [];
+  }
+  return;
 }

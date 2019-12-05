@@ -11,16 +11,16 @@
 
 <style lang="postcss">
 .textbox {
-  @apply flex flex-col border-solid border-2 border-russet bg-white_chocolate text-white_chocolate rounded shadow-lg;
+  @apply flex flex-col border-solid border-2 border-contrast bg-background text-textColor rounded shadow-lg;
 }
 
 .textbox__header {
-  @apply w-full bg-russet rounded-t-sm text-center h-10;
+  @apply w-full bg-contrast text-background rounded-t-sm text-center h-10;
   text-shadow: 1px 1px 1px #000;
 }
 
 .textbox__body {
-  @apply self-center justify-center text-center bg-white_chocolate text-russet;
+  @apply self-center justify-center text-center bg-background text-textColor text-sm;
 }
 </style>
 

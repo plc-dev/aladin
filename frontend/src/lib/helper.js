@@ -18,7 +18,7 @@ export function getRandomInt(min, max) {
  * Takes an array of HTML elements to fix if they overlap
  * The passed fix function is called on collision and handles the current node
  * Optional array of HTML elements to check overlapping, but don't need fixing
- * Returns Boolean, True if a collision occured, else False
+ * Returns Boolean, True if a collision occurs, else False
  * @param {array} nodesToFix
  * @param {function} fix
  * @param {array} nodes
@@ -113,4 +113,26 @@ export function deepCopy(object) {
   if (object !== undefined && object !== null) {
     return JSON.parse(JSON.stringify(object));
   }
+}
+
+/**
+ * Checks if object is valid JSON. If so deserializes and returns it.
+ * Otherwise returns the original object, due to it being a non-nested String.
+ * Returns undefined if object is null
+ * @param {any} object
+ */
+export function deserializeLocalStorage(object) {
+  if (!object) return undefined;
+
+  try {
+    const json = JSON.parse(object);
+    if (json && typeof json === "object") {
+      return json;
+    }
+  } catch (e) {
+    if (typeof object === "string") {
+      return object;
+    }
+  }
+  return undefined;
 }

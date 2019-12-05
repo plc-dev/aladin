@@ -25,7 +25,7 @@ const app = express();
   // Set up mongoDB
   const db = await require("./database/database")();
 
-  // setup swagger documentation engine
+  // setup swagger documentation
   const { serve, docs } = require("./swagger");
   app.use("/api-doc", serve, docs);
 
@@ -38,6 +38,7 @@ const app = express();
   // set static folder to compiled Vue Frontend
   app.use(express.static(__dirname + "/public/"));
 
+  // load error handling middleware to avoid verbose try/catch on every route
   app.use(require("./errorHandling/errorHandler"));
 
   require("http")

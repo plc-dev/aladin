@@ -1,53 +1,49 @@
 <template>
-  <div class="inputfield" @click="focusInput($event.target)">
+  <FloatLabel>
     <input
       :data="key_value ? key_value : ''"
       class="inputfield__input"
       :key="key_value"
+      :step="float"
       :name="name"
       :value="value"
       :type="type"
       required
+      :placeholder="label"
       tabindex="0"
       @keyup="$emit('update-value', $event.target)"
     />
-    <label class="inputfield__label">{{ label }}</label>
-  </div>
+  </FloatLabel>
 </template>
 
 <style lang="postcss">
-.inputfield {
-  @apply h-12 mt-5 mb-2 border-solid border-2 border-brown_sugar rounded;
-}
-.inputfield__label {
-  @apply inline-block bg-white_chocolate;
-  transform: translate(-70px, 0);
-  transition: all 0.2s ease;
-}
-
 [class*="inputfield__input"] {
-  @apply inline-block bg-white_chocolate outline-none;
-  text-indent: 0.5em;
-  width: 75px;
-  padding-top: 0.71em;
+  @apply bg-background border border-solid border-main rounded text-center text-sm;
+  width: 80%;
   transition: background 0.2s ease;
 }
 
-[class*="inputfield__input"]:focus ~ .inputfield__label,
-[class*="inputfield__input"]:valid ~ .inputfield__label {
-  transform: translate(-70px, -30px);
+[class*="inputfield__input"]:focus {
+  @apply border-contrast;
+}
+
+.vfl-label-on-focus {
+  @apply text-contrast;
 }
 </style>
 
 <script>
+import FloatLabel from "vue-float-label/components/FloatLabel";
 export default {
   name: "InputField",
+  components: { FloatLabel },
   props: {
     label: String,
     type: String,
     value: [String, Number],
     name: String,
-    key_value: String
+    key_value: String,
+    float: String
   },
   methods: {
     /**

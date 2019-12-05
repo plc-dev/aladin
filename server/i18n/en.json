@@ -1,3 +1,68 @@
 {
-    "test": "test"
+  "nav": {
+    "home": "Home",
+    "exercises": "Exercises",
+    "settings": "Settings"
+  },
+  "exercises": {
+    "overview": {
+      "gozintograph": {
+        "header": "Gozintograph",
+        "body": "Generate a random gozintograph with an individually configurable difficulty and solve it under guidance with matrices or edge-multiplication!",
+        "img": "/img/exercises/gozintograph.jpg",
+        "alt": "gozintograph"
+      }
+    },
+    "gozintograph": {
+      "options": {
+        "depth": "Depth",
+        "connectionThreshold": "Threshold",
+        "rangeAmount": {
+          "min": "Primary Min",
+          "max": "Primary Max"
+        },
+        "rangeWidth": {
+          "min": "Breadth Min",
+          "max": "Breadth Max"
+        },
+        "rangeValue": {
+          "min": "Edge Value Min",
+          "max": "Edge Value Max"
+        },
+        "button": "Generate"
+      },
+      "tabs": {
+        "GozintographTask": {
+          "tab": "Gozintograph"
+        },
+        "GozintographScope": {
+          "tab": "Description",
+          "description": {
+            "header": "BOM Explosion",
+            "body": "Generate a Gozintograph und calculate the secondary needs vector with matrices or edge value multiplication!",
+            "primary": "Primary needs vector: ",
+            "secondary": "Secondary needs vector: "
+          }
+        },
+        "GozintographMultiplicationPath": {
+          "tab": "Edge Multiplication",
+          "step1": {
+            "description": {
+              "header": "Description",
+              "body": "Build all paths and multiplicate according to the primary needs vector. Fill in the results into the secondary needs vector."
+            }
+          }
+        },
+        "GozintographMatrixPath": {
+          "tab": "Matrices",
+          "step1": {
+            "description": {
+              "header": "Description",
+              "body": "Fill the direct-needs-matrix with the edge values of the graph. The matrix is read from top to left:\n [Column] * B0 are needed to produce [Row] 1 A0.\n Then fill in the unit matrix beneath and subtract. The result needs to be filled in the matrix below."
+            }
+          }
+        }
+      }
+    }
+  }
 }

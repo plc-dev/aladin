@@ -41,7 +41,8 @@ module.exports = (router, User, webpush, languages) => {
   );
 
   router.post("/language", (req, res) => {
-    const countryCode = req.body.countryCode;
+    let countryCode = req.body.countryCode.match(/\w{2}/);
+    countryCode = countryCode.length ? countryCode[0] : "";
     const language = languages[countryCode] ? languages[countryCode] : languages["en"];
     res.status(200).json(language);
   });

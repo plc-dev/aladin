@@ -3,7 +3,7 @@
     <br v-if="!yLabel" />
     <div
       :class="`vector__${mIndex}`"
-      v-for="(vectors, mIndex) in localMatrix"
+      v-for="(vectors, mIndex) in matrix"
       :key="mIndex"
     >
       <span :class="`vector__${mIndex}--label`" v-if="xLabel">{{
@@ -93,16 +93,6 @@ export default {
         document.execCommand("selectall");
       }, 50);
     }
-  },
-  mounted() {
-    /**
-     * Passing reference of prop to local data to achieve reactivity on complex objects
-     * !! Do not replicate unless you know the implications !!
-     */
-    const self = this;
-    setTimeout(() => {
-      self.localMatrix = self.matrix;
-    }, 50);
   }
 };
 </script>

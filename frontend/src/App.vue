@@ -1,30 +1,39 @@
 <template>
   <div class="app">
-    <div class="app__header app__nav">
-      <router-link class="app__nav-item" to="/">Home</router-link>|
-      <router-link class="app__nav-item" to="/exercise/gozintograph">Gozintograph</router-link>|
-      <a
-        class="app__nav-item"
-        style="cursor:pointer"
-        v-if="installBtn"
-        @click="installer()"
-      >Install</a>
-    </div>
+    <Header>
+      <template #right>
+        <div>
+          <!-- TODO LOGIN -->
+          <a class="nav__navigation--login sm:mt-0" @click.prevent>Login</a>
+        </div>
+        <div v-if="installBtn">
+          <a
+            class="nav__navigation--install sm:mt-0 ml-2"
+            @click.prevent="installer()"
+            >Install</a
+          >
+        </div>
+      </template>
+    </Header>
     <router-view class="app__main" />
   </div>
 </template>
 
 <style lang="postcss">
 html {
-  @apply bg-brown_sugar m-0 p-0;
+  @apply bg-background m-0 p-0;
   font-family: "Noto Sans", Times, serif;
-}
-body::-webkit-scrollbar {
-  width: 11px;
+  box-sizing: border-box;
 }
 body {
   scrollbar-width: thin;
   scrollbar-color: whitesmoke whitesmoke;
+  width: 100vw;
+  height: 100vh;
+  scroll-behavior: smooth;
+}
+body::-webkit-scrollbar {
+  width: 11px;
 }
 body::-webkit-scrollbar-track {
   background: grey;
@@ -36,31 +45,16 @@ body::-webkit-scrollbar-thumb {
 }
 
 .app {
-  @apply flex flex-col mx-auto my-0 text-russet bg-white_chocolate rounded shadow h-screen w-screen;
+  @apply flex flex-col my-0 text-textColor bg-background rounded shadow h-screen w-screen;
   line-height: 1.7;
-}
-.app__header {
-  @apply h-navigation p-6 text-lg font-bold text-sunray;
-  box-shadow: inset 0 -7px 9px -7px rgba(0, 0, 0, 0.4);
-}
-.app__nav {
-  @apply flex py-2 px-6 bg-brown_sugar;
-}
-.app__nav-item {
-  @apply flex mx-2 justify-center py-1 px-3 text-white_chocolate no-underline text-sm font-bold rounded;
-  transition: background-color 0.15s, color 0.15s;
-}
-.app__nav-item:hover {
-  @apply bg-white_chocolate text-russet;
-}
-.app__nav-item.router-link-exact-active {
-  @apply bg-russet text-white_chocolate;
+  height: 100%;
+  width: 100%;
 }
 </style>
 
 <script>
+import Header from "@/components/Header";
 import { urlBase64ToUint8Array } from "@/lib/helper";
-
 import { createNamespacedHelpers } from "vuex";
 const { mapState } = createNamespacedHelpers("user");
 export default {
@@ -69,6 +63,9 @@ export default {
       installBtn: false,
       installer: undefined
     };
+  },
+  components: {
+    Header
   },
   created() {
     let installPrompt;

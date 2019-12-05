@@ -25,27 +25,27 @@
 
 <script>
 import Steps from "@/components/exercises/";
+import MatrixPathStep1 from "@/components/exercises/gozintograph/MatrixPathStep1";
 
 //@group [Gozintograph]
 export default {
   name: "GozintographMatrixPath",
   components: {
-    ...Steps
+    ...Steps,
+    MatrixPathStep1
   },
   computed: {
     steps: function() {
-      console.warn(Steps);
-      return Object.keys(Steps).map(step => step.match(/MatrixPathStep(\d)/).sort((a,b) => a[a.length-1] - b[b.length-1]));
-    }, 
+      return Object.keys(Steps)
+        .filter(step => /MatrixPathStep(\d)/.test(step))
+        .sort((a, b) => a[a.length - 1] - b[b.length - 1]);
+    },
     step: function() {
       return this.$store.state.gozintograph.matrixPathStep;
     }
   },
   mounted() {
-    this.$store.dispatch("gozintograph/setUserStartMatrix");
-    this.$store.dispatch("gozintograph/setUserUnitMatrix");
-
-    this.$store.commit('gozintograph/SET_MATRIX_PATH_STEP', this.steps);
+    this.$store.commit("gozintograph/SET_MATRIX_PATH_STEP", this.steps[0]);
   }
 };
 </script>

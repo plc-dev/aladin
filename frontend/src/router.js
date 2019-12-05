@@ -7,18 +7,28 @@ const routes = [
   {
     path: "/",
     name: "home",
-    component: () => import(/* webpackChunkName: "home" */ "@/views/Home.vue")
+    component: () => import(/* webpackChunkName: "home" */ "@/views/Home.vue"),
+    meta: { transitionName: "slide" }
+  },
+  {
+    path: "/exercises",
+    name: "exercises",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "@/views/Exercises.vue"),
+    meta: { transitionName: "slide" }
   },
   {
     path: "/exercise/:exerciseName",
     name: "exercise",
     component: () =>
-      import(/* webpackChunkName: "exercise" */ "@/views/Exercise.vue")
+      import(/* webpackChunkName: "exercise" */ "@/views/Exercise.vue"),
+    meta: { transitionName: "slide" }
   },
   {
-    path: "/login",
-    name: "login",
-    component: () => import(/* webpackChunkName: "about" */ "@/views/Login.vue")
+    path: "*",
+    name: "404",
+    component: () => import(/* webpackChunkName: "404" */ "@/views/404.vue"),
+    meta: { transitionName: "slide" }
   }
 ];
 

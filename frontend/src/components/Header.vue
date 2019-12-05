@@ -1,29 +1,133 @@
-<template><div class="font-sans antialiased" id="app">
-  <nav class="flex items-center justify-between flex-wrap bg-teal p-6">
-    <div class="flex items-center flex-no-shrink text-white mr-6">
-    <span class="font-semibold text-xl tracking-tight">Tailwind CSS</span>
+<template>
+  <nav class="nav">
+    <div class="nav__brand">
+      <img
+        src="https://upload.wikimedia.org/wikipedia/commons/e/ef/Htw-dresden-logo.svg"
+        alt="HTW Logo"
+        class="nav__brand--logo"
+      />
+      <router-link class="nav__brand--title" @click.native="toggle" to="/"
+        >ALADIN</router-link
+      >
     </div>
-    <div class="block sm:hidden">
-      <button @click="toggle" class="flex items-center px-3 py-2 border rounded text-teal-lighter border-teal-light hover:text-white hover:border-white">
-        <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"/></svg>
+    <div class="nav__mobile block sm:hidden">
+      <button @click="toggle" class="nav__mobile--hamburger">
+        <svg
+          class="fill-current h-3 w-3"
+          viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <title>Menu</title>
+          <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" />
+        </svg>
       </button>
     </div>
-    <div :class="open ? 'block': 'hidden'" class="w-full flex-grow sm:flex sm:items-center sm:w-auto">
-      <div class="text-sm sm:flex-grow">
-        <a href="#responsive-header" class="no-underline block mt-4 sm:inline-block sm:mt-0 text-teal-lighter hover:text-white mr-4">
-          Docs
-        </a>
-        <a href="#responsive-header" class="no-underline block mt-4 sm:inline-block sm:mt-0 text-teal-lighter hover:text-white mr-4">
-          Examples
-        </a>
-        <a href="#responsive-header" class="no-underline block mt-4 sm:inline-block sm:mt-0 text-teal-lighter hover:text-white">
-          Blog
-        </a>
+    <div
+      :class="open ? 'block' : 'hidden'"
+      class="nav__navigation sm:flex sm:items-center sm:w-auto"
+    >
+      <div class="nav__navigation--links sm:flex-grow">
+        <router-link
+          class="link sm:inline-block sm:mt-0"
+          @click.native="toggle"
+          to="/"
+        >
+          {{ texts ? texts.home : "" }}
+        </router-link>
+        <router-link
+          class="link sm:inline-block sm:mt-0"
+          @click.native="toggle"
+          to="/exercises"
+          >{{ texts ? texts.exercises : "" }}</router-link
+        >
+        <router-link
+          class="link sm:inline-block sm:mt-0"
+          @click.native="toggle"
+          to="/exercise/gozintograph"
+        >
+          {{ texts ? texts.settings : "" }}
+        </router-link>
       </div>
-      <div>
-        <a href="#" class="no-underline inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-tea"</a>
+      <slot name="right"></slot>
+    </div>
+  </nav>
 </template>
 
 <style lang="postcss">
-header{box-shadow: inset 0 -7px 9px -7px rgba(0,0,0,0.4);}
+.nav {
+  @apply flex items-center justify-between flex-wrap bg-main p-4 h-navigation;
+  box-shadow: inset 0 -7px 5px -7px rgba(0, 0, 0, 0.1);
+  width: 100vw;
+}
+
+.nav__brand {
+  @apply flex items-center text-white mr-8;
+}
+
+.nav__brand--logo {
+  @apply h-8 w-auto;
+}
+
+.nav__brand--title {
+  @apply font-semibold ml-4 text-xl text-textColor tracking-tight;
+}
+
+.nav__mobile--hamburger {
+  @apply flex items-center px-3 py-2 border rounded text-background border-background;
+}
+
+.nav__mobile--hamburger:hover {
+  @apply text-white border-white;
+}
+
+.nav__navigation {
+  @apply w-full flex-grow;
+  background: #b1b2b4;
+  z-index: 3337;
+}
+
+.nav__navigation--links {
+  @apply text-sm;
+}
+
+.link {
+  @apply no-underline block text-contrast mr-4 mt-4 p-2 rounded;
+}
+
+.link:hover {
+  @apply text-highlight bg-contrast;
+}
+
+.nav__navigation--install,
+.nav__navigation--login {
+  @apply no-underline inline-block text-sm px-4 py-2 leading-none border rounded text-contrast border-contrast mt-4;
+}
+
+.nav__navigation--install:hover,
+.nav__navigation--login:hover {
+  @apply border-transparent text-highlight bg-contrast;
+}
 </style>
+
+<script>
+export default {
+  data: function() {
+    return {
+      open: true,
+      texts: localStorage.texts ? localStorage.texts.nav : {}
+    };
+  },
+  methods: {
+    toggle() {
+      this.open = !this.open;
+    }
+  },
+  created() {
+    this.$store.subscribe(mutation => {
+      if (mutation.type === "user/SET_TEXTS") {
+        this.texts = mutation.payload.nav;
+      }
+    });
+  }
+};
+</script>
