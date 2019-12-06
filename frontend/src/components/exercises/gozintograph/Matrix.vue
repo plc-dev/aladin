@@ -9,6 +9,7 @@
       <span :class="`vector__${mIndex}--label`" v-if="xLabel">{{
         Object.keys(vectors)[0]
       }}</span>
+      <span v-else class="xLabel__placeholder"></span>
       <div
         :class="`vector__${mIndex}--row`"
         v-for="(node, vIndex) in vectors[Object.keys(vectors)[0]]"
@@ -57,6 +58,10 @@
 
 [class^="vector__"] [class*="--value"] {
   @apply flex w-10 border border-russet text-center;
+}
+
+.xLabel__placeholder {
+  min-width: 20px;
 }
 
 [class^="vector__"] .error {

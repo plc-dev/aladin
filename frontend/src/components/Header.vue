@@ -43,10 +43,26 @@
         <router-link
           class="link sm:inline-block sm:mt-0"
           @click.native="toggle"
-          to="/exercise/gozintograph"
+          to="/settings"
         >
           {{ texts ? texts.settings : "" }}
         </router-link>
+      </div>
+      <div v-if="!loggedIn">
+        <router-link
+          class="nav__navigation--login sm:mt-0"
+          @click.native="toggle"
+          to="/login"
+          >Login</router-link
+        >
+      </div>
+      <div v-if="!loggedIn">
+        <router-link
+          class="nav__navigation--login sm:mt-0"
+          @click.native="toggle"
+          to="/register"
+          >Register</router-link
+        >
       </div>
       <slot name="right"></slot>
     </div>
@@ -120,6 +136,15 @@ export default {
   methods: {
     toggle() {
       this.open = !this.open;
+    },
+    showOverlay() {
+      document.querySelector(".overlay").style.height = "100vh";
+    }
+  },
+  computed: {
+    loggedIn: function() {
+      console.warn(this.$store.state.user);
+      return this.$store.state.user.loggedIn;
     }
   },
   created() {
@@ -128,6 +153,11 @@ export default {
         this.texts = mutation.payload.nav;
       }
     });
+  },
+  mounted() {
+    if (window.outerWidth < 640) {
+      this.open = false;
+    }
   }
 };
 </script>

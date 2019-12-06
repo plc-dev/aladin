@@ -11,15 +11,12 @@
 
 <style lang="postcss">
 .description {
-  @apply flex flex-col pt-8 pl-8;
+  @apply flex flex-col items-center justify-start w-full;
 }
 
-.primary {
-  @apply flex items-end;
-}
-
-[class*="primary"] input {
-  pointer-events: none;
+.solution__matrix--description {
+  @apply self-center text-center m-2 pb-4;
+  max-with: 96%;
 }
 </style>
 

@@ -10,11 +10,7 @@
         </div>
       </template>
       <template #buttons>
-        <Button
-          :text="text"
-          :type="'submit'"
-          @click.native="generateGraph()"
-        ></Button>
+        <Button :text="text" @click.native="generateGraph()"></Button>
       </template>
     </GraphOptions>
     <div class="graph__options--hidden" v-else>
@@ -152,6 +148,11 @@ export default {
       const appendTo = document.querySelector(".graph");
       const containerHeight = document.querySelector(".exercise").offsetHeight;
       drawGozintograph(graph, appendTo, containerHeight);
+
+      // render tabs active
+      Array.from(document.querySelectorAll(".tab.disabled")).forEach(tab =>
+        tab.classList.remove("disabled")
+      );
     },
     toggleOptions() {
       this.hidden = !this.hidden;
@@ -166,15 +167,6 @@ export default {
       const containerHeight = document.querySelector(".exercise").offsetHeight;
       drawGozintograph(this.graph, appendTo, containerHeight);
     }
-
-    // eventListener to enable tabs on graph creation
-    document
-      .querySelector(".graph__options .button--submit")
-      .addEventListener("click", () =>
-        Array.from(document.querySelectorAll(".tab.disabled")).forEach(tab =>
-          tab.classList.remove("disabled")
-        )
-      );
 
     // kind of hacky solution to inject this-contect of the vue component into the event handler via a lambda IIFE
     // document

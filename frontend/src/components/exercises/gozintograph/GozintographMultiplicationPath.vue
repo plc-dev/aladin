@@ -12,23 +12,12 @@
         <!-- <div>{{ texts.labels.primary }}</div> -->
         &imof;
       </div>
-      <Matrix
-        :show="true"
-        :matrix="primary"
-        :yLabel="true"
-        type="primary"
-      ></Matrix>
+      <Matrix :show="true" :matrix="primary" :yLabel="true" type="primary"></Matrix>
     </div>
 
     <div class="secondary">
       <!-- <div>{{ texts.labels.secondary }}</div> -->
-      <Matrix
-        :matrix="userSecondary"
-        v-model="userSecondary"
-        :yLabel="true"
-        type="secondary"
-        @validate-field="validateSecondary"
-      ></Matrix>
+      <Matrix :matrix="userSecondary" v-model="userSecondary" :yLabel="true" type="secondary" @validate-field="validateSecondary"></Matrix>
     </div>
 
     <PathBuilder />
@@ -70,16 +59,10 @@ export default {
     texts: function() {
       const texts = this.$store.state.user.texts;
       return {
-        task:
-          texts.exercises.gozintograph.tabs.GozintographMultiplicationPath
-            .step1,
+        task: texts.exercises.gozintograph.tabs.GozintographMultiplicationPath.step1,
         labels: {
-          primary:
-            texts.exercises.gozintograph.tabs.GozintographScope.description
-              .primary,
-          secondary:
-            texts.exercises.gozintograph.tabs.GozintographScope.description
-              .secondary
+          primary: texts.exercises.gozintograph.tabs.GozintographScope.description.primary,
+          secondary: texts.exercises.gozintograph.tabs.GozintographScope.description.secondary
         }
       };
     },
@@ -126,12 +109,11 @@ export default {
     showOverlay() {
       document.querySelector(".overlay").style.height = "100vh";
       const appendTo = document.querySelector(".overlay__content");
-      const containerHeight = document.querySelector(".overlay__content")
-        .offsetHeight;
+      const containerHeight = document.querySelector(".overlay__content").offsetHeight;
       const self = this;
       setTimeout(() => {
         drawGozintograph(self.graph, appendTo, containerHeight);
-      }, 100);
+      }, 50);
     }
   }
 };

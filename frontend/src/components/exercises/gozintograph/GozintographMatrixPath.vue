@@ -6,20 +6,11 @@
 
 <style lang="postcss">
 .solution__matrix {
-  @apply flex flex-col items-center mt-6;
-}
-
-.solution__matrix--description {
-  max-width: 40vw;
+  @apply flex flex-col items-center;
 }
 
 .solution__matrix--body {
-  @apply flex flex-wrap;
-  max-width: 45vw;
-}
-
-.solution__matrix--body > div {
-  @apply p-5;
+  @apply flex flex-wrap flex-col w-full items-center;
 }
 </style>
 

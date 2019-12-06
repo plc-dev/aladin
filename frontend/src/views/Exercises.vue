@@ -13,6 +13,34 @@
       />
       <span class="exercises__exercise--description">{{ exercise.body }}</span>
     </router-link>
+
+    <router-link
+      class="exercises__exercise"
+      v-for="(exercise, key) in exercises"
+      :key="key"
+      :to="`exercise/${exercise.alt}`"
+    >
+      <img
+        class="exercises__exercise--img"
+        :src="exercise.img"
+        :alt="exercise.alt"
+      />
+      <span class="exercises__exercise--description">{{ exercise.body }}</span>
+    </router-link>
+
+    <router-link
+      class="exercises__exercise"
+      v-for="(exercise, key) in exercises"
+      :key="key"
+      :to="`exercise/${exercise.alt}`"
+    >
+      <img
+        class="exercises__exercise--img"
+        :src="exercise.img"
+        :alt="exercise.alt"
+      />
+      <span class="exercises__exercise--description">{{ exercise.body }}</span>
+    </router-link>
   </div>
 </template>
 
@@ -22,15 +50,13 @@
 }
 
 .exercises__exercise {
-  @apply flex bg-main p-5 mt-3 rounded shadow-md cursor-pointer;
-  max-width: 60vw;
+  @apply flex flex-wrap justify-center items-center bg-main p-5 m-5 rounded shadow-md cursor-pointer;
   position: relative;
-  margin: 20px auto 50px;
-  padding-bottom: 40px;
   text-align: center;
   -webkit-transition: margin 0.5s ease-out;
   -moz-transition: margin 0.5s ease-out;
   -o-transition: margin 0.5s ease-out;
+  max-width: 500px;
 }
 
 .exercises__exercise:hover {
@@ -43,7 +69,7 @@
 }
 
 .exercises__exercise--description {
-  @apply p-4 m-2 text-textColor bg-background border-contrast rounded shadow-md;
+  @apply p-4 m-2 text-textColor text-sm bg-background border-contrast rounded shadow-md;
 }
 </style>
 

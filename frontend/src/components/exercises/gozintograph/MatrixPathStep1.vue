@@ -23,7 +23,12 @@
   </div>
 </template>
 
-<style lang="postcss"></style>
+<style lang="postcss">
+.solution__matrix--description {
+  @apply self-center text-center m-2 pb-4;
+  max-with: 96%;
+}
+</style>
 
 <script>
 import Matrix from "@/components/exercises/gozintograph/Matrix";

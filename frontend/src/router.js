@@ -14,7 +14,7 @@ const routes = [
     path: "/exercises",
     name: "exercises",
     component: () =>
-      import(/* webpackChunkName: "about" */ "@/views/Exercises.vue"),
+      import(/* webpackChunkName: "exercises" */ "@/views/Exercises.vue"),
     meta: { transitionName: "slide" }
   },
   {
@@ -22,6 +22,27 @@ const routes = [
     name: "exercise",
     component: () =>
       import(/* webpackChunkName: "exercise" */ "@/views/Exercise.vue"),
+    meta: { transitionName: "slide" }
+  },
+  {
+    path: "/login",
+    name: "login",
+    component: () =>
+      import(/* webpackChunkName: "login" */ "@/views/Login.vue"),
+    meta: { transitionName: "slide" }
+  },
+  {
+    path: "/register",
+    name: "register",
+    component: () =>
+      import(/* webpackChunkName: "register" */ "@/views/Register.vue"),
+    meta: { transitionName: "slide" }
+  },
+  {
+    path: "/settings",
+    name: "settings",
+    component: () =>
+      import(/* webpackChunkName: "settings" */ "@/views/Settings.vue"),
     meta: { transitionName: "slide" }
   },
   {

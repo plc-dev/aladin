@@ -1,7 +1,9 @@
 <template>
   <div class="overlay">
     <div class="overlay__close" @click="close()">&times;</div>
-    <div class="overlay__content"></div>
+    <div class="overlay__content">
+      <slot name="content"></slot>
+    </div>
   </div>
 </template>
 

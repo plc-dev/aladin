@@ -4,7 +4,7 @@
 
 <style lang="postcss">
 [class*="button--"] {
-  @apply bg-contrast text-background;
+  @apply bg-contrast w-full text-background;
   transition: 0.25s;
 
   &:hover,

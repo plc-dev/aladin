@@ -2,10 +2,6 @@
   <div class="app">
     <Header>
       <template #right>
-        <div>
-          <!-- TODO LOGIN -->
-          <a class="nav__navigation--login sm:mt-0" @click.prevent>Login</a>
-        </div>
         <div v-if="installBtn">
           <a
             class="nav__navigation--install sm:mt-0 ml-2"
