@@ -34,13 +34,13 @@ module.exports = (router, jwt, User) => {
     "/register",
     asyncErrorWrapper(async (req, res) => {
       const { email, password } = req.body;
+      console.warn(req.body);
       let user = await User.findOne({ email });
       if (user != null || /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)) {
         throw new ValidationError("ValidationError");
       } else {
         const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
         user = await User.create({ email, password: hashedPassword });
-        console.log("User has been created");
         res.status(201).json({ message: "User has been created", uuid: user._id });
       }
     })
@@ -83,6 +83,7 @@ module.exports = (router, jwt, User) => {
           success: true,
           message: "Login successful",
           token,
+          // vapidPublicKey: ,
           uuid: user._id
           // TODO: user settings
         });

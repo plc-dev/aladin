@@ -4,6 +4,16 @@
     "exercises": "Exercises",
     "settings": "Settings"
   },
+  "login": {
+    "email": "E-mail",
+    "password": "Password",
+    "button": "Login"
+  },
+  "register": {
+    "email": "E-mail",
+    "password": "Password",
+    "button": "Register"
+  },
   "exercises": {
     "overview": {
       "gozintograph": {

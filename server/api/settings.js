@@ -28,12 +28,10 @@ module.exports = (router, User, webpush, languages) => {
   router.post(
     "/subscribe",
     asyncErrorWrapper(async (req, res) => {
-      console.log("subscribe");
       const { uuid, subscription } = req.body;
       res.status(201).json({});
       const user = await User.findOneAndUpdate({ _id: uuid }, { subscription }, { upsert: true });
       if (user !== null) {
-        console.log(user);
         const payload = JSON.stringify({ title: "Subscription", message: "Subscription successfully setup" });
         webpush.sendNotification(subscription, payload);
       }
