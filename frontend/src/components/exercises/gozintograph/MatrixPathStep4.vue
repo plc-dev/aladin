@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <TextBox class="solution__matrix--description">
+  <div class="matrices__selection">
+    <TextBox class="matrices__selection--description">
       <template #header>{{ texts.description.header }}</template>
       <template #body>{{ texts.description.body }}</template>
     </TextBox>
@@ -51,32 +51,15 @@
           </div>
         </template>
       </Matrix>
-
-      <Matrix
-        type="subtractedMatrix"
-        :x-label="true"
-        :y-label="true"
-        :matrix="userSubtractedMatrix"
-        @validate-field="validateField"
-      >
-        <template #bottom>
-          <div class="fill">
-            <div class="fill__zero" @click="fillMatrix($event.target)">
-              Fülle alle Nullen!
-            </div>
-            <div class="fill__complete" @click="fillMatrix($event.target)">
-              Fülle komplett!
-            </div>
-          </div>
-        </template>
-      </Matrix>
     </div>
+
     <TaskNavigation
       :forward="true"
       :backward="true"
       @click-forward="validateAll"
-      @click-backward="$emit('step-direction', 'backward')"
+      @click-backward="$emit('step-direction', 0)"
     />
+
     <ScreenOverlay />
   </div>
 </template>
@@ -116,7 +99,7 @@ import { camelCase } from "@/lib/helper";
 import { createNamespacedHelpers } from "vuex";
 const { mapGetters, mapState } = createNamespacedHelpers("gozintograph");
 export default {
-  name: "MatrixPathStep1",
+  name: "MatrixPathStep4",
   data() {
     return {
       noError: true
@@ -213,7 +196,7 @@ export default {
   computed: {
     texts: function() {
       const texts = this.$store.state.user.texts;
-      return texts.exercises.gozintograph.tabs.GozintographMatrixPath.step1;
+      return texts.exercises.gozintograph.tabs.GozintographMatrixPath.step4;
     },
     ...mapState({
       userUnitMatrix: state => state.userUnitMatrix,
@@ -228,6 +211,7 @@ export default {
     graph: function() {
       return this.$store.state.gozintograph.graph;
     }
-  }
+  },
+  updated() {}
 };
 </script>

@@ -1,4 +1,8 @@
-import { retrieveMatrix, deepCopy, deserializeLocalStorage } from "@/lib/helper";
+import {
+  retrieveMatrix,
+  deepCopy,
+  deserializeLocalStorage
+} from "@/lib/helper";
 
 const texts = deserializeLocalStorage(localStorage.texts);
 let optionLabels = {};
@@ -6,8 +10,10 @@ let primaryText = "Primary needs vector: ";
 let secondaryText = "Secondary needs vector: ";
 if (texts) {
   optionLabels = texts.exercises.gozintograph.options;
-  primaryText = texts.exercises.gozintograph.tabs.GozintographScope.description.primary;
-  secondaryText = texts.exercises.gozintograph.tabs.GozintographScope.description.secondary;
+  primaryText =
+    texts.exercises.gozintograph.tabs.GozintographScope.description.primary;
+  secondaryText =
+    texts.exercises.gozintograph.tabs.GozintographScope.description.secondary;
 }
 
 export default {
@@ -18,8 +24,11 @@ export default {
     currentTab: "",
     matrixPathStep: "",
     userUnitMatrix: [],
-    userStartMatrix: [],
+    userDirectMatrix: [],
+    userSubtractedMatrix: [],
+    userSubtractedMatrix2: [],
     userSecondaryVector: [],
+    userInvertedMatrix: [],
     userPaths: [
       [
         {
@@ -52,8 +61,12 @@ export default {
           max: 10
         },
         label: [
-          optionLabels.rangeAmount ? optionLabels.rangeAmount.min : "Min Primary",
-          optionLabels.rangeAmount ? optionLabels.rangeAmount.max : "Max Primary"
+          optionLabels.rangeAmount
+            ? optionLabels.rangeAmount.min
+            : "Min Primary",
+          optionLabels.rangeAmount
+            ? optionLabels.rangeAmount.max
+            : "Max Primary"
         ],
         valueType: "number",
         optionType: "range"
@@ -62,7 +75,7 @@ export default {
         content: "rangeWidth",
         value: {
           min: 1,
-          max: 4
+          max: 3
         },
         label: [
           optionLabels.rangeWidth ? optionLabels.rangeWidth.min : "Min Breadth",
@@ -75,17 +88,22 @@ export default {
         content: "rangeValue",
         value: {
           min: 1,
-          max: 25
+          max: 10
         },
         label: [
-          optionLabels.rangeValue ? optionLabels.rangeValue.min : "Min Edge Value",
-          optionLabels.rangeValue ? optionLabels.rangeValue.max : "Max Edge Value"
+          optionLabels.rangeValue
+            ? optionLabels.rangeValue.min
+            : "Min Edge Value",
+          optionLabels.rangeValue
+            ? optionLabels.rangeValue.max
+            : "Max Edge Value"
         ],
         valueType: "number",
         optionType: "range"
       }
     ]
   },
+
   getters: {
     getOptions(state) {
       return state.options;
@@ -99,9 +117,11 @@ export default {
       }, {});
     },
     getPrimary(state) {
-      return Object.keys(state.graph).length ? [{ [primaryText]: state.graph.level[0] }] : null;
+      return Object.keys(state.graph).length
+        ? [{ [primaryText]: state.graph.level[0] }]
+        : null;
     },
-    getStartMatrix(state) {
+    getDirectMatrix(state) {
       const connections = deepCopy(state.graph.connections);
       const level = deepCopy(state.graph.level);
       const nodes = level.flatMap(nodes => nodes.map(node => node));
@@ -124,6 +144,28 @@ export default {
         };
       });
     },
+    getSubtractedMatrix(state, getters) {
+      const directMatrix = getters.getDirectMatrix;
+      const unitMatrix = getters.getUnitMatrix;
+      const subtractedMatrix = deepCopy(getters.getDirectMatrix);
+      for (let i = 0; i < directMatrix.length; i++) {
+        const directVector = directMatrix[i];
+        const unitVector = unitMatrix[i];
+        const subtractedVector = subtractedMatrix[i];
+        const vectorKey = Object.keys(directVector)[0];
+        for (let j = 0; j < directMatrix.length; j++) {
+          subtractedVector[vectorKey][j].amount =
+            unitVector[vectorKey][j].amount - directVector[vectorKey][j].amount;
+        }
+      }
+      return subtractedMatrix;
+    },
+    getUserSubtractedMatrix2(state, getters) {
+      return deepCopy(getters.getSubtractedMatrix);
+    },
+    getUserInvertedMatrix(state, getters) {
+      return deepCopy(getters.getUnitMatrix);
+    },
     getSecondaryVector(state) {
       return state.graph.level.filter((level, index) => index).flat();
     },
@@ -136,6 +178,7 @@ export default {
       return [{ [secondaryText]: userSecondary }];
     }
   },
+
   mutations: {
     SET_OPTIONS(state, options) {
       state.options = options;
@@ -146,38 +189,58 @@ export default {
     SET_CURRENT_TAB(state, tab) {
       state.currentTab = tab;
     },
-    SET_USER_START_MATRIX(state, matrix) {
-      state.userStartMatrix = matrix;
+    SET_USER_DIRECT_MATRIX(state, matrix) {
+      state.userDirectMatrix = matrix;
     },
     SET_USER_UNIT_MATRIX(state, matrix) {
       state.userUnitMatrix = matrix;
+    },
+    SET_USER_SUBTRACTED_MATRIX(state, matrix) {
+      state.userSubtractedMatrix = matrix;
     },
     SET_MATRIX_PATH_STEP(state, step) {
       state.matrixPathStep = step;
     },
     SET_USER_PATHS(state, paths) {
       state.userPaths = paths;
+    },
+    CLEAR_STATE(state) {
+      state.graph = {};
+      state.currentTab = "";
+      state.matrixPathStep = "";
+      state.userUnitMatrix = [];
+      state.userDirectMatrix = [];
+      state.userSubtractedMatrix = [];
+      state.userSubtractedMatrix2 = [];
+      state.userSecondaryVector = [];
+      state.userInvertedMatrix = [];
+      state.userPaths = [
+        [
+          {
+            child: "",
+            parent: "",
+            value: ""
+          }
+        ]
+      ];
     }
   },
+
   actions: {
     updateOptions({ commit }, options) {
       commit("SET_OPTIONS", options);
     },
-    setUserStartMatrix({ state, commit }) {
+    setUserMatrices({ state, commit }) {
       const connections = deepCopy(state.graph.connections);
       const level = deepCopy(state.graph.level);
       const nodes = level.flatMap(nodes => nodes.map(node => node));
 
-      const matrix = retrieveMatrix(connections, nodes, 0, true);
-      commit("SET_USER_START_MATRIX", matrix);
-    },
-    setUserUnitMatrix({ state, commit }) {
-      const connections = deepCopy(state.graph.connections);
-      const level = deepCopy(state.graph.level);
-      const nodes = level.flatMap(nodes => nodes.map(node => node));
-
-      const matrix = retrieveMatrix(connections, nodes, 0, true);
-      commit("SET_USER_UNIT_MATRIX", matrix);
+      const unitMatrix = retrieveMatrix(connections, nodes, 0, true);
+      const directMatrix = deepCopy(unitMatrix);
+      const subtractedMatrix = deepCopy(unitMatrix);
+      commit("SET_USER_UNIT_MATRIX", unitMatrix);
+      commit("SET_USER_DIRECT_MATRIX", directMatrix);
+      commit("SET_USER_SUBTRACTED_MATRIX", subtractedMatrix);
     },
     setGraph({ commit, dispatch }, graph) {
       commit("SET_GRAPH", graph);
@@ -191,8 +254,7 @@ export default {
         ]
       ]);
 
-      dispatch("setUserStartMatrix");
-      dispatch("setUserUnitMatrix");
+      dispatch("setUserMatrices");
     }
   }
 };

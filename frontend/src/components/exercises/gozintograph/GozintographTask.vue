@@ -3,10 +3,8 @@
     <GraphOptions v-if="!hidden" v-model="options" :options="options">
       <template #header>
         <div class="graph__options--header">
-          {{ "Im a header" }}
-          <div class="graph__options--hide" @click="toggleOptions">
-            &lt;
-          </div>
+          {{ header }}
+          <div class="graph__options--hide" @click="toggleOptions">&Lt;</div>
         </div>
       </template>
       <template #buttons>
@@ -14,7 +12,7 @@
       </template>
     </GraphOptions>
     <div class="graph__options--hidden" v-else>
-      <div @click="toggleOptions">&gt;</div>
+      <div @click="toggleOptions">&Gt;</div>
     </div>
     <div class="graph"></div>
   </div>
@@ -35,7 +33,7 @@
 }
 
 .graph__options--hide {
-  @apply text-background border border-background border-solid px-2 w-6 h-6 flex items-center justify-center;
+  @apply text-background border border-background border-solid px-2 w-6 h-6 flex items-center justify-center cursor-pointer;
 }
 
 .graph__options--hide:hover {
@@ -48,7 +46,7 @@
 }
 
 .graph__options--hidden > div {
-  @apply flex text-background border border-background border-solid px-1 mt-2 w-6 h-6 items-center justify-center;
+  @apply flex text-background border border-background border-solid px-1 mt-2 w-6 h-6 items-center justify-center cursor-pointer;
 }
 
 .graph__options--hidden > div:hover {
@@ -131,6 +129,9 @@ export default {
     text: function() {
       const texts = this.$store.state.user.texts;
       return texts.exercises.gozintograph.options.button;
+    },
+    header: function() {
+      return this.$store.state.user.texts.exercises.gozintograph.options.header;
     }
   },
   methods: {
@@ -158,7 +159,9 @@ export default {
       this.hidden = !this.hidden;
       const appendTo = document.querySelector(".graph");
       const containerHeight = document.querySelector(".exercise").offsetHeight;
-      drawGozintograph(this.graph, appendTo, containerHeight);
+      if (Object.keys(this.graph).length) {
+        drawGozintograph(this.graph, appendTo, containerHeight);
+      }
     }
   },
   mounted() {
@@ -167,18 +170,6 @@ export default {
       const containerHeight = document.querySelector(".exercise").offsetHeight;
       drawGozintograph(this.graph, appendTo, containerHeight);
     }
-
-    // kind of hacky solution to inject this-contect of the vue component into the event handler via a lambda IIFE
-    // document
-    //   .querySelector(".exercise__scope--body")
-    //   .addEventListener("scroll", () => {
-    //     const appendTo = document.querySelector(".graph");
-    //     const containerHeight = document.querySelector(".exercise")
-    //       .offsetHeight;
-    //     (graph => {
-    //       drawGozintograph(graph, appendTo, containerHeight);
-    //     })(this.graph);
-    //   });
   }
 };
 </script>

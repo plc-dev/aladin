@@ -1,6 +1,10 @@
 <template>
   <div class="solution__matrix">
-    <component class="solution__matrix--body" :is="step"></component>
+    <component
+      class="solution__matrix--body"
+      @step-direction="stepDirection"
+      :is="currentStep"
+    ></component>
   </div>
 </template>
 
@@ -15,15 +19,31 @@
 </style>
 
 <script>
+// TODO, fix import of steps - steps is undefined, probably due to cyclic dependencies, since components are imported in exercises
 import Steps from "@/components/exercises/";
+import MatrixPathStep0 from "@/components/exercises/gozintograph/MatrixPathStep0";
 import MatrixPathStep1 from "@/components/exercises/gozintograph/MatrixPathStep1";
+import MatrixPathStep2 from "@/components/exercises/gozintograph/MatrixPathStep2";
+import MatrixPathStep3 from "@/components/exercises/gozintograph/MatrixPathStep3";
+import MatrixPathStep4 from "@/components/exercises/gozintograph/MatrixPathStep4";
+import MatrixPathStep5 from "@/components/exercises/gozintograph/MatrixPathStep5";
 
 //@group [Gozintograph]
 export default {
   name: "GozintographMatrixPath",
   components: {
     ...Steps,
-    MatrixPathStep1
+    MatrixPathStep0,
+    MatrixPathStep1,
+    MatrixPathStep2,
+    MatrixPathStep3,
+    MatrixPathStep4,
+    MatrixPathStep5
+  },
+  data() {
+    return {
+      currentStep: this.step
+    };
   },
   computed: {
     steps: function() {
@@ -35,8 +55,24 @@ export default {
       return this.$store.state.gozintograph.matrixPathStep;
     }
   },
+  methods: {
+    stepDirection(direction) {
+      let [, step, stepIndex] = this.currentStep.match(/([a-zA-Z]{2,40})(\d)/);
+      stepIndex =
+        direction === "forward"
+          ? parseFloat(stepIndex) + 1
+          : parseFloat(stepIndex) - 1;
+      if (typeof direction === "number") stepIndex = direction;
+      this.currentStep = `${step}${stepIndex}`;
+    }
+  },
   mounted() {
-    this.$store.commit("gozintograph/SET_MATRIX_PATH_STEP", this.steps[0]);
+    if (!this.step) {
+      this.currentStep = this.steps[0];
+      this.$store.commit("gozintograph/SET_MATRIX_PATH_STEP", this.steps[0]);
+    } else {
+      this.currentStep = this.step;
+    }
   }
 };
 </script>

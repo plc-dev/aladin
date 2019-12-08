@@ -5,6 +5,7 @@
       @submit="register"
       :button="form.button"
       :form="{ email: form.email, password: form.password }"
+      :class="{ form__error: error }"
     ></Form>
   </div>
 </template>
@@ -12,6 +13,10 @@
 <style lang="postcss">
 .register {
   @apply flex justify-center items-center;
+}
+
+.form__error * {
+  @apply border-alabama_crimson text-alabama_crimson;
 }
 </style>
 
@@ -32,6 +37,9 @@ export default {
     form: function() {
       const texts = this.$store.state.user.texts;
       return texts.register;
+    },
+    error: function() {
+      return this.$store.state.user.registerError;
     }
   },
   methods: {
@@ -44,6 +52,9 @@ export default {
         password: this.password
       });
     }
+  },
+  mounted() {
+    this.$store.state.user.registerError = false;
   }
 };
 </script>

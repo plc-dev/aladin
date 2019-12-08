@@ -17,7 +17,9 @@ module.exports = {
       swSrc: "src/service-worker.js"
     },
     name: "Aladin",
-    appleMobileWebAppCapable: true
+    appleMobileWebAppCapable: true,
+    themeColor: "#B1B2B4",
+    msTileColor: "#B1B2B4"
   },
   outputDir: path.resolve(__dirname, "../server/public")
 };

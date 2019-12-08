@@ -14,7 +14,7 @@ module.exports = {
   /**
    * JWT Validation Middleware
    */
-  jwtValidationMiddleware: (req, res, next, jwt) => {
+  jwtValidationMiddleware: async (req, res, next, jwt) => {
     let token = req.headers["x-access-token"] || req.headers["authorization"];
     if (token.startsWith("Bearer")) {
       token = token.slice(7, token.length);
@@ -28,7 +28,7 @@ module.exports = {
           });
           throw new Error();
         } else {
-          next();
+          // next();
         }
       });
     } else {

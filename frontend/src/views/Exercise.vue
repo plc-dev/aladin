@@ -42,6 +42,7 @@
 .exercise__scope--tabs {
   @apply flex flex-wrap w-full bg-main;
   box-shadow: 0 4px 2px -2px rgba(50, 50, 50, 0.75);
+  z-index: 10;
 }
 
 .tab {

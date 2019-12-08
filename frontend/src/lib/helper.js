@@ -136,3 +136,14 @@ export function deserializeLocalStorage(object) {
   }
   return undefined;
 }
+
+/**
+ * Returns a camelcased string
+ * @param {String} string
+ */
+export function camelCase(string) {
+  return string.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
+    if (+match === 0) return "";
+    return index == 0 ? match.toLowerCase() : match.toUpperCase();
+  });
+}

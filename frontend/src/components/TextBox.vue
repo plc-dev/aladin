@@ -20,7 +20,7 @@
 }
 
 .textbox__body {
-  @apply self-center justify-center text-center bg-background text-textColor text-sm;
+  @apply self-center justify-center text-center bg-background text-textColor text-sm p-4 w-full;
 }
 </style>
 

@@ -2,9 +2,7 @@
   <div class="description">
     <TextBox class="solution__matrix--description">
       <template #header>{{ texts.description.header }}</template>
-      <template #body>
-        {{ texts.description.body }}
-      </template>
+      <template #body>{{ texts.description.body }}</template>
     </TextBox>
   </div>
 </template>
@@ -16,7 +14,6 @@
 
 .solution__matrix--description {
   @apply self-center text-center m-2 pb-4;
-  max-with: 96%;
 }
 </style>
 

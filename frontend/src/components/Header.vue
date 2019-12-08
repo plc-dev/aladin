@@ -31,9 +31,8 @@
           class="link sm:inline-block sm:mt-0"
           @click.native="toggle"
           to="/"
+          >{{ texts ? texts.home : "" }}</router-link
         >
-          {{ texts ? texts.home : "" }}
-        </router-link>
         <router-link
           class="link sm:inline-block sm:mt-0"
           @click.native="toggle"
@@ -41,12 +40,12 @@
           >{{ texts ? texts.exercises : "" }}</router-link
         >
         <router-link
+          v-if="loggedIn"
           class="link sm:inline-block sm:mt-0"
           @click.native="toggle"
           to="/settings"
+          >{{ texts ? texts.settings : "" }}</router-link
         >
-          {{ texts ? texts.settings : "" }}
-        </router-link>
       </div>
       <div v-if="!loggedIn">
         <router-link
@@ -58,10 +57,17 @@
       </div>
       <div v-if="!loggedIn">
         <router-link
-          class="nav__navigation--login sm:mt-0"
+          class="nav__navigation--register sm:mt-0"
           @click.native="toggle"
           to="/register"
           >Register</router-link
+        >
+      </div>
+      <div v-else>
+        <a
+          class="nav__navigation--logout sm:mt-0"
+          @click.prevent="$store.dispatch('user/logout')"
+          >Logout</a
         >
       </div>
       <slot name="right"></slot>
@@ -115,12 +121,16 @@
 }
 
 .nav__navigation--install,
-.nav__navigation--login {
-  @apply no-underline inline-block text-sm px-4 py-2 leading-none border rounded text-contrast border-contrast mt-4;
+.nav__navigation--login,
+.nav__navigation--logout,
+.nav__navigation--register {
+  @apply no-underline inline-block text-sm px-4 py-2 leading-none border rounded text-contrast border-contrast mt-4 cursor-pointer ml-2 mb-2;
 }
 
 .nav__navigation--install:hover,
-.nav__navigation--login:hover {
+.nav__navigation--login:hover,
+.nav__navigation--logout:hover,
+.nav__navigation--register:hover {
   @apply border-transparent text-highlight bg-contrast;
 }
 </style>
@@ -135,7 +145,9 @@ export default {
   },
   methods: {
     toggle() {
-      this.open = !this.open;
+      if (window.outerWidth < 640) {
+        this.open = !this.open;
+      }
     },
     showOverlay() {
       document.querySelector(".overlay").style.height = "100vh";
@@ -143,8 +155,7 @@ export default {
   },
   computed: {
     loggedIn: function() {
-      console.warn(this.$store.state.user);
-      return this.$store.state.user.loggedIn;
+      return this.$store.state.user.token;
     }
   },
   created() {

@@ -24,7 +24,16 @@
       }
     },
     "gozintograph": {
+      "success": {
+        "title": "Congratulations!",
+        "body": "Do you want to solve another graph or want to check the Result again?",
+        "labels": {
+          "ok": "Again",
+          "cancel": "Check result"
+        }
+      },
       "options": {
+        "header": "Options",
         "depth": "Depth",
         "connectionThreshold": "Threshold",
         "rangeAmount": {
@@ -65,10 +74,44 @@
         },
         "GozintographMatrixPath": {
           "tab": "Matrices",
+          "step0": {
+            "description": {
+              "header": "Selection",
+              "body": "Calculate the direct needs matrix with matrix-multiplication or the inverse matrix."
+            },
+            "options": {
+              "multiplication": "Multiplication",
+              "inverse": "Inverse Matrix"
+            }
+          },
           "step1": {
             "description": {
               "header": "Description",
               "body": "Fill the direct-needs-matrix with the edge values of the graph. The matrix is read from top to left:\n [Column] * B0 are needed to produce [Row] 1 A0.\n Then fill in the unit matrix beneath and subtract. The result needs to be filled in the matrix below."
+            }
+          },
+          "step2": {
+            "description": {
+              "header": "Description",
+              "body": "Invert the resulting matrix of the previous step. In order to do this, add a multifold of a row to another row, until you induced a unit matrix. Apply the same operations on the initial unit matrix."
+            }
+          },
+          "step3": {
+            "description": {
+              "header": "Description",
+              "body": "Multiplicate the inverted matrix with the primary needs vector and fill in the results into the secondary needs vector. In order to do that, multiplicate each row with the primary needs vector."
+            }
+          },
+          "step4": {
+            "description": {
+              "header": "Description",
+              "body": "Form the direct-need-matrix with the help of the graph. The matrix is read from top to left: [Column] * B0 are need for [Row] 1 A0. Form the unit matrix in the second matrix."
+            }
+          },
+          "step5": {
+            "description": {
+              "header": "Description",
+              "body": "Form the matrices D^1 ... D^n with matrix multiplication, whereby n is the amount of the longest directed path in the gozintograph. Subsequently add the matrices with the unit matrix to produce the aggregate needs matrix."
             }
           }
         }

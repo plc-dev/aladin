@@ -40,6 +40,10 @@ body::-webkit-scrollbar-thumb {
   border: 3px solid whitesmoke;
 }
 
+.alertify {
+  z-index: 4337;
+}
+
 .app {
   @apply flex flex-col my-0 text-textColor bg-background rounded shadow h-screen w-screen;
   line-height: 1.7;
@@ -96,7 +100,7 @@ export default {
       });
       const payload = {
         subscription,
-        id: "5dd99036a3e6444168c04a6d"
+        uuid: this.$store.state.user.uuid || ""
       };
       await fetch("/api/subscribe", {
         method: "POST",

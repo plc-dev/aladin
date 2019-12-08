@@ -19,7 +19,6 @@
 
 .overlay__content {
   @apply h-screen w-screen text-center relative;
-  margin-top: 30px;
 }
 
 .overlay__close:hover,
@@ -28,7 +27,7 @@
 }
 
 .overlay__close {
-  @apply absolute text-contrast;
+  @apply absolute text-contrast cursor-pointer;
   font-size: 50px;
   right: 20px;
   z-index: 10000;
