@@ -20,7 +20,7 @@ module.exports = {
     appleMobileWebAppCapable: true,
     themeColor: "#B1B2B4",
     msTileColor: "#B1B2B4",
-    manifestOptioN: {
+    manifestOptions: {
       background_color: "#B1B2B4"
     }
   },
