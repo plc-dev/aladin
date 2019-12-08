@@ -20,6 +20,7 @@
           :id="`${type}__${mIndex}_${vIndex}`"
           :class="`vector__${mIndex}--value`"
           type="number"
+          :readonly="readonly"
           v-model="node.amount"
           @click="onSelect()"
           @focusout="
@@ -31,6 +32,7 @@
         />
       </div>
     </div>
+    <slot name="bottom"></slot>
   </div>
 </template>
 
@@ -81,7 +83,8 @@ export default {
     matrix: { type: Array, require: true },
     type: { type: String, require: true },
     xLabel: Boolean,
-    yLabel: Boolean
+    yLabel: Boolean,
+    readonly: Boolean
   },
   data() {
     return {

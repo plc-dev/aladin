@@ -2,17 +2,17 @@
   <div class="path">
     <TextBox class="path__description">
       <template #header>{{ texts.task.description.header }}</template>
-      <template #body>
-        {{ texts.task.description.body }}
-      </template>
+      <template #body>{{ texts.task.description.body }}</template>
     </TextBox>
 
-    <div class="show__path--fullscreen" @click="showOverlay">
-      <div class="primary" v-if="primary">
-        <!-- <div>{{ texts.labels.primary }}</div> -->
-        &imof;
-      </div>
-      <Matrix :show="true" :matrix="primary" :yLabel="true" type="primary"></Matrix>
+    <div class="show__graph">
+      Graph anzeigen:
+      <img src="/img/icons/graph.png" alt="graph" class="show__graph--img" @click="showOverlay" />
+    </div>
+
+    <div class="primary" v-if="primary">
+      <!-- <div>{{ texts.labels.primary }}</div> -->
+      <Matrix :show="true" :matrix="primary" :readonly="true" :yLabel="true" type="primary"></Matrix>
     </div>
 
     <div class="secondary">
@@ -35,6 +35,16 @@
   @apply self-center text-center m-2 pb-4;
 }
 
+.show__graph {
+  @apply flex items-center;
+}
+
+.show__graph--img {
+  @apply cursor-pointer;
+  width: 50px;
+  height: auto;
+}
+
 .primary,
 .secondary {
   @apply flex flex-wrap items-center justify-around;
@@ -47,7 +57,6 @@ import TextBox from "@/components/TextBox";
 import Matrix from "@/components/exercises/gozintograph/Matrix";
 import ScreenOverlay from "@/components/ScreenOverlay";
 import { drawGozintograph } from "@/lib/gozintograph/drawGozintograph";
-import alertify from "alertify.js";
 export default {
   components: {
     PathBuilder,
@@ -65,6 +74,10 @@ export default {
           secondary: texts.exercises.gozintograph.tabs.GozintographScope.description.secondary
         }
       };
+    },
+    success: function() {
+      const texts = this.$store.state.user.texts;
+      return texts.exercises.gozintograph.success;
     },
     primary: function() {
       return this.$store.getters["gozintograph/getPrimary"];
@@ -92,16 +105,35 @@ export default {
         document.querySelector(`#${id}`).classList.remove("success");
         document.querySelector(`#${id}`).classList.add("error");
       }
-      //TODO setup proper success handling
       const correctAmount = document.querySelectorAll(".success").length;
       if (this.secondary.length === correctAmount) {
-        alertify
-          .confirm()
-          .setting({
-            onok: () => console.warn(this.$router)
-          })
-          .show();
+        this.onSuccess();
       }
+    },
+    onSuccess() {
+      this.$alertify
+        .confirm(
+          this.success.body,
+          () => {
+            this.$store.commit("gozintograph/CLEAR_STATE");
+            this.$destroy();
+            // this.$router.push("/exercise/gozintograph");
+            location.reload();
+            const layer = document.querySelector(".alertify");
+            layer.parentNode.removeChild(layer);
+          },
+          () => {
+            const layer = document.querySelector(".alertify");
+            layer.parentNode.removeChild(layer);
+          }
+        )
+        .set({ title: this.success.title })
+        .set({
+          labels: {
+            ok: this.success.labels.ok,
+            cancel: this.success.labels.cancel
+          }
+        });
     },
     /**
      * shows Graph as screen overlay

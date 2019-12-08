@@ -16,7 +16,7 @@ export function drawGozintograph(graph, appendTo, height) {
       node => (node.classList += " showOnHover"),
       Array.from(document.querySelectorAll(".graph__node"))
     );
-  }, 50);
+  }, 200);
 }
 
 /**

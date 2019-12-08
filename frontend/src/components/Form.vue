@@ -4,7 +4,8 @@
       v-for="(input, key) in form"
       :key="key"
       :type="key"
-      :label="input[key]"
+      :label="input"
+      value=""
       class="form__input"
       @update-value="bubbleUp"
     ></InputField>

@@ -29,21 +29,21 @@ const routes = [
     name: "login",
     component: () =>
       import(/* webpackChunkName: "login" */ "@/views/Login.vue"),
-    meta: { transitionName: "slide" }
+    meta: { transitionName: "slide", loggedIn: false }
   },
   {
     path: "/register",
     name: "register",
     component: () =>
       import(/* webpackChunkName: "register" */ "@/views/Register.vue"),
-    meta: { transitionName: "slide" }
+    meta: { transitionName: "slide", loggedIn: false }
   },
   {
     path: "/settings",
     name: "settings",
     component: () =>
       import(/* webpackChunkName: "settings" */ "@/views/Settings.vue"),
-    meta: { transitionName: "slide" }
+    meta: { transitionName: "slide", loggedIn: true }
   },
   {
     path: "*",

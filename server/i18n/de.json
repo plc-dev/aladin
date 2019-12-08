@@ -24,7 +24,16 @@
       }
     },
     "gozintograph": {
+      "success": {
+        "title": "Herlichen Glückwunsch!",
+        "body": "Möchtest du noch einen Graphen lösen oder dir das Ergebnis nochmal anschauen?",
+        "labels": {
+          "ok": "Nochmal",
+          "cancel": "Ergebnis anschauen"
+        }
+      },
       "options": {
+        "header": "Optionen",
         "depth": "Graphentiefe",
         "connectionThreshold": "Kantendichte",
         "rangeAmount": {
@@ -65,10 +74,44 @@
         },
         "GozintographMatrixPath": {
           "tab": "Matritzen",
+          "step0": {
+            "description": {
+              "header": "Auswahl",
+              "body": "Bestimme die Gesamtbedarfsmatrix mittels Matrizenmultiplikation oder über die inverse Matrix."
+            },
+            "options": {
+              "multiplication": "Multiplikation",
+              "inverse": "Inverse Matrix"
+            }
+          },
           "step1": {
             "description": {
               "header": "Aufgabenbeschreibung",
-              "body": "Fülle die Matrix mit den Kantenwerten aus dem Graph. Die Matrix liest sich von oben nach links:\n [Spalte] * B0 werden für [Zeile] 1 A0 gebraucht.\n Bilde anschließend die Einheitsmatrix daneben und subtrahiere die Direktbedarfsmatrix davon.\n Trage das Ergebnis in die Matrix darunter ein."
+              "body": "Fülle die Matrix mit den Kantenwerten aus dem Graph. Die Matrix liest sich von oben nach links: [Spalte] * B0 werden für [Zeile] 1 A0 gebraucht. Bilde anschließend die Einheitsmatrix daneben und subtrahiere die Direktbedarfsmatrix davon. Trage das Ergebnis in die Matrix darunter ein."
+            }
+          },
+          "step2": {
+            "description": {
+              "header": "Aufgabenbeschreibung",
+              "body": "Invertiere die Ergebnismatrix aus dem vorherigen Schritt. Addiere hierzu solange das Vielfache einer Zeile zu einer anderen Zeile, bis du eine Einheitsmatrix erzeugt hast. Wende dieselben Operationen auf die anfängliche Einheitsmatrix an."
+            }
+          },
+          "step3": {
+            "description": {
+              "header": "Aufgabenbeschreibung",
+              "body": "Multipliziere die invertierte Matrix mit dem Primärbedarfsvektor und fülle mit den Ergebnissen den Sekundärbedarfsvektor. Multipliziere hierfür jede Zeile mit dem Primärbedarfsvektor."
+            }
+          },
+          "step4": {
+            "description": {
+              "header": "Aufgabenbeschreibung",
+              "body": "Bilde die Direktbedarfsmatrix aus dem Graph heraus. Die Matrix liest sich von oben nach links: [Spalte] * B0 werden für [Zeile] 1 A0 gebraucht. Bilde in der zweiten Matrix die Einheitsmatrix."
+            }
+          },
+          "step5": {
+            "description": {
+              "header": "Aufgabenbeschreibung",
+              "body": "Bilde die Matrizen D^1 ... D^n mittels Matrixmultiplikation, wobei n die Anzahl des längsten gerichteten Pfades im Gozintograph ist. Addiere anschließend die Matrizen mit der Einheitsmatrix um die Gesamtbedarfsmatrix zu erhalten."
             }
           }
         }

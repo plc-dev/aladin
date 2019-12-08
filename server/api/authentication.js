@@ -34,14 +34,14 @@ module.exports = (router, jwt, User) => {
     "/register",
     asyncErrorWrapper(async (req, res) => {
       const { email, password } = req.body;
-      console.warn(req.body);
       let user = await User.findOne({ email });
       if (user != null || /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)) {
         throw new ValidationError("ValidationError");
       } else {
+        const token = jwt.sign({ email }, process.env.jwtSecret, { expiresIn: "72h" });
         const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
         user = await User.create({ email, password: hashedPassword });
-        res.status(201).json({ message: "User has been created", uuid: user._id });
+        res.status(201).json({ uuid: user._id, token });
       }
     })
   );
@@ -78,10 +78,8 @@ module.exports = (router, jwt, User) => {
       if (user === null) {
         throw new ValidationError("");
       } else if (bcrypt.compareSync(password, user.password)) {
-        const token = jwt.sign({ email }, process.env.jwtSecret, { expiresIn: "24h" });
+        const token = jwt.sign({ email }, process.env.jwtSecret, { expiresIn: "72h" });
         res.status(200).json({
-          success: true,
-          message: "Login successful",
           token,
           // vapidPublicKey: ,
           uuid: user._id
@@ -97,7 +95,7 @@ module.exports = (router, jwt, User) => {
    * @swagger
    * /authenticate:
    *  post:
-   *    summary: Validates the clients JWT and sends a confirmation to the client
+   *    summary: Validates the clients JWT and sends a refreshed token to the client
    *    security:
    *      - Bearer: []
    *    parameters:
@@ -113,13 +111,21 @@ module.exports = (router, jwt, User) => {
    *      '409':
    *        description: Validation error
    */
-  router.post("/authenticate", (req, res, next) => {
-    jwtValidationMiddleware(req, res, next, jwt);
-    res.status(200).json({
-      success: true,
-      message: "Authentication successful"
-    });
-  });
+  router.get(
+    "/authenticate",
+    asyncErrorWrapper(async (req, res, next) => {
+      await jwtValidationMiddleware(req, res, next, jwt);
+      const uuid = req.query.uuid;
+      let user = await User.findById(uuid);
+      const token = jwt.sign({ email: user.email }, process.env.jwtSecret, { expiresIn: "72h" });
+      res.status(200).send({
+        success: true,
+        message: "Authentication successful",
+        token,
+        uuid: user._id
+      });
+    })
+  );
 
   return router;
 };

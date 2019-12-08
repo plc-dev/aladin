@@ -1,36 +1,15 @@
 <template>
   <div class="pathbuilder">
     <ul class="pathbuilder__paths">
-      <li
-        :class="`pathbuilder__path--${pIndex}`"
-        v-for="(path, pIndex) in userPaths"
-        :key="pIndex"
-      >
-        <div
-          :class="pIndex ? 'pathbuilder__remove--path' : 'placeholder'"
-          :pathIndex="pIndex"
-          @click="removePath(pIndex)"
-        >
+      <li :class="`pathbuilder__path--${pIndex}`" v-for="(path, pIndex) in userPaths" :key="pIndex">
+        <div class="pathbuilder__path--state"></div>
+        <div :class="pIndex ? 'pathbuilder__remove--path' : 'placeholder'" :pathIndex="pIndex" @click="removePath(pIndex)">
           &minus;
         </div>
-        <div
-          class="pathbuilder__path__connection"
-          v-for="(connection, cIndex) in path"
-          :key="cIndex"
-        >
-          <input
-            class="connection__node"
-            v-if="!cIndex"
-            v-model="connection.child"
-            type="text"
-            maxlength="2"
-          />
+        <div class="pathbuilder__path__connection" v-for="(connection, cIndex) in path" :pathIndex="pIndex" :key="cIndex">
+          <input class="connection__node" v-if="!cIndex" v-model="connection.child" type="text" maxlength="2" />
           <div class="connection__edge">
-            <input
-              class="connection__edge--value"
-              v-model="connection.value"
-              type="number"
-            />
+            <input class="connection__edge--value" v-model="connection.value" type="number" />
             <span class="connection__edge--arrow">&zigrarr;</span>
           </div>
           <input
@@ -42,30 +21,27 @@
           />
           <div
             class="pathbuilder__add--connection"
-            v-if="
-              cIndex === path.length - 1 &&
-                lengthAllowed[userPaths[pIndex].length + 1] &&
-                lengthAllowed[userPaths[pIndex].length + 1].length
-            "
+            v-if="cIndex === path.length - 1 && lengthAllowed[userPaths[pIndex].length + 1] && lengthAllowed[userPaths[pIndex].length + 1].length"
             @click="addConnection(pIndex)"
           >
             &plus;
           </div>
-          <div
-            class="pathbuilder__remove--connection"
-            v-if="cIndex === path.length - 1 && cIndex"
-            @click="removeConnection(pIndex)"
-          >
+          <div class="pathbuilder__remove--connection" v-if="cIndex === path.length - 1 && cIndex" @click="removeConnection(pIndex)">
             &minus;
+          </div>
+          <div class="pathbuilder__validate--path" v-if="cIndex === path.length - 1" @click="validatePath(pIndex)">
+            &quest;
           </div>
         </div>
       </li>
-      <div
-        class="pathbuilder__add--path"
-        v-if="userPaths.length < paths.length"
-        @click="addPath()"
-      >
-        &plus;
+      <div class="pathbuilder__bottom--controls">
+        <div class="pathbuilder__add--path" v-if="userPaths.length < paths.length" @click="addPath()">
+          &plus;
+        </div>
+        <div class="pathbuilder__validate--paths" @click="validatePaths">
+          &quest;
+        </div>
+        <div class="pathbuilder__show--paths" @click="showPaths">&equals;</div>
       </div>
     </ul>
   </div>
@@ -78,6 +54,34 @@
 
 .pathbuilder__paths {
   @apply flex flex-col h-full;
+}
+
+.pathbuilder__validate--path,
+.pathbuilder__validate--paths,
+.pathbuilder__show--paths {
+  @apply mt-3 ml-2 text-white_chocolate text-center bg-alabama_crimson rounded cursor-pointer;
+  width: 28px;
+}
+
+.pathbuilder__show--paths {
+  @apply bg-green;
+}
+
+.pathbuilder__path--state {
+  @apply mt-3 ml-2 text-white_chocolate text-center rounded;
+  width: 28px;
+}
+
+.pathbuilder__path--state.correct {
+  @apply flex items-center justify-center bg-green;
+}
+
+.pathbuilder__path--state.false {
+  @apply flex items-center justify-center bg-alabama_crimson;
+}
+
+.pathbuilder__bottom--controls {
+  @apply flex justify-center mb-4;
 }
 
 [class*="pathbuilder__path--"] {
@@ -109,9 +113,9 @@
   font-size: 50px;
 }
 
-[class*="remove"],
+.pathbuilder [class*="remove"],
 .placeholder {
-  @apply mt-3 ml-2 text-white_chocolate text-center bg-alabama_crimson rounded cursor-pointer;
+  @apply mt-3 ml-2 text-highlight text-center bg-contrast rounded cursor-pointer;
   width: 28px;
 }
 
@@ -120,18 +124,13 @@
   pointer-events: none;
 }
 
-[class*="add"] {
-  @apply mt-3 ml-2 text-white_chocolate text-center bg-alabama_crimson rounded cursor-pointer;
+.pathbuilder [class*="add"] {
+  @apply mt-3 ml-2 text-highlight text-center bg-contrast rounded cursor-pointer;
   width: 28px;
 }
 
 .pathbuilder__add--connection {
   @apply mt-3 ml-6;
-}
-
-.pathbuilder__add--path {
-  @apply mt-3 mb-4;
-  margin-left: 5.55em;
 }
 
 .hidden {
@@ -151,7 +150,11 @@
 
 <script>
 //@group [Gozintograph]
+import { deepCopy } from "@/lib/helper";
 export default {
+  data() {
+    return { markedPaths: [] };
+  },
   computed: {
     paths: function() {
       return this.$store.state.gozintograph.graph.paths;
@@ -182,8 +185,7 @@ export default {
       // subtract userPathLengths of smaller/equal lengths
       userPathLengths.forEach(userLength => {
         for (let i = userLength; i > 0; i--) {
-          if (lengthAmount[i] && lengthAmount[i].length)
-            lengthAmount[i].shift();
+          if (lengthAmount[i] && lengthAmount[i].length) lengthAmount[i].shift();
         }
       });
 
@@ -208,13 +210,62 @@ export default {
       // add scrolling to parent container
       window.scrollTo({ bottom: 0, behavior: "smooth" });
     },
+    // removes path from userPaths and reevaluates checked paths
     removePath(pathIndex) {
       this.userPaths.splice(pathIndex, 1);
+      this.markedPaths = [];
+      Array.from(document.querySelectorAll(".pathbuilder__path--state.correct, .pathbuilder__path--state.false")).forEach(path =>
+        this.validatePath(path.nextSibling.getAttribute("pathIndex"))
+      );
     },
     updateValues(value, pathIndex, connectionIndex) {
       const path = this.userPaths[pathIndex];
       path[connectionIndex].parent = value;
       if (path.length - 1 > pathIndex) path[connectionIndex + 1].child = value;
+    },
+    showPaths() {
+      this.$store.commit("gozintograph/SET_USER_PATHS", deepCopy(this.paths));
+    },
+    validatePath(index) {
+      const userPath = this.userPaths[index];
+      const length = userPath.length - 1;
+      let trueConnections = 0;
+      let truePath = false;
+      this.paths.forEach((path, pIndex) => {
+        userPath.forEach((connection, cIndex) => {
+          if (userPath.length === path.length) {
+            if (
+              (path[cIndex].value == connection.value &&
+                path[cIndex].child.toLowerCase() == connection.child.toLowerCase() &&
+                path[cIndex].parent.toLowerCase() == connection.parent.toLowerCase()) ||
+              (path[length - cIndex].value == connection.value &&
+                path[length - cIndex].parent.toLowerCase() == connection.child.toLowerCase() &&
+                path[length - cIndex].child.toLowerCase() == connection.parent.toLowerCase())
+            ) {
+              trueConnections = trueConnections + 1;
+            }
+          }
+        });
+        const alreadyUsed = this.markedPaths.filter(indices => indices.path === pIndex && indices.userPath !== index);
+        if (trueConnections === this.paths[pIndex].length && !alreadyUsed.length) {
+          this.markedPaths.push({ path: pIndex, userPath: index });
+          truePath = true;
+        }
+        trueConnections = 0;
+      });
+      const path = document.querySelector(`.pathbuilder__path--${index} .pathbuilder__path--state`);
+      const sign = truePath ? "&check;" : "&times;";
+      path.innerHTML = sign;
+      if (truePath) {
+        path.classList.add("correct");
+        path.classList.remove("false");
+      } else {
+        path.classList.add("false");
+        path.classList.remove("correct");
+      }
+    },
+    validatePaths() {
+      this.userPaths.forEach((path, index) => this.validatePath(index));
     }
   }
 };
