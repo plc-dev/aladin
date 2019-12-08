@@ -21,6 +21,7 @@
 <style lang="postcss">
 .graph__wrapper {
   @apply flex;
+  overflow: auto;
 }
 
 .graph__options {

@@ -22,8 +22,10 @@ export function drawGozintograph(graph, appendTo, height) {
 /**
  *
  * @param {array} nodes
- * @param {number} level
- * @param {number} depth
+ * @param {*} level
+ * @param {*} depth
+ * @param {*} graph
+ * @param {*} exerciseHeight
  */
 function drawNodes(nodes, level, depth, graph, exerciseHeight) {
   let heightPerLevel = exerciseHeight / depth;

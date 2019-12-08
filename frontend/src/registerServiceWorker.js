@@ -4,7 +4,7 @@ import { register } from "register-service-worker";
 import alertify from "alertify.js";
 
 const notifyUserAboutUpdate = worker => {
-  alertify.confirm("new content!", () => {
+  alertify.confirm("Update", () => {
     worker.postMessage({ action: "skipWaiting" });
   });
 };
