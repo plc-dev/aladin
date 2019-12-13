@@ -7,12 +7,7 @@
 
     <div class="matrices">
       <div class="matrices__top">
-        <Matrix
-          style="visibility: hidden"
-          type="placeholder"
-          :matrix="unitMatrix"
-          :readonly="true"
-        ></Matrix>
+        <Matrix style="visibility: hidden" type="placeholder" :matrix="unitMatrix" :readonly="true"></Matrix>
         <Matrix
           v-for="(e, index) in maxPathLength - 1"
           :key="index"
@@ -22,11 +17,7 @@
           :matrix="directMatrix"
           :readonly="true"
         ></Matrix>
-        <Matrix
-          type="unitMatrix"
-          :matrix="unitMatrix"
-          :readonly="true"
-        ></Matrix>
+        <Matrix type="unitMatrix" :matrix="unitMatrix" :readonly="true"></Matrix>
       </div>
 
       <div class="matrices__bottom">
@@ -44,11 +35,7 @@
           :matrix="emptyDirectMatrices[index]"
           :readonly="true"
         ></Matrix>
-        <Matrix
-          type="aggregatedMatrix"
-          :matrix="aggregatedMatrix"
-          :readonly="true"
-        ></Matrix>
+        <Matrix type="aggregatedMatrix" :matrix="aggregatedMatrix" :readonly="true"></Matrix>
       </div>
     </div>
     <TaskNavigation
@@ -61,12 +48,18 @@
 </template>
 
 <style lang="postcss">
+.matrices__multiplication {
+  /* @apply overflow-y-auto; */
+}
+
 .matrices__selection--description {
   @apply self-center text-center m-2 pb-4;
+  flex-wrap: none;
 }
 
 .matrices__multiplication .matrices {
-  @apply flex flex-col mx-4 mb-12;
+  @apply flex flex-col mb-12 overflow-auto;
+  max-width: 95%;
 }
 
 .matrices__top {
