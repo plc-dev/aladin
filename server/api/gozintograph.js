@@ -1,6 +1,6 @@
 const { asyncErrorWrapper, jwtValidationMiddleware } = require("../helper");
 
-module.exports = (router, User, webpush) => {
+module.exports = (router, User) => {
   /**
    * @swagger
    * /subscribe:
@@ -26,14 +26,16 @@ module.exports = (router, User, webpush) => {
    *        description: Validation error
    */
   router.post(
-    "/subscribe",
+    "/saveGozintograph",
     asyncErrorWrapper(async (req, res) => {
-      const { uuid, subscription } = req.body;
-      res.status(201).json({});
-      const user = await User.findOneAndUpdate({ _id: uuid }, { subscription }, { upsert: true });
+      const { uuid, solvedExercise } = req.body;
+      const user = await User.findOne({ _id: uuid });
       if (user !== null) {
-        const payload = JSON.stringify({ title: "Subscription", message: "Subscription successfully setup" });
-        webpush.sendNotification(subscription, payload);
+        user.solvedExercises.push(solvedExercise);
+        user.save.(done);
+        res.status(201).json({});
+      } else {
+        throw Error();
       }
     })
   );

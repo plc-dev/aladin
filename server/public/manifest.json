@@ -1,1 +1,12 @@
-{"name":"Aladin","short_name":"Aladin","theme_color":"#B1B2B4","icons":[{"src":"./img/icons/android-chrome-192x192.png","sizes":"192x192","type":"image/png"},{"src":"./img/icons/android-chrome-512x512.png","sizes":"512x512","type":"image/png"}],"start_url":".","display":"standalone","background_color":"#B1B2B4"}
+{
+  "name": "Aladin",
+  "short_name": "Aladin",
+  "theme_color": "#B1B2B4",
+  "icons": [
+    { "src": "./img/icons/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./img/icons/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#e8edf1"
+}

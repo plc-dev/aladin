@@ -22,7 +22,8 @@ module.exports = mongoose => {
     },
     language: {
       type: String
-    }
+    },
+    solvedExercises: []
   });
   return mongoose.model("User", User);
 };
