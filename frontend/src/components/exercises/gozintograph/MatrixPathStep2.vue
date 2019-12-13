@@ -6,50 +6,26 @@
     </TextBox>
 
     <div class="matrices">
-      <div class="matrices__wrapper">
-        <Matrix
-          type="subtractedMatrix2"
-          :x-label="true"
-          :y-label="true"
-          :matrix="userSubtractedMatrix2"
-          @validate-field="validateField"
-        ></Matrix>
-
-        <div class="inverse">
-          <div
-            class="inverse__add"
-            v-for="(rows, index) in userSubtractedMatrix2"
-            :key="index"
-          >
-            <div
-              class="inverse__add--from"
-              v-if="baseState"
-              @click="showValue(index)"
-            >
-              +
-            </div>
-            <input
-              type="number"
-              class="inverse__add--value"
-              v-if="value.includes(index)"
-              v-model="amount"
-            />
-            <div
-              class="inverse__add--to"
-              v-if="row.includes(index)"
-              @click="makeArrow(index)"
-            >
-              &cularr;
-            </div>
-          </div>
-        </div>
-      </div>
+      <Matrix
+        type="subtractedMatrixCopy"
+        :x-label="true"
+        :y-label="true"
+        :readonly="true"
+        :matrix="subtractedMatrixCopy"
+        @validate-field="validateField"
+      ></Matrix>
 
       <Matrix
         type="invertedMatrix"
         :matrix="userInvertedMatrix"
         @validate-field="validateField"
-      ></Matrix>
+      >
+        <template #bottom>
+          <div class="matrices__complete">
+            <Button :text="texts.button" @click.native="invert" />
+          </div>
+        </template>
+      </Matrix>
     </div>
 
     <TaskNavigation
@@ -70,31 +46,13 @@
   @apply flex flex-wrap w-full justify-around items-center mb-12;
 }
 
-.matrices__wrapper {
-  @apply flex;
+.matrices__complete {
+  @apply flex justify-end w-full;
 }
 
-.fill {
-  @apply flex justify-around w-full;
-}
-
-.inverse {
-  @apply flex flex-col;
-  margin-top: 28.67px;
-}
-
-.inverse__add {
-  @apply flex ml-1;
-}
-
-.inverse__add--from,
-.inverse__add--to {
-  height: 28.67px;
-}
-
-.inverse__add--value {
-  @apply flex w-8 border border-russet text-center;
-  max-height: 27px;
+.matrices__complete * {
+  font-size: 12px;
+  max-width: calc(50% - 2.35em);
 }
 </style>
 
@@ -102,9 +60,11 @@
 import Matrix from "@/components/exercises/gozintograph/Matrix";
 import TextBox from "@/components/TextBox";
 import TaskNavigation from "@/components/TaskNavigation";
+import Button from "@/components/Button";
+import { invertMatrix, deepCopy } from "@/lib/helper";
 
 import { createNamespacedHelpers } from "vuex";
-const { mapGetters } = createNamespacedHelpers("gozintograph");
+const { mapGetters, mapState } = createNamespacedHelpers("gozintograph");
 export default {
   name: "MatrixPathStep2",
   data() {
@@ -113,11 +73,13 @@ export default {
       row: [],
       value: [],
       baseState: true,
-      amount: 1
+      amount: 1,
+      subtractedMatrixCopy: []
     };
   },
 
   components: {
+    Button,
     Matrix,
     TextBox,
     TaskNavigation
@@ -128,8 +90,8 @@ export default {
      * Returns if element-id does not match expected pattern.
      */
     validateField({ value, id }) {
-      if (!/(.*)__(\d)_(\d)/.test(id)) return;
-      let [, matrix, row, column] = id.match(/(.*)__(\d)_(\d)/);
+      if (!/(.*)__(\d*)_(\d*)/.test(id)) return;
+      let [, matrix, row, column] = id.match(/(.*)__(\d*)_(\d*)/);
       const rowObject = this[matrix][row];
       const key = Object.keys(rowObject);
       const inputField = document.querySelector(`#${id}`);
@@ -147,37 +109,30 @@ export default {
       this.noError = false;
       return false;
     },
-    showValue(index) {
-      this.baseState = false;
-      this.value.push(index);
-      this.userSubtractedMatrix2.forEach((vector, i) => {
-        if (i < index) {
-          this.row.push(i);
-        }
-      });
-    },
-    makeArrow(index) {
-      const arrow = document.createElement("div");
-      arrow.classList += index;
-      arrow.innerHTML += "&lsh;";
-      const parent = document.querySelector(".matrices__wrapper");
-      parent.appendChild(arrow);
-      this.baseState = true;
-      this.value = [];
-      this.row = [];
-    },
-    invertMatrix() {}
+    invert() {
+      const parsedMatrix = this.userSubtractedMatrix.map(vector =>
+        vector[Object.keys(vector)[0]].map(field => field.amount)
+      );
+      const inverted = invertMatrix(parsedMatrix);
+      this.userInvertedMatrix.forEach((vector, vIndex) =>
+        vector[Object.keys(vector)[0]].forEach(
+          (field, fIndex) => (field.amount = inverted[vIndex][fIndex])
+        )
+      );
+    }
   },
   computed: {
     texts: function() {
       const texts = this.$store.state.user.texts;
       return texts.exercises.gozintograph.tabs.GozintographMatrixPath.step2;
     },
+    ...mapState(["userInvertedMatrix"]),
     ...mapGetters({
-      userInvertedMatrix: "getUserInvertedMatrix",
-      userSubtractedMatrix2: "getUserSubtractedMatrix2"
+      userSubtractedMatrix: "getSubtractedMatrix"
     })
   },
-  updated() {}
+  mounted() {
+    this.subtractedMatrixCopy = deepCopy(this.userSubtractedMatrix);
+  }
 };
 </script>

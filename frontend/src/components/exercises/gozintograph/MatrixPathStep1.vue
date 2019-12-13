@@ -24,13 +24,17 @@
         @validate-field="validateField"
       >
         <template #bottom>
-          <div class="fill">
-            <div class="fill__zero" @click="fillMatrix($event.target)">
-              Fülle alle Nullen!
-            </div>
-            <div class="fill__complete" @click="fillMatrix($event.target)">
-              Fülle komplett!
-            </div>
+          <div class="matrices__fill">
+            <Button
+              class="matrices__fill--zero"
+              :text="buttons.fillZero"
+              @click.native="fillMatrix($event.target)"
+            />
+            <Button
+              class="matrices__fill--complete"
+              :text="buttons.fillComplete"
+              @click.native="fillMatrix($event.target)"
+            />
           </div>
         </template>
       </Matrix>
@@ -41,13 +45,17 @@
         @validate-field="validateField"
       >
         <template #bottom>
-          <div class="fill">
-            <div class="fill__zero" @click="fillMatrix($event.target)">
-              Fülle alle Nullen!
-            </div>
-            <div class="fill__complete" @click="fillMatrix($event.target)">
-              Fülle komplett!
-            </div>
+          <div class="matrices__fill">
+            <Button
+              class="matrices__fill--zero"
+              :text="buttons.fillZero"
+              @click.native="fillMatrix($event.target)"
+            />
+            <Button
+              class="matrices__fill--complete"
+              :text="buttons.fillComplete"
+              @click.native="fillMatrix($event.target)"
+            />
           </div>
         </template>
       </Matrix>
@@ -60,13 +68,17 @@
         @validate-field="validateField"
       >
         <template #bottom>
-          <div class="fill">
-            <div class="fill__zero" @click="fillMatrix($event.target)">
-              Fülle alle Nullen!
-            </div>
-            <div class="fill__complete" @click="fillMatrix($event.target)">
-              Fülle komplett!
-            </div>
+          <div class="matrices__fill">
+            <Button
+              class="matrices__fill--zero"
+              :text="buttons.fillZero"
+              @click.native="fillMatrix($event.target)"
+            />
+            <Button
+              class="matrices__fill--complete"
+              :text="buttons.fillComplete"
+              @click.native="fillMatrix($event.target)"
+            />
           </div>
         </template>
       </Matrix>
@@ -100,8 +112,13 @@
   @apply flex flex-wrap w-full justify-around items-center mb-12;
 }
 
-.fill {
-  @apply flex justify-around w-full cursor-pointer;
+.matrices__fill {
+  @apply flex justify-center w-full cursor-pointer;
+  font-size: 12px;
+}
+
+.matrices__fill * {
+  margin-left: 2.35em;
 }
 </style>
 
@@ -110,6 +127,7 @@ import Matrix from "@/components/exercises/gozintograph/Matrix";
 import TextBox from "@/components/TextBox";
 import ScreenOverlay from "@/components/ScreenOverlay";
 import TaskNavigation from "@/components/TaskNavigation";
+import Button from "@/components/Button";
 import { drawGozintograph } from "@/lib/gozintograph/drawGozintograph";
 import { camelCase } from "@/lib/helper";
 
@@ -124,6 +142,7 @@ export default {
   },
 
   components: {
+    Button,
     Matrix,
     TextBox,
     ScreenOverlay,
@@ -135,8 +154,8 @@ export default {
      * Returns if element-id does not match expected pattern.
      */
     validateField({ value, id }) {
-      if (!/(.*)__(\d)_(\d)/.test(id)) return;
-      let [, matrix, row, column] = id.match(/(.*)__(\d)_(\d)/);
+      if (!/(.*)__(\d*)_(\d*)/.test(id)) return;
+      let [, matrix, row, column] = id.match(/(.*)__(\d*)_(\d*)/);
       const rowObject = this[matrix][row];
       const key = Object.keys(rowObject);
       const inputField = document.querySelector(`#${id}`);
@@ -214,6 +233,11 @@ export default {
     texts: function() {
       const texts = this.$store.state.user.texts;
       return texts.exercises.gozintograph.tabs.GozintographMatrixPath.step1;
+    },
+    buttons: function() {
+      const texts = this.$store.state.user.texts;
+      return texts.exercises.gozintograph.tabs.GozintographMatrixPath
+        .matrixButtons;
     },
     ...mapState({
       userUnitMatrix: state => state.userUnitMatrix,

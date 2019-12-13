@@ -7,17 +7,34 @@
 
     <div class="show__graph">
       Graph anzeigen:
-      <img src="/img/icons/graph.png" alt="graph" class="show__graph--img" @click="showOverlay" />
+      <img
+        src="/img/icons/graph.png"
+        alt="graph"
+        class="show__graph--img"
+        @click="showOverlay"
+      />
     </div>
 
     <div class="primary" v-if="primary">
       <!-- <div>{{ texts.labels.primary }}</div> -->
-      <Matrix :show="true" :matrix="primary" :readonly="true" :yLabel="true" type="primary"></Matrix>
+      <Matrix
+        :show="true"
+        :matrix="primary"
+        :readonly="true"
+        :yLabel="true"
+        type="primary"
+      ></Matrix>
     </div>
 
     <div class="secondary">
       <!-- <div>{{ texts.labels.secondary }}</div> -->
-      <Matrix :matrix="userSecondary" v-model="userSecondary" :yLabel="true" type="secondary" @validate-field="validateSecondary"></Matrix>
+      <Matrix
+        :matrix="userSecondary"
+        v-model="userSecondary"
+        :yLabel="true"
+        type="secondary"
+        @validate-field="validateSecondary"
+      ></Matrix>
     </div>
 
     <PathBuilder />
@@ -68,10 +85,16 @@ export default {
     texts: function() {
       const texts = this.$store.state.user.texts;
       return {
-        task: texts.exercises.gozintograph.tabs.GozintographMultiplicationPath.step1,
+        task:
+          texts.exercises.gozintograph.tabs.GozintographMultiplicationPath
+            .step1,
         labels: {
-          primary: texts.exercises.gozintograph.tabs.GozintographScope.description.primary,
-          secondary: texts.exercises.gozintograph.tabs.GozintographScope.description.secondary
+          primary:
+            texts.exercises.gozintograph.tabs.GozintographScope.description
+              .primary,
+          secondary:
+            texts.exercises.gozintograph.tabs.GozintographScope.description
+              .secondary
         }
       };
     },
@@ -94,7 +117,7 @@ export default {
   },
   methods: {
     validateSecondary({ value, id }) {
-      const index = id.slice(-1);
+      let [, index] = id.match(/.*__\d*_(\d*)/);
       if (this.secondary[index].amount == value) {
         document.querySelector(`#${id}`).classList.remove("error");
         document.querySelector(`#${id}`).classList.add("success");
@@ -141,7 +164,8 @@ export default {
     showOverlay() {
       document.querySelector(".overlay").style.height = "100vh";
       const appendTo = document.querySelector(".overlay__content");
-      const containerHeight = document.querySelector(".overlay__content").offsetHeight;
+      const containerHeight = document.querySelector(".overlay__content")
+        .offsetHeight;
       const self = this;
       setTimeout(() => {
         drawGozintograph(self.graph, appendTo, containerHeight);

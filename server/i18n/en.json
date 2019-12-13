@@ -74,6 +74,10 @@
         },
         "GozintographMatrixPath": {
           "tab": "Matrices",
+          "matrixbuttons": {
+            "fillZero": "Pad",
+            "fillComplete": "Complete"
+          },
           "step0": {
             "description": {
               "header": "Selection",
@@ -87,14 +91,15 @@
           "step1": {
             "description": {
               "header": "Description",
-              "body": "Fill the direct-needs-matrix with the edge values of the graph. The matrix is read from top to left:\n [Column] * B0 are needed to produce [Row] 1 A0.\n Then fill in the unit matrix beneath and subtract. The result needs to be filled in the matrix below."
+              "body": "Fill the direct-needs-matrix with the edge values of the graph. The matrix is read from top to left:\n [Column] * B0 are needed to produce [Row] 1 A0.\n Then fill in the unit matrix beneath and subtract. The result needs to be filled in the last matrix."
             }
           },
           "step2": {
             "description": {
               "header": "Description",
-              "body": "Invert the resulting matrix of the previous step. In order to do this, add a multifold of a row to another row, until you induced a unit matrix. Apply the same operations on the initial unit matrix."
-            }
+              "body": "Invert the resulting matrix of the previous step. Use your calculator to solve it, or click to fill it up."
+            },
+            "button": "Complete"
           },
           "step3": {
             "description": {

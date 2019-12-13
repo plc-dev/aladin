@@ -7,7 +7,12 @@
 
     <div class="matrices">
       <div class="matrices__top">
-        <Matrix style="visibility: hidden" type="placeholder" :matrix="unitMatrix" :readonly="true"></Matrix>
+        <Matrix
+          style="visibility: hidden"
+          type="placeholder"
+          :matrix="unitMatrix"
+          :readonly="true"
+        ></Matrix>
         <Matrix
           v-for="(e, index) in maxPathLength - 1"
           :key="index"
@@ -17,7 +22,12 @@
           :matrix="directMatrix"
           :readonly="true"
         ></Matrix>
-        <Matrix type="unitMatrix" :matrix="unitMatrix" :readonly="true"></Matrix>
+        <Matrix
+          type="unitMatrix"
+          :matrix="unitMatrix"
+          :readonly="true"
+        ></Matrix>
+        <Matrix type="primary" :matrix="primary" :readonly="true" />
       </div>
 
       <div class="matrices__bottom">
@@ -35,7 +45,11 @@
           :matrix="emptyDirectMatrices[index]"
           :readonly="true"
         ></Matrix>
-        <Matrix type="aggregatedMatrix" :matrix="aggregatedMatrix" :readonly="true"></Matrix>
+        <Matrix
+          type="aggregatedMatrix"
+          :matrix="aggregatedMatrix"
+          :readonly="true"
+        ></Matrix>
       </div>
     </div>
     <TaskNavigation
@@ -48,10 +62,6 @@
 </template>
 
 <style lang="postcss">
-.matrices__multiplication {
-  /* @apply overflow-y-auto; */
-}
-
 .matrices__selection--description {
   @apply self-center text-center m-2 pb-4;
 }
@@ -109,7 +119,8 @@ export default {
     }),
     ...mapGetters({
       directMatrix: "getDirectMatrix",
-      unitMatrix: "getUnitMatrix"
+      unitMatrix: "getUnitMatrix",
+      primary: "getFullPrimary"
     })
   },
   mounted() {

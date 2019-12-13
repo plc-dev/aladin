@@ -1,15 +1,38 @@
 <template>
   <div class="pathbuilder">
     <ul class="pathbuilder__paths">
-      <li :class="`pathbuilder__path--${pIndex}`" v-for="(path, pIndex) in userPaths" :key="pIndex">
+      <li
+        :class="`pathbuilder__path--${pIndex}`"
+        v-for="(path, pIndex) in userPaths"
+        :key="pIndex"
+      >
         <div class="pathbuilder__path--state"></div>
-        <div :class="pIndex ? 'pathbuilder__remove--path' : 'placeholder'" :pathIndex="pIndex" @click="removePath(pIndex)">
+        <div
+          :class="pIndex ? 'pathbuilder__remove--path' : 'placeholder'"
+          :pathIndex="pIndex"
+          @click="removePath(pIndex)"
+        >
           &minus;
         </div>
-        <div class="pathbuilder__path__connection" v-for="(connection, cIndex) in path" :pathIndex="pIndex" :key="cIndex">
-          <input class="connection__node" v-if="!cIndex" v-model="connection.child" type="text" maxlength="2" />
+        <div
+          class="pathbuilder__path__connection"
+          v-for="(connection, cIndex) in path"
+          :pathIndex="pIndex"
+          :key="cIndex"
+        >
+          <input
+            class="connection__node"
+            v-if="!cIndex"
+            v-model="connection.child"
+            type="text"
+            maxlength="2"
+          />
           <div class="connection__edge">
-            <input class="connection__edge--value" v-model="connection.value" type="number" />
+            <input
+              class="connection__edge--value"
+              v-model="connection.value"
+              type="number"
+            />
             <span class="connection__edge--arrow">&zigrarr;</span>
           </div>
           <input
@@ -21,21 +44,37 @@
           />
           <div
             class="pathbuilder__add--connection"
-            v-if="cIndex === path.length - 1 && lengthAllowed[userPaths[pIndex].length + 1] && lengthAllowed[userPaths[pIndex].length + 1].length"
+            v-if="
+              cIndex === path.length - 1 &&
+                lengthAllowed[userPaths[pIndex].length + 1] &&
+                lengthAllowed[userPaths[pIndex].length + 1].length
+            "
             @click="addConnection(pIndex)"
           >
             &plus;
           </div>
-          <div class="pathbuilder__remove--connection" v-if="cIndex === path.length - 1 && cIndex" @click="removeConnection(pIndex)">
+          <div
+            class="pathbuilder__remove--connection"
+            v-if="cIndex === path.length - 1 && cIndex"
+            @click="removeConnection(pIndex)"
+          >
             &minus;
           </div>
-          <div class="pathbuilder__validate--path" v-if="cIndex === path.length - 1" @click="validatePath(pIndex)">
+          <div
+            class="pathbuilder__validate--path"
+            v-if="cIndex === path.length - 1"
+            @click="validatePath(pIndex)"
+          >
             &quest;
           </div>
         </div>
       </li>
       <div class="pathbuilder__bottom--controls">
-        <div class="pathbuilder__add--path" v-if="userPaths.length < paths.length" @click="addPath()">
+        <div
+          class="pathbuilder__add--path"
+          v-if="userPaths.length < paths.length"
+          @click="addPath()"
+        >
           &plus;
         </div>
         <div class="pathbuilder__validate--paths" @click="validatePaths">
@@ -185,7 +224,8 @@ export default {
       // subtract userPathLengths of smaller/equal lengths
       userPathLengths.forEach(userLength => {
         for (let i = userLength; i > 0; i--) {
-          if (lengthAmount[i] && lengthAmount[i].length) lengthAmount[i].shift();
+          if (lengthAmount[i] && lengthAmount[i].length)
+            lengthAmount[i].shift();
         }
       });
 
@@ -214,7 +254,11 @@ export default {
     removePath(pathIndex) {
       this.userPaths.splice(pathIndex, 1);
       this.markedPaths = [];
-      Array.from(document.querySelectorAll(".pathbuilder__path--state.correct, .pathbuilder__path--state.false")).forEach(path =>
+      Array.from(
+        document.querySelectorAll(
+          ".pathbuilder__path--state.correct, .pathbuilder__path--state.false"
+        )
+      ).forEach(path =>
         this.validatePath(path.nextSibling.getAttribute("pathIndex"))
       );
     },
@@ -236,24 +280,35 @@ export default {
           if (userPath.length === path.length) {
             if (
               (path[cIndex].value == connection.value &&
-                path[cIndex].child.toLowerCase() == connection.child.toLowerCase() &&
-                path[cIndex].parent.toLowerCase() == connection.parent.toLowerCase()) ||
+                path[cIndex].child.toLowerCase() ==
+                  connection.child.toLowerCase() &&
+                path[cIndex].parent.toLowerCase() ==
+                  connection.parent.toLowerCase()) ||
               (path[length - cIndex].value == connection.value &&
-                path[length - cIndex].parent.toLowerCase() == connection.child.toLowerCase() &&
-                path[length - cIndex].child.toLowerCase() == connection.parent.toLowerCase())
+                path[length - cIndex].parent.toLowerCase() ==
+                  connection.child.toLowerCase() &&
+                path[length - cIndex].child.toLowerCase() ==
+                  connection.parent.toLowerCase())
             ) {
               trueConnections = trueConnections + 1;
             }
           }
         });
-        const alreadyUsed = this.markedPaths.filter(indices => indices.path === pIndex && indices.userPath !== index);
-        if (trueConnections === this.paths[pIndex].length && !alreadyUsed.length) {
+        const alreadyUsed = this.markedPaths.filter(
+          indices => indices.path === pIndex && indices.userPath !== index
+        );
+        if (
+          trueConnections === this.paths[pIndex].length &&
+          !alreadyUsed.length
+        ) {
           this.markedPaths.push({ path: pIndex, userPath: index });
           truePath = true;
         }
         trueConnections = 0;
       });
-      const path = document.querySelector(`.pathbuilder__path--${index} .pathbuilder__path--state`);
+      const path = document.querySelector(
+        `.pathbuilder__path--${index} .pathbuilder__path--state`
+      );
       const sign = truePath ? "&check;" : "&times;";
       path.innerHTML = sign;
       if (truePath) {

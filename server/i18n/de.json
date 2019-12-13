@@ -74,6 +74,10 @@
         },
         "GozintographMatrixPath": {
           "tab": "Matritzen",
+          "matrixButtons": {
+            "fillZero": "Auffüllen",
+            "fillComplete": "Komplettieren"
+          },
           "step0": {
             "description": {
               "header": "Auswahl",
@@ -87,14 +91,15 @@
           "step1": {
             "description": {
               "header": "Aufgabenbeschreibung",
-              "body": "Fülle die Matrix mit den Kantenwerten aus dem Graph. Die Matrix liest sich von oben nach links: [Spalte] * B0 werden für [Zeile] 1 A0 gebraucht. Bilde anschließend die Einheitsmatrix daneben und subtrahiere die Direktbedarfsmatrix davon. Trage das Ergebnis in die Matrix darunter ein."
+              "body": "Fülle die Matrix mit den Kantenwerten aus dem Graph. Die Matrix liest sich von oben nach links: [Spalte] * B0 werden für [Zeile] 1 A0 gebraucht. Bilde anschließend die Einheitsmatrix daneben und subtrahiere die Direktbedarfsmatrix davon. Trage das Ergebnis in die letzte Matrix ein."
             }
           },
           "step2": {
             "description": {
               "header": "Aufgabenbeschreibung",
-              "body": "Invertiere die Ergebnismatrix aus dem vorherigen Schritt. Addiere hierzu solange das Vielfache einer Zeile zu einer anderen Zeile, bis du eine Einheitsmatrix erzeugt hast. Wende dieselben Operationen auf die anfängliche Einheitsmatrix an."
-            }
+              "body": "Invertiere die Ergebnismatrix aus dem vorherigen Schritt. Verwende hierzu deinen Taschenrechner oder lasse sie automatisch befüllen."
+            },
+            "button": "Komplettieren"
           },
           "step3": {
             "description": {

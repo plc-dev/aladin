@@ -121,6 +121,16 @@ export default {
         ? [{ [primaryText]: state.graph.level[0] }]
         : null;
     },
+    getFullPrimary(state) {
+      return state.graph.level.flatMap((level, lIndex) =>
+        level.map(node => {
+          if (!lIndex) {
+            return { [node.id]: [{ id: "P", amount: node.amount }] };
+          }
+          return { [node.id]: [{ id: node.id, amount: 0 }] };
+        })
+      );
+    },
     getDirectMatrix(state) {
       const connections = deepCopy(state.graph.connections);
       const level = deepCopy(state.graph.level);
@@ -160,12 +170,6 @@ export default {
       }
       return subtractedMatrix;
     },
-    getUserSubtractedMatrix2(state, getters) {
-      return deepCopy(getters.getSubtractedMatrix);
-    },
-    getUserInvertedMatrix(state, getters) {
-      return deepCopy(getters.getUnitMatrix);
-    },
     getSecondaryVector(state) {
       return state.graph.level.filter((level, index) => index).flat();
     },
@@ -197,6 +201,9 @@ export default {
     },
     SET_USER_SUBTRACTED_MATRIX(state, matrix) {
       state.userSubtractedMatrix = matrix;
+    },
+    SET_USER_INVERTED_MATRIX(state, matrix) {
+      state.userInvertedMatrix = matrix;
     },
     SET_MATRIX_PATH_STEP(state, step) {
       state.matrixPathStep = step;
@@ -238,9 +245,11 @@ export default {
       const unitMatrix = retrieveMatrix(connections, nodes, 0, true);
       const directMatrix = deepCopy(unitMatrix);
       const subtractedMatrix = deepCopy(unitMatrix);
+      const invertedMatrix = deepCopy(unitMatrix);
       commit("SET_USER_UNIT_MATRIX", unitMatrix);
       commit("SET_USER_DIRECT_MATRIX", directMatrix);
       commit("SET_USER_SUBTRACTED_MATRIX", subtractedMatrix);
+      commit("SET_USER_INVERTED_MATRIX", invertedMatrix);
     },
     setGraph({ commit, dispatch }, graph) {
       commit("SET_GRAPH", graph);

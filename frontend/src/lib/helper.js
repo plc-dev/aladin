@@ -147,3 +147,93 @@ export function camelCase(string) {
     return index == 0 ? match.toLowerCase() : match.toUpperCase();
   });
 }
+
+/**
+ * Matrix inversion algorithm as implemented here: http://blog.acipo.com/matrix-inversion-in-javascript/
+ * Expects a n by n matrix in the format: [[1,2,...], [3,4,...], ...]
+ * Returns inverted matrix if the inversion is possible
+ * @param {array} M
+ */
+export function invertMatrix(M) {
+  if (M.length !== M[0].length) {
+    return;
+  }
+  let i = 0,
+    ii = 0,
+    j = 0,
+    dim = M.length,
+    e = 0;
+  let I = [],
+    C = [];
+  for (i = 0; i < dim; i += 1) {
+    I[I.length] = [];
+    C[C.length] = [];
+    for (j = 0; j < dim; j += 1) {
+      if (i == j) {
+        I[i][j] = 1;
+      } else {
+        I[i][j] = 0;
+      }
+
+      C[i][j] = M[i][j];
+    }
+  }
+  for (i = 0; i < dim; i += 1) {
+    e = C[i][i];
+    if (e == 0) {
+      for (ii = i + 1; ii < dim; ii += 1) {
+        if (C[ii][i] != 0) {
+          for (j = 0; j < dim; j++) {
+            e = C[i][j];
+            C[i][j] = C[ii][j];
+            C[ii][j] = e;
+            e = I[i][j];
+            I[i][j] = I[ii][j];
+            I[ii][j] = e;
+          }
+          break;
+        }
+      }
+      e = C[i][i];
+      if (e == 0) {
+        return;
+      }
+    }
+    for (j = 0; j < dim; j++) {
+      C[i][j] = C[i][j] / e;
+      I[i][j] = I[i][j] / e;
+    }
+    for (ii = 0; ii < dim; ii++) {
+      if (ii == i) {
+        continue;
+      }
+      e = C[ii][i];
+      for (j = 0; j < dim; j++) {
+        C[ii][j] -= e * C[i][j];
+        I[ii][j] -= e * I[i][j];
+      }
+    }
+  }
+  return I;
+}
+
+/**
+ * Receives two arrays of arrays in the form of [[1,2,...], [2,3...], ...]
+ * Returns a matrix with the dimensionality of n*m
+ * @param {array} A
+ * @param {array} B
+ */
+export function matrixMultiplication(A, B) {
+  const result = new Array(A.length)
+    .fill(0)
+    .map(() => new Array(B[0].length).fill(0));
+
+  return result.map((vector, vIndex) => {
+    return vector.map((field, fieldIndex) => {
+      return A[vIndex].reduce(
+        (sum, resField, resIndex) => sum + resField * B[resIndex][fieldIndex],
+        0
+      );
+    });
+  });
+}
