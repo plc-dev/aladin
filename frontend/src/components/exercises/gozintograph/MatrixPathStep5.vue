@@ -54,12 +54,10 @@
 
 .matrices__selection--description {
   @apply self-center text-center m-2 pb-4;
-  flex-wrap: none;
 }
 
 .matrices__multiplication .matrices {
-  @apply flex flex-col mb-12 overflow-auto;
-  max-width: 95%;
+  @apply flex flex-col px-4 mb-12 overflow-auto;
 }
 
 .matrices__top {
