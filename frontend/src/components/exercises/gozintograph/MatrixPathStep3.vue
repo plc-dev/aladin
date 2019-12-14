@@ -44,11 +44,16 @@
 
 .matrices__multiplicate {
   @apply flex justify-between w-full items-center overflow-auto;
-  max-width: 70%;
 }
 
 .matrices__multiplicate > div {
   @apply px-4;
+}
+
+@media (min-width: 1000px) {
+  .matrices__multiplicate {
+    max-width: 70%;
+  }
 }
 </style>
 
