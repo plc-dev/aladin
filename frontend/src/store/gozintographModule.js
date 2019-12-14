@@ -173,6 +173,11 @@ export default {
     getSecondaryVector(state) {
       return state.graph.level.filter((level, index) => index).flat();
     },
+    getFullSecondary(state) {
+      return state.graph.level.flatMap(level =>
+        level.map(node => ({ [node.id]: [{ id: "S", amount: node.amount }] }))
+      );
+    },
     getUserSecondaryVector(state, getters) {
       const secondary = deepCopy(getters.getSecondaryVector);
       const userSecondary = secondary.map(node => {
@@ -180,6 +185,13 @@ export default {
         return node;
       });
       return [{ [secondaryText]: userSecondary }];
+    },
+    getUserSecondaryFullVector(state, getters) {
+      const secondary = deepCopy(getters.getFullSecondary);
+      secondary.forEach(vector =>
+        vector[Object.keys(vector)[0]].forEach(node => (node.amount = ""))
+      );
+      return secondary;
     }
   },
 

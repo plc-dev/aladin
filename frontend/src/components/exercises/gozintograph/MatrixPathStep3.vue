@@ -21,14 +21,15 @@
         :yLabel="true"
         :readonly="true"
       ></Matrix>
-    </div>
 
-    <Matrix
-      type="userSecondary"
-      :matrix="userSecondary"
-      :yLabel="true"
-      @validate-field="validateSecondary"
-    ></Matrix>
+      <Matrix
+        type="userSecondary"
+        :matrix="userSecondary"
+        :yLabel="true"
+        :xLabel="true"
+        @validate-field="validateSecondary"
+      ></Matrix>
+    </div>
     <TaskNavigation
       :backward="true"
       @click-backward="$emit('step-direction', 'backward')"
@@ -42,7 +43,11 @@
 }
 
 .matrices__multiplicate {
-  @apply flex justify-around w-full items-center;
+  @apply flex justify-between w-full items-center overflow-auto;
+}
+
+.matrices__multiplicate > div {
+  @apply px-4;
 }
 </style>
 
@@ -72,8 +77,10 @@ export default {
   },
   methods: {
     validateSecondary({ value, id }) {
-      let [, index] = id.match(/.*__\d*_(\d*)/);
-      if (this.secondary[index].amount == value) {
+      let [, index] = id.match(/.*__(\d*)_\d*/);
+      const key = Object.keys(this.secondary[index])[0];
+      console.warn(this.secondary[index]);
+      if (this.secondary[index][key][0]["amount"] == value) {
         document.querySelector(`#${id}`).classList.remove("error");
         document.querySelector(`#${id}`).classList.add("success");
       } else if (value === "") {
@@ -124,9 +131,9 @@ export default {
     },
     ...mapState(["userInvertedMatrix"]),
     ...mapGetters({
-      secondary: "getSecondaryVector",
-      userSecondary: "getUserSecondaryVector",
-      primary: "getFullPrimary"
+      userSecondary: "getUserSecondaryFullVector",
+      primary: "getFullPrimary",
+      secondary: "getFullSecondary"
     })
   },
   updated() {}

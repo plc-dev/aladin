@@ -22,7 +22,7 @@
       >
         <template #bottom>
           <div class="matrices__complete">
-            <Button :text="texts.button" @click.native="invert" />
+            <Button :text="texts.button" @click.native="invert(true)" />
           </div>
         </template>
       </Matrix>
@@ -74,7 +74,8 @@ export default {
       value: [],
       baseState: true,
       amount: 1,
-      subtractedMatrixCopy: []
+      subtractedMatrixCopy: [],
+      invertedMatrix: []
     };
   },
 
@@ -109,12 +110,15 @@ export default {
       this.noError = false;
       return false;
     },
-    invert() {
+    invert(user) {
       const parsedMatrix = this.userSubtractedMatrix.map(vector =>
         vector[Object.keys(vector)[0]].map(field => field.amount)
       );
       const inverted = invertMatrix(parsedMatrix);
-      this.userInvertedMatrix.forEach((vector, vIndex) =>
+      const matrixToInvert = user
+        ? this.userInvertedMatrix
+        : this.invertedMatrix;
+      matrixToInvert.forEach((vector, vIndex) =>
         vector[Object.keys(vector)[0]].forEach(
           (field, fIndex) => (field.amount = inverted[vIndex][fIndex])
         )
@@ -133,6 +137,8 @@ export default {
   },
   mounted() {
     this.subtractedMatrixCopy = deepCopy(this.userSubtractedMatrix);
+    this.invertedMatrix = deepCopy(this.userSubtractedMatrix);
+    this.invert();
   }
 };
 </script>

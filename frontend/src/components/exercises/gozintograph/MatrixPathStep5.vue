@@ -12,22 +12,18 @@
           type="placeholder"
           :matrix="unitMatrix"
           :readonly="true"
-        ></Matrix>
+        />
         <Matrix
           v-for="(e, index) in maxPathLength - 1"
           :key="index"
           :type="`directMatrix__${index}`"
-          :x-label="true"
-          :y-label="true"
+          :x-label="!index ? true : false"
+          :y-label="!index ? true : false"
           :matrix="directMatrix"
           :readonly="true"
-        ></Matrix>
-        <Matrix
-          type="unitMatrix"
-          :matrix="unitMatrix"
-          :readonly="true"
-        ></Matrix>
-        <Matrix type="primary" :matrix="primary" :readonly="true" />
+        />
+        <Matrix type="unitMatrix" :matrix="unitMatrix" :readonly="true" />
+        <Matrix type="primary" :matrix="primary" :readonly="true" :y-label="true" />
       </div>
 
       <div class="matrices__bottom">
@@ -37,19 +33,45 @@
           :readonly="true"
           :x-label="true"
           :y-label="true"
-        ></Matrix>
+        />
         <Matrix
           v-for="(matrix, index) in emptyDirectMatrices"
           :key="index"
-          :type="`userDirectMatrix__${index}`"
-          :matrix="emptyDirectMatrices[index]"
-          :readonly="true"
-        ></Matrix>
-        <Matrix
-          type="aggregatedMatrix"
-          :matrix="aggregatedMatrix"
-          :readonly="true"
-        ></Matrix>
+          :type="`filledDirectMatrices__${index}`"
+          :matrix="filledDirectMatrices[index]"
+        >
+          <template #bottom>
+            <div class="matrices__fill">
+              <Button
+                class="matrices__fill--zero"
+                :text="buttons.fillZero"
+                @click.native="fillMatrix($event.target)"
+              />
+              <Button
+                class="matrices__fill--complete"
+                :text="buttons.fillComplete"
+                @click.native="fillMatrix($event.target)"
+              />
+            </div>
+          </template>
+        </Matrix>
+        <Matrix type="aggregatedMatrix" :matrix="aggregatedMatrix">
+          <template #bottom>
+            <div class="matrices__fill">
+              <Button
+                class="matrices__fill--zero"
+                :text="buttons.fillZero"
+                @click.native="fillMatrix($event.target)"
+              />
+              <Button
+                class="matrices__fill--complete"
+                :text="buttons.fillComplete"
+                @click.native="fillMatrix($event.target)"
+              />
+            </div>
+          </template>
+        </Matrix>
+        <Matrix type="secondary" :matrix="userSecondary" :y-label="true" />
       </div>
     </div>
     <TaskNavigation
@@ -67,7 +89,11 @@
 }
 
 .matrices__multiplication .matrices {
-  @apply flex flex-col px-4 mb-12 overflow-auto;
+  @apply flex flex-col mb-12 overflow-auto;
+}
+
+.matrices__multiplication .matrices > div {
+  @apply px-4;
 }
 
 .matrices__top {
@@ -83,33 +109,156 @@
 import TextBox from "@/components/TextBox";
 import TaskNavigation from "@/components/TaskNavigation";
 import Matrix from "@/components/exercises/gozintograph/Matrix";
-import { deepCopy } from "@/lib/helper";
+import Button from "@/components/Button";
+import {
+  retrieveMatrix,
+  matrixMultiplication,
+  deepCopy,
+  camelCase
+} from "@/lib/helper";
 
 import { createNamespacedHelpers } from "vuex";
 const { mapGetters, mapState } = createNamespacedHelpers("gozintograph");
 export default {
   name: "MatrixPathStep5",
-  data() {
-    return {
-      aggregatedMatrix: []
-    };
+  components: { TextBox, TaskNavigation, Matrix, Button },
+  methods: {
+    fillMatrix(target) {
+      const onlyZero = /zero/.test(target.classList);
+      const matrixType = target.parentNode.parentNode.classList[0].substring(8);
+      const filledMatrix = this[matrixType];
+      const userMatrix = this[camelCase(`user ${matrixType}`)];
+      for (let i = 0; i < filledMatrix.length; i++) {
+        const filledVector = filledMatrix[i];
+        const userVector = userMatrix[i];
+        const vectorKey = Object.keys(filledVector)[0];
+        for (let j = 0; j < filledMatrix.length; j++) {
+          if (
+            !onlyZero ||
+            (onlyZero && filledVector[vectorKey][j].amount === 0)
+          ) {
+            userVector[vectorKey][j].amount = filledVector[vectorKey][j].amount;
+          }
+        }
+      }
+    },
+    validateSecondary({ value, id }) {
+      let [, index] = id.match(/.*__(\d*)_\d*/);
+      const key = Object.keys(this.secondary[index])[0];
+      if (this.secondary[index][key][0]["amount"] == value) {
+        document.querySelector(`#${id}`).classList.remove("error");
+        document.querySelector(`#${id}`).classList.add("success");
+      } else if (value === "") {
+        document.querySelector(`#${id}`).classList.remove("success");
+        document.querySelector(`#${id}`).classList.remove("error");
+      } else {
+        document.querySelector(`#${id}`).classList.remove("success");
+        document.querySelector(`#${id}`).classList.add("error");
+      }
+      const correctAmount = document.querySelectorAll(".success").length;
+      if (this.secondary.length === correctAmount) {
+        this.onSuccess();
+      }
+    },
+    onSuccess() {
+      this.$alertify
+        .confirm(
+          this.success.body,
+          () => {
+            this.$store.commit("gozintograph/CLEAR_STATE");
+            this.$destroy();
+            location.reload();
+            const layer = document.querySelector(".alertify");
+            layer.parentNode.removeChild(layer);
+          },
+          () => {
+            const layer = document.querySelector(".alertify");
+            layer.parentNode.removeChild(layer);
+          }
+        )
+        .set({ title: this.success.title })
+        .set({
+          labels: {
+            ok: this.success.labels.ok,
+            cancel: this.success.labels.cancel
+          }
+        });
+    }
   },
-  components: { TextBox, TaskNavigation, Matrix },
   computed: {
     texts: function() {
       const texts = this.$store.state.user.texts;
       return texts.exercises.gozintograph.tabs.GozintographMatrixPath.step5;
     },
+    buttons: function() {
+      const texts = this.$store.state.user.texts;
+      return texts.exercises.gozintograph.tabs.GozintographMatrixPath
+        .matrixButtons;
+    },
+    dummyMatrix: function() {
+      const graph = this.$store.state.gozintograph.graph;
+      const connections = graph.connections;
+      const nodes = graph.level.flatMap(level => level.map(node => node));
+      return retrieveMatrix(connections, nodes, 0);
+    },
+    userAggregatedMatrix: function() {
+      const graph = this.$store.state.gozintograph.graph;
+      const connections = graph.connections;
+      const nodes = graph.level.flatMap(level => level.map(node => node));
+      return retrieveMatrix(connections, nodes, 0, true);
+    },
     emptyDirectMatrices: function() {
       let amount = this.maxPathLength;
       let matrices = [];
+      const graph = this.$store.state.gozintograph.graph;
+      const connections = graph.connections;
+      const nodes = graph.level.flatMap(level => level.map(node => node));
       while (amount > 1) {
-        matrices.push(
-          deepCopy(this.$store.state.gozintograph.userSubtractedMatrix)
-        );
+        matrices.push(retrieveMatrix(connections, nodes, 0, true));
         amount--;
       }
       return matrices;
+    },
+    filledDirectMatrices: function() {
+      const d1 = this.directMatrix.map(vector =>
+        vector[Object.keys(vector)[0]].map(field => field.amount)
+      );
+      const filledDirectMatrices = [];
+
+      this.emptyDirectMatrices.forEach((matrix, index) => {
+        let multiplied = [];
+        if (!index) multiplied = matrixMultiplication(d1, d1);
+        else {
+          const dN = filledDirectMatrices[index - 1].map(vector =>
+            vector[Object.keys(vector)[0]].map(field => field.amount)
+          );
+          multiplied = matrixMultiplication(dN, d1);
+        }
+        filledDirectMatrices.push(deepCopy(matrix));
+        filledDirectMatrices[index].forEach((vector, vIndex) =>
+          vector[Object.keys(vector)[0]].forEach(
+            (field, fIndex) => (field.amount = multiplied[vIndex][fIndex])
+          )
+        );
+      });
+      return filledDirectMatrices;
+    },
+    aggregatedMatrix: function() {
+      return [
+        ...this.filledDirectMatrices,
+        this.unitMatrix,
+        this.directMatrix
+      ].reduce((aggregated, matrix) => {
+        for (let vIndex = 0; vIndex < matrix.length; vIndex++) {
+          const aggVector = aggregated[vIndex];
+          const mVector = matrix[vIndex];
+          const key = Object.keys(mVector)[0];
+          for (let fIndex = 0; fIndex < aggVector[key].length; fIndex++) {
+            aggVector[key][fIndex].amount += mVector[key][fIndex].amount;
+          }
+        }
+        return aggregated;
+      }, this.dummyMatrix);
     },
     ...mapState({
       maxPathLength: state =>
@@ -120,13 +269,10 @@ export default {
     ...mapGetters({
       directMatrix: "getDirectMatrix",
       unitMatrix: "getUnitMatrix",
-      primary: "getFullPrimary"
+      primary: "getFullPrimary",
+      userSecondary: "getUserSecondaryFullVector",
+      secondary: "getFullSecondary"
     })
-  },
-  mounted() {
-    this.aggregatedMatrix = deepCopy(
-      this.$store.state.gozintograph.userSubtractedMatrix
-    );
   }
 };
 </script>
