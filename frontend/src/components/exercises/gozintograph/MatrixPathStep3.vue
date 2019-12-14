@@ -44,6 +44,7 @@
 
 .matrices__multiplicate {
   @apply flex justify-between w-full items-center overflow-auto;
+  max-width: 70%;
 }
 
 .matrices__multiplicate > div {
@@ -77,10 +78,8 @@ export default {
   },
   methods: {
     validateSecondary({ value, id }) {
-      let [, index] = id.match(/.*__(\d*)_\d*/);
-      const key = Object.keys(this.secondary[index])[0];
-      console.warn(this.secondary[index]);
-      if (this.secondary[index][key][0]["amount"] == value) {
+      let [, index] = id.match(/.*__\d*_(\d*)/);
+      if (this.secondary[0]["S"][index]["amount"] == value) {
         document.querySelector(`#${id}`).classList.remove("error");
         document.querySelector(`#${id}`).classList.add("success");
       } else if (value === "") {
@@ -91,7 +90,7 @@ export default {
         document.querySelector(`#${id}`).classList.add("error");
       }
       const correctAmount = document.querySelectorAll(".success").length;
-      if (this.secondary.length === correctAmount) {
+      if (this.secondary[0]["S"].length === correctAmount) {
         this.onSuccess();
       }
     },

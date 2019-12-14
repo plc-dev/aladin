@@ -91,7 +91,7 @@
           "step1": {
             "description": {
               "header": "Aufgabenbeschreibung",
-              "body": "Fülle die Matrix mit den Kantenwerten aus dem Graph. Die Matrix liest sich von oben nach links: [Spalte] * B0 werden für [Zeile] 1 A0 gebraucht. Bilde anschließend die Einheitsmatrix daneben und subtrahiere die Direktbedarfsmatrix davon. Trage das Ergebnis in die letzte Matrix ein."
+              "body": "Fülle die Matrix mit den Kantenwerten aus dem Graph. Die Matrix liest sich von links nach oben: [Zeile] * B0 werden für [Spalte] 1 A0 gebraucht. Bilde anschließend die Einheitsmatrix und subtrahiere davon die Direktbedarfsmatrix. Trage das Ergebnis in die letzte Matrix ein."
             }
           },
           "step2": {

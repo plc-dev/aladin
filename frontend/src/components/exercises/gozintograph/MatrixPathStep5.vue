@@ -23,7 +23,12 @@
           :readonly="true"
         />
         <Matrix type="unitMatrix" :matrix="unitMatrix" :readonly="true" />
-        <Matrix type="primary" :matrix="primary" :readonly="true" :y-label="true" />
+        <Matrix
+          type="primary"
+          :matrix="primary"
+          :readonly="true"
+          :y-label="true"
+        />
       </div>
 
       <div class="matrices__bottom">
@@ -35,27 +40,27 @@
           :y-label="true"
         />
         <Matrix
-          v-for="(matrix, index) in emptyDirectMatrices"
+          v-for="(matrix, index) in userDirectMatrices"
           :key="index"
-          :type="`filledDirectMatrices__${index}`"
-          :matrix="filledDirectMatrices[index]"
+          :type="`directMatrices__${index}`"
+          :matrix="userDirectMatrices[index]"
         >
           <template #bottom>
             <div class="matrices__fill">
               <Button
                 class="matrices__fill--zero"
                 :text="buttons.fillZero"
-                @click.native="fillMatrix($event.target)"
+                @click.native="fillMatrix($event.target, true)"
               />
               <Button
                 class="matrices__fill--complete"
                 :text="buttons.fillComplete"
-                @click.native="fillMatrix($event.target)"
+                @click.native="fillMatrix($event.target, true)"
               />
             </div>
           </template>
         </Matrix>
-        <Matrix type="aggregatedMatrix" :matrix="aggregatedMatrix">
+        <Matrix type="aggregatedMatrix" :matrix="userAggregatedMatrix">
           <template #bottom>
             <div class="matrices__fill">
               <Button
@@ -71,13 +76,16 @@
             </div>
           </template>
         </Matrix>
-        <Matrix type="secondary" :matrix="userSecondary" :y-label="true" />
+        <Matrix
+          type="secondary"
+          :matrix="userSecondary"
+          :y-label="true"
+          @validate-field="validateSecondary"
+        />
       </div>
     </div>
     <TaskNavigation
-      :forward="true"
       :backward="true"
-      @click-forward="$emit('step-direction', 'forward')"
       @click-backward="$emit('step-direction', 'backward')"
     />
   </div>
@@ -89,7 +97,7 @@
 }
 
 .matrices__multiplication .matrices {
-  @apply flex flex-col mb-12 overflow-auto;
+  @apply flex flex-col mb-12 overflow-x-auto overflow-y-hidden;
 }
 
 .matrices__multiplication .matrices > div {
@@ -123,11 +131,21 @@ export default {
   name: "MatrixPathStep5",
   components: { TextBox, TaskNavigation, Matrix, Button },
   methods: {
-    fillMatrix(target) {
+    fillMatrix(target, array) {
       const onlyZero = /zero/.test(target.classList);
-      const matrixType = target.parentNode.parentNode.classList[0].substring(8);
-      const filledMatrix = this[matrixType];
-      const userMatrix = this[camelCase(`user ${matrixType}`)];
+      let filledMatrix, userMatrix;
+      let matrixType = target.parentNode.previousSibling.classList[0].substring(
+        8
+      );
+      if (array) {
+        let index;
+        [, matrixType, index] = matrixType.match(/(\w*)__(\d*)/);
+        filledMatrix = this[matrixType][index];
+        userMatrix = this[camelCase(`user ${matrixType}`)][index];
+      } else {
+        filledMatrix = this[matrixType];
+        userMatrix = this[camelCase(`user ${matrixType}`)];
+      }
       for (let i = 0; i < filledMatrix.length; i++) {
         const filledVector = filledMatrix[i];
         const userVector = userMatrix[i];
@@ -143,9 +161,8 @@ export default {
       }
     },
     validateSecondary({ value, id }) {
-      let [, index] = id.match(/.*__(\d*)_\d*/);
-      const key = Object.keys(this.secondary[index])[0];
-      if (this.secondary[index][key][0]["amount"] == value) {
+      let [, index] = id.match(/.*__\d*_(\d*)/);
+      if (this.secondary[0]["S"][index]["amount"] == value) {
         document.querySelector(`#${id}`).classList.remove("error");
         document.querySelector(`#${id}`).classList.add("success");
       } else if (value === "") {
@@ -156,7 +173,7 @@ export default {
         document.querySelector(`#${id}`).classList.add("error");
       }
       const correctAmount = document.querySelectorAll(".success").length;
-      if (this.secondary.length === correctAmount) {
+      if (this.secondary[0]["S"].length === correctAmount) {
         this.onSuccess();
       }
     },
@@ -190,6 +207,10 @@ export default {
       const texts = this.$store.state.user.texts;
       return texts.exercises.gozintograph.tabs.GozintographMatrixPath.step5;
     },
+    success: function() {
+      const texts = this.$store.state.user.texts;
+      return texts.exercises.gozintograph.success;
+    },
     buttons: function() {
       const texts = this.$store.state.user.texts;
       return texts.exercises.gozintograph.tabs.GozintographMatrixPath
@@ -207,7 +228,7 @@ export default {
       const nodes = graph.level.flatMap(level => level.map(node => node));
       return retrieveMatrix(connections, nodes, 0, true);
     },
-    emptyDirectMatrices: function() {
+    userDirectMatrices: function() {
       let amount = this.maxPathLength;
       let matrices = [];
       const graph = this.$store.state.gozintograph.graph;
@@ -219,13 +240,13 @@ export default {
       }
       return matrices;
     },
-    filledDirectMatrices: function() {
+    directMatrices: function() {
       const d1 = this.directMatrix.map(vector =>
         vector[Object.keys(vector)[0]].map(field => field.amount)
       );
       const filledDirectMatrices = [];
 
-      this.emptyDirectMatrices.forEach((matrix, index) => {
+      this.userDirectMatrices.forEach((matrix, index) => {
         let multiplied = [];
         if (!index) multiplied = matrixMultiplication(d1, d1);
         else {
@@ -245,7 +266,7 @@ export default {
     },
     aggregatedMatrix: function() {
       return [
-        ...this.filledDirectMatrices,
+        ...this.directMatrices,
         this.unitMatrix,
         this.directMatrix
       ].reduce((aggregated, matrix) => {

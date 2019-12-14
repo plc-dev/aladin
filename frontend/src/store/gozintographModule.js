@@ -122,13 +122,18 @@ export default {
         : null;
     },
     getFullPrimary(state) {
-      return state.graph.level.flatMap((level, lIndex) =>
-        level.map(node => {
+      return state.graph.level.reduce(
+        (vector, level, lIndex) => {
           if (!lIndex) {
-            return { [node.id]: [{ id: "P", amount: node.amount }] };
+            vector[0]["P"].push(...level);
+          } else {
+            vector[0]["P"].push(
+              ...level.flatMap(node => ({ id: node.id, amount: 0 }))
+            );
           }
-          return { [node.id]: [{ id: node.id, amount: 0 }] };
-        })
+          return vector;
+        },
+        [{ P: [] }]
       );
     },
     getDirectMatrix(state) {
@@ -174,8 +179,12 @@ export default {
       return state.graph.level.filter((level, index) => index).flat();
     },
     getFullSecondary(state) {
-      return state.graph.level.flatMap(level =>
-        level.map(node => ({ [node.id]: [{ id: "S", amount: node.amount }] }))
+      return state.graph.level.reduce(
+        (vector, level) => {
+          vector[0]["S"].push(...level.flatMap(node => node));
+          return vector;
+        },
+        [{ S: [] }]
       );
     },
     getUserSecondaryVector(state, getters) {

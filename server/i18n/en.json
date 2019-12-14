@@ -91,7 +91,7 @@
           "step1": {
             "description": {
               "header": "Description",
-              "body": "Fill the direct-needs-matrix with the edge values of the graph. The matrix is read from top to left:\n [Column] * B0 are needed to produce [Row] 1 A0.\n Then fill in the unit matrix beneath and subtract. The result needs to be filled in the last matrix."
+              "body": "Fill the direct-needs-matrix with the edge values of the graph. The matrix is read from left to top: [Row] * B0 are needed to produce [Column] 1 A0. Then fill in the unit matrix and subtract the direct needs matrix from it. The result needs to be filled in the last matrix."
             }
           },
           "step2": {

@@ -8,8 +8,8 @@
     <div class="matrices">
       <Matrix
         type="subtractedMatrixCopy"
-        :x-label="true"
-        :y-label="true"
+        :xLabel="true"
+        :yLabel="true"
         :readonly="true"
         :matrix="subtractedMatrixCopy"
         @validate-field="validateField"
@@ -31,7 +31,7 @@
     <TaskNavigation
       :forward="true"
       :backward="true"
-      @click-forward="$emit('step-direction', 'forward')"
+      @click-forward="validateAll"
       @click-backward="$emit('step-direction', 'backward')"
     />
   </div>
@@ -51,8 +51,10 @@
 }
 
 .matrices__complete * {
+  text-align: center;
+  padding: 2px;
   font-size: 12px;
-  max-width: calc(50% - 2.35em);
+  max-width: 50%;
 }
 </style>
 
@@ -109,6 +111,32 @@ export default {
       }
       this.noError = false;
       return false;
+    },
+    validateAll() {
+      const matrices = document.querySelectorAll('[class*="matrix__"]');
+      let noError = true;
+      matrices.forEach(matrix =>
+        Array.from(matrix.querySelectorAll("input")).forEach(field => {
+          const fieldCorrect = this.validateField({
+            value: field.value,
+            id: field.id
+          });
+          if (!fieldCorrect) {
+            noError = false;
+          }
+        })
+      );
+      if (noError) {
+        this.noError = true;
+        this.$emit("step-direction", "forward");
+      } else {
+        this.$alertify
+          .alert("Es sind noch nicht alle Felder korrekt ausgefüllt!", () => {
+            const layer = document.querySelector(".alertify");
+            layer.parentNode.removeChild(layer);
+          })
+          .set({ title: "Fehler!" });
+      }
     },
     invert(user) {
       const parsedMatrix = this.userSubtractedMatrix.map(vector =>

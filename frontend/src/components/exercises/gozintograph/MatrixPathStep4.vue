@@ -180,7 +180,9 @@ export default {
     },
     fillMatrix(target) {
       const onlyZero = /zero/.test(target.classList);
-      const matrixType = target.parentNode.parentNode.classList[0].substring(8);
+      const matrixType = target.parentNode.previousSibling.classList[0].substring(
+        8
+      );
       const filledMatrix = this[matrixType];
       const userMatrix = this[camelCase(`user ${matrixType}`)];
       for (let i = 0; i < filledMatrix.length; i++) {
