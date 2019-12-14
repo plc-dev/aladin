@@ -25,7 +25,7 @@
 }
 
 .graph__options {
-  @apply flex flex-col h-full justify-between items-center text-center;
+  @apply flex flex-col h-full justify-between items-center text-center overflow-y-auto;
   box-shadow: 5px 0 5px -5px #333;
 }
 
