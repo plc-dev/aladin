@@ -61,6 +61,7 @@
 import Matrix from "@/components/exercises/gozintograph/Matrix";
 import TextBox from "@/components/TextBox";
 import TaskNavigation from "@/components/TaskNavigation";
+import matrixMixin from "@/mixins/MatrixMixin";
 
 import { createNamespacedHelpers } from "vuex";
 const { mapGetters, mapState } = createNamespacedHelpers("gozintograph");
@@ -75,63 +76,16 @@ export default {
       amount: 1
     };
   },
-
   components: {
     Matrix,
     TextBox,
     TaskNavigation
   },
-  methods: {
-    validateSecondary({ value, id }) {
-      let [, index] = id.match(/.*__\d*_(\d*)/);
-      if (this.secondary[0]["S"][index]["amount"] == value) {
-        document.querySelector(`#${id}`).classList.remove("error");
-        document.querySelector(`#${id}`).classList.add("success");
-      } else if (value === "") {
-        document.querySelector(`#${id}`).classList.remove("success");
-        document.querySelector(`#${id}`).classList.remove("error");
-      } else {
-        document.querySelector(`#${id}`).classList.remove("success");
-        document.querySelector(`#${id}`).classList.add("error");
-      }
-      const correctAmount = document.querySelectorAll(".success").length;
-      if (this.secondary[0]["S"].length === correctAmount) {
-        this.onSuccess();
-      }
-    },
-    onSuccess() {
-      this.$alertify
-        .confirm(
-          this.success.body,
-          () => {
-            this.$store.commit("gozintograph/CLEAR_STATE");
-            this.$destroy();
-            location.reload();
-            const layer = document.querySelector(".alertify");
-            layer.parentNode.removeChild(layer);
-          },
-          () => {
-            const layer = document.querySelector(".alertify");
-            layer.parentNode.removeChild(layer);
-          }
-        )
-        .set({ title: this.success.title })
-        .set({
-          labels: {
-            ok: this.success.labels.ok,
-            cancel: this.success.labels.cancel
-          }
-        });
-    }
-  },
+  mixins: [matrixMixin],
   computed: {
     texts: function() {
       const texts = this.$store.state.user.texts;
       return texts.exercises.gozintograph.tabs.GozintographMatrixPath.step3;
-    },
-    success: function() {
-      const texts = this.$store.state.user.texts;
-      return texts.exercises.gozintograph.success;
     },
     ...mapState(["userInvertedMatrix"]),
     ...mapGetters({
