@@ -44,6 +44,7 @@
           :key="index"
           :type="`directMatrices__${index}`"
           :matrix="userDirectMatrices[index]"
+          @validate-field="validateField"
         >
           <template #bottom>
             <div class="matrices__fill">
@@ -60,7 +61,11 @@
             </div>
           </template>
         </Matrix>
-        <Matrix type="aggregatedMatrix" :matrix="userAggregatedMatrix">
+        <Matrix
+          type="aggregatedMatrix"
+          :matrix="userAggregatedMatrix"
+          @validate-field="validateField"
+        >
           <template #bottom>
             <div class="matrices__fill">
               <Button
@@ -118,103 +123,19 @@ import TextBox from "@/components/TextBox";
 import TaskNavigation from "@/components/TaskNavigation";
 import Matrix from "@/components/exercises/gozintograph/Matrix";
 import Button from "@/components/Button";
-import {
-  retrieveMatrix,
-  matrixMultiplication,
-  deepCopy,
-  camelCase
-} from "@/lib/helper";
+import matrixMixin from "@/mixins/MatrixMixin";
+import { retrieveMatrix, matrixMultiplication, deepCopy } from "@/lib/helper";
 
 import { createNamespacedHelpers } from "vuex";
 const { mapGetters, mapState } = createNamespacedHelpers("gozintograph");
 export default {
   name: "MatrixPathStep5",
   components: { TextBox, TaskNavigation, Matrix, Button },
-  methods: {
-    fillMatrix(target, array) {
-      const onlyZero = /zero/.test(target.classList);
-      let filledMatrix, userMatrix;
-      let matrixType = target.parentNode.previousSibling.classList[0].substring(
-        8
-      );
-      if (array) {
-        let index;
-        [, matrixType, index] = matrixType.match(/(\w*)__(\d*)/);
-        filledMatrix = this[matrixType][index];
-        userMatrix = this[camelCase(`user ${matrixType}`)][index];
-      } else {
-        filledMatrix = this[matrixType];
-        userMatrix = this[camelCase(`user ${matrixType}`)];
-      }
-      for (let i = 0; i < filledMatrix.length; i++) {
-        const filledVector = filledMatrix[i];
-        const userVector = userMatrix[i];
-        const vectorKey = Object.keys(filledVector)[0];
-        for (let j = 0; j < filledMatrix.length; j++) {
-          if (
-            !onlyZero ||
-            (onlyZero && filledVector[vectorKey][j].amount === 0)
-          ) {
-            userVector[vectorKey][j].amount = filledVector[vectorKey][j].amount;
-          }
-        }
-      }
-    },
-    validateSecondary({ value, id }) {
-      let [, index] = id.match(/.*__\d*_(\d*)/);
-      if (this.secondary[0]["S"][index]["amount"] == value) {
-        document.querySelector(`#${id}`).classList.remove("error");
-        document.querySelector(`#${id}`).classList.add("success");
-      } else if (value === "") {
-        document.querySelector(`#${id}`).classList.remove("success");
-        document.querySelector(`#${id}`).classList.remove("error");
-      } else {
-        document.querySelector(`#${id}`).classList.remove("success");
-        document.querySelector(`#${id}`).classList.add("error");
-      }
-      const correctAmount = document.querySelectorAll(".success").length;
-      if (this.secondary[0]["S"].length === correctAmount) {
-        this.onSuccess();
-      }
-    },
-    onSuccess() {
-      this.$alertify
-        .confirm(
-          this.success.body,
-          () => {
-            this.$store.commit("gozintograph/CLEAR_STATE");
-            this.$destroy();
-            location.reload();
-            const layer = document.querySelector(".alertify");
-            layer.parentNode.removeChild(layer);
-          },
-          () => {
-            const layer = document.querySelector(".alertify");
-            layer.parentNode.removeChild(layer);
-          }
-        )
-        .set({ title: this.success.title })
-        .set({
-          labels: {
-            ok: this.success.labels.ok,
-            cancel: this.success.labels.cancel
-          }
-        });
-    }
-  },
+  mixins: [matrixMixin],
   computed: {
     texts: function() {
       const texts = this.$store.state.user.texts;
       return texts.exercises.gozintograph.tabs.GozintographMatrixPath.step5;
-    },
-    success: function() {
-      const texts = this.$store.state.user.texts;
-      return texts.exercises.gozintograph.success;
-    },
-    buttons: function() {
-      const texts = this.$store.state.user.texts;
-      return texts.exercises.gozintograph.tabs.GozintographMatrixPath
-        .matrixButtons;
     },
     dummyMatrix: function() {
       const graph = this.$store.state.gozintograph.graph;

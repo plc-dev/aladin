@@ -64,6 +64,7 @@ import TextBox from "@/components/TextBox";
 import TaskNavigation from "@/components/TaskNavigation";
 import Button from "@/components/Button";
 import { invertMatrix, deepCopy } from "@/lib/helper";
+import matrixMixin from "@/mixins/MatrixMixin";
 
 import { createNamespacedHelpers } from "vuex";
 const { mapGetters, mapState } = createNamespacedHelpers("gozintograph");
@@ -80,64 +81,14 @@ export default {
       invertedMatrix: []
     };
   },
-
   components: {
     Button,
     Matrix,
     TextBox,
     TaskNavigation
   },
+  mixins: [matrixMixin],
   methods: {
-    /**
-     * Validates matrix field on the focusout-Event.
-     * Returns if element-id does not match expected pattern.
-     */
-    validateField({ value, id }) {
-      if (!/(.*)__(\d*)_(\d*)/.test(id)) return;
-      let [, matrix, row, column] = id.match(/(.*)__(\d*)_(\d*)/);
-      const rowObject = this[matrix][row];
-      const key = Object.keys(rowObject);
-      const inputField = document.querySelector(`#${id}`);
-      if (value === "") {
-        inputField.classList.remove("error");
-        inputField.classList.remove("success");
-      } else if (this[matrix][row][key][column]["amount"] == value) {
-        inputField.classList.remove("error");
-        inputField.classList.add("success");
-        return true;
-      } else {
-        inputField.classList.remove("success");
-        inputField.classList.add("error");
-      }
-      this.noError = false;
-      return false;
-    },
-    validateAll() {
-      const matrices = document.querySelectorAll('[class*="matrix__"]');
-      let noError = true;
-      matrices.forEach(matrix =>
-        Array.from(matrix.querySelectorAll("input")).forEach(field => {
-          const fieldCorrect = this.validateField({
-            value: field.value,
-            id: field.id
-          });
-          if (!fieldCorrect) {
-            noError = false;
-          }
-        })
-      );
-      if (noError) {
-        this.noError = true;
-        this.$emit("step-direction", "forward");
-      } else {
-        this.$alertify
-          .alert("Es sind noch nicht alle Felder korrekt ausgefüllt!", () => {
-            const layer = document.querySelector(".alertify");
-            layer.parentNode.removeChild(layer);
-          })
-          .set({ title: "Fehler!" });
-      }
-    },
     invert(user) {
       const parsedMatrix = this.userSubtractedMatrix.map(vector =>
         vector[Object.keys(vector)[0]].map(field => field.amount)

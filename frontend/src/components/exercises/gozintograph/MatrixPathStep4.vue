@@ -108,7 +108,7 @@ import ScreenOverlay from "@/components/ScreenOverlay";
 import TaskNavigation from "@/components/TaskNavigation";
 import Button from "@/components/Button";
 import { drawGozintograph } from "@/lib/gozintograph/drawGozintograph";
-import { camelCase } from "@/lib/helper";
+import matrixMixin from "@/mixins/MatrixMixin";
 
 import { createNamespacedHelpers } from "vuex";
 const { mapGetters, mapState } = createNamespacedHelpers("gozintograph");
@@ -127,78 +127,8 @@ export default {
     TaskNavigation,
     Button
   },
+  mixins: [matrixMixin],
   methods: {
-    /**
-     * Validates matrix field on the focusout-Event.
-     * Returns if element-id does not match expected pattern.
-     */
-    validateField({ value, id }) {
-      if (!/(.*)__(\d*)_(\d*)/.test(id)) return;
-      let [, matrix, row, column] = id.match(/(.*)__(\d*)_(\d*)/);
-      const rowObject = this[matrix][row];
-      const key = Object.keys(rowObject);
-      const inputField = document.querySelector(`#${id}`);
-      if (value === "") {
-        inputField.classList.remove("error");
-        inputField.classList.remove("success");
-      } else if (this[matrix][row][key][column]["amount"] == value) {
-        inputField.classList.remove("error");
-        inputField.classList.add("success");
-        return true;
-      } else {
-        inputField.classList.remove("success");
-        inputField.classList.add("error");
-      }
-      this.noError = false;
-      return false;
-    },
-    validateAll() {
-      const matrices = document.querySelectorAll('[class*="matrix__"]');
-      let noError = true;
-      matrices.forEach(matrix =>
-        Array.from(matrix.querySelectorAll("input")).forEach(field => {
-          const fieldCorrect = this.validateField({
-            value: field.value,
-            id: field.id
-          });
-          if (!fieldCorrect) {
-            noError = false;
-          }
-        })
-      );
-      if (noError) {
-        this.noError = true;
-        this.$emit("step-direction", "forward");
-      } else {
-        this.$alertify
-          .alert("Es sind noch nicht alle Felder korrekt ausgefüllt!", () => {
-            const layer = document.querySelector(".alertify");
-            layer.parentNode.removeChild(layer);
-          })
-          .set({ title: "Fehler!" });
-      }
-    },
-    fillMatrix(target) {
-      const onlyZero = /zero/.test(target.classList);
-      const matrixType = target.parentNode.previousSibling.classList[0].substring(
-        8
-      );
-      const filledMatrix = this[matrixType];
-      const userMatrix = this[camelCase(`user ${matrixType}`)];
-      for (let i = 0; i < filledMatrix.length; i++) {
-        const filledVector = filledMatrix[i];
-        const userVector = userMatrix[i];
-        const vectorKey = Object.keys(filledVector)[0];
-        for (let j = 0; j < filledMatrix.length; j++) {
-          if (
-            !onlyZero ||
-            (onlyZero && filledVector[vectorKey][j].amount === 0)
-          ) {
-            userVector[vectorKey][j].amount = filledVector[vectorKey][j].amount;
-          }
-        }
-      }
-    },
     showOverlay() {
       document.querySelector(".overlay").style.height = "100vh";
       const appendTo = document.querySelector(".overlay__content");
@@ -214,11 +144,6 @@ export default {
     texts: function() {
       const texts = this.$store.state.user.texts;
       return texts.exercises.gozintograph.tabs.GozintographMatrixPath.step4;
-    },
-    buttons: function() {
-      const texts = this.$store.state.user.texts;
-      return texts.exercises.gozintograph.tabs.GozintographMatrixPath
-        .matrixButtons;
     },
     ...mapState({
       userUnitMatrix: state => state.userUnitMatrix,
