@@ -9,3 +9,5 @@ physically present professor/research assistant.
 Also the randomly generated tasks provide a discharge on the professors in terms of preparing exams.
 
 The current state of the app is hosted [here](https://aladin-htw.herokuapp.com/)
+
+The swagger api documentation can be found [here](https://aladin-htw.herokuapp.com/api-doc/)
