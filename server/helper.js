@@ -61,5 +61,27 @@ module.exports = {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
+  },
+
+  /**
+   * Returns a dynamically filled string on runtime
+   * Takes a template string in the form of 'This is a ...${template} ${string}' and an object with string/array values {template: ['template', 'engine'], string: 'string'}
+   * ...${} to concat an array of unknown length to a string on runtime
+   * ${} to substitute the placeholder for the passed value on runtime
+   * standard for concatWith is a empty space ' '
+   */
+  templateString: (template, values, concatWith) => {
+    let output = template;
+    concatWith = concatWith || " ";
+    Object.keys(values).forEach(key => {
+      output = output
+        .replace(new RegExp("\\$" + `{\\.\\.\\.${key}}`, "g"), () =>
+          values[key].reduce((string, value, i) => {
+            return !i ? value : string + concatWith + value;
+          }, "")
+        )
+        .replace(new RegExp("\\$" + `{${key}}`, "g"), values[key]);
+    });
+    return output;
   }
 };

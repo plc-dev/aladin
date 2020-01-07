@@ -23,22 +23,25 @@ const app = express();
   webpush.setVapidDetails("mailto:test@test.de", process.env.publicVapidKey, process.env.privateVapidKey);
 
   // Set up mongoDB
-  const db = await require("./database/database")();
+  const mdb = await require("./database/mongooseDAO")();
 
   // setup swagger documentation
   const { serve, docs } = require("./swagger");
   app.use("/api-doc", serve, docs);
 
   // setup and handle api
-  const authentication = require("./api/authentication")(express.Router(), jwt, db.models.User);
-  const settings = require("./api/settings")(express.Router(), db.models.User, webpush, languages);
+  const authentication = require("./api/authentication")(express.Router(), jwt, mdb.models.User);
+  const settings = require("./api/settings")(express.Router(), mdb.models.User, webpush, languages);
+  const sql = require("./api/sql")(express.Router(), mdb.models.User);
   app.use("/api", authentication);
   app.use("/api", settings);
+  app.use("/api", sql);
 
   // set static folder to compiled Vue Frontend
   app.use(express.static(__dirname + "/public/"));
 
   // handle redirection for service-worker to prevent unknown MIME-Types to be interpreted as text/html
+  const path = require("path");
   app.get("/service-worker.js", (req, res) => {
     res.sendFile(path.resolve(__dirname, "public", "service-worker.js"));
   });

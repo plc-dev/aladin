@@ -254,13 +254,14 @@ export default {
     removePath(pathIndex) {
       this.userPaths.splice(pathIndex, 1);
       this.markedPaths = [];
-      Array.from(
-        document.querySelectorAll(
-          ".pathbuilder__path--state.correct, .pathbuilder__path--state.false"
-        )
-      ).forEach(path =>
-        this.validatePath(path.nextSibling.getAttribute("pathIndex"))
-      );
+      this.validatePath(pathIndex - 1);
+      // Array.from(
+      //   document.querySelectorAll(
+      //     ".pathbuilder__path--state.correct, .pathbuilder__path--state.false"
+      //   )
+      // ).forEach(path =>
+      //   this.validatePath(path.nextSibling.getAttribute("pathIndex"))
+      // );
     },
     updateValues(value, pathIndex, connectionIndex) {
       const path = this.userPaths[pathIndex];

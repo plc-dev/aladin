@@ -6,14 +6,8 @@ import {
 
 const texts = deserializeLocalStorage(localStorage.texts);
 let optionLabels = {};
-let primaryText = "Primary needs vector: ";
-let secondaryText = "Secondary needs vector: ";
 if (texts) {
   optionLabels = texts.exercises.gozintograph.options;
-  primaryText =
-    texts.exercises.gozintograph.tabs.GozintographScope.description.primary;
-  secondaryText =
-    texts.exercises.gozintograph.tabs.GozintographScope.description.secondary;
 }
 
 export default {
@@ -117,9 +111,7 @@ export default {
       }, {});
     },
     getPrimary(state) {
-      return Object.keys(state.graph).length
-        ? [{ [primaryText]: state.graph.level[0] }]
-        : null;
+      return state.graph.level[0].map(node => ({ [node.id]: [node] }));
     },
     getFullPrimary(state) {
       return state.graph.level.reduce(
@@ -135,6 +127,35 @@ export default {
         },
         [{ P: [] }]
       );
+    },
+    getSecondaryVector(state) {
+      return state.graph.level
+        .filter((level, index) => index)
+        .flat()
+        .map(node => ({ [node.id]: [node] }));
+    },
+    getFullSecondary(state) {
+      return state.graph.level.reduce(
+        (vector, level) => {
+          vector[0]["S"].push(...level.flatMap(node => node));
+          return vector;
+        },
+        [{ S: [] }]
+      );
+    },
+    getUserSecondaryVector(state, getters) {
+      const secondary = deepCopy(getters.getSecondaryVector);
+      return secondary.map(node => {
+        node[Object.keys(node)[0]][0].amount = "";
+        return node;
+      });
+    },
+    getUserSecondaryFullVector(state, getters) {
+      const secondary = deepCopy(getters.getFullSecondary);
+      secondary.forEach(vector =>
+        vector[Object.keys(vector)[0]].forEach(node => (node.amount = ""))
+      );
+      return secondary;
     },
     getDirectMatrix(state) {
       const connections = deepCopy(state.graph.connections);
@@ -175,32 +196,28 @@ export default {
       }
       return subtractedMatrix;
     },
-    getSecondaryVector(state) {
-      return state.graph.level.filter((level, index) => index).flat();
+    getUserDirectMatrices(state, getters) {
+      let amount = getters.getMaxPathLength;
+      let matrices = [];
+      const graph = state.graph;
+      const connections = graph.connections;
+      const nodes = graph.level.flatMap(level => level.map(node => node));
+      while (amount > 1) {
+        matrices.push(retrieveMatrix(connections, nodes, 0, true));
+        amount--;
+      }
+      return matrices;
     },
-    getFullSecondary(state) {
-      return state.graph.level.reduce(
-        (vector, level) => {
-          vector[0]["S"].push(...level.flatMap(node => node));
-          return vector;
-        },
-        [{ S: [] }]
-      );
+    getMaxPathLength(state) {
+      return state.graph.paths.reduce((max, path) => {
+        return max > path.length ? max : path.length;
+      }, 0);
     },
-    getUserSecondaryVector(state, getters) {
-      const secondary = deepCopy(getters.getSecondaryVector);
-      const userSecondary = secondary.map(node => {
-        node.amount = "";
-        return node;
-      });
-      return [{ [secondaryText]: userSecondary }];
-    },
-    getUserSecondaryFullVector(state, getters) {
-      const secondary = deepCopy(getters.getFullSecondary);
-      secondary.forEach(vector =>
-        vector[Object.keys(vector)[0]].forEach(node => (node.amount = ""))
-      );
-      return secondary;
+    getUserAggregatedMatrix(state) {
+      const graph = state.graph;
+      const connections = graph.connections;
+      const nodes = graph.level.flatMap(level => level.map(node => node));
+      return retrieveMatrix(connections, nodes, 0, true);
     }
   },
 

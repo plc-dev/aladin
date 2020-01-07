@@ -16,22 +16,20 @@
     </div>
 
     <div class="primary" v-if="primary">
-      <!-- <div>{{ texts.labels.primary }}</div> -->
+      <div>{{ texts.labels.primary }}</div>
       <Matrix
         :show="true"
         :matrix="primary"
         :readonly="true"
-        :yLabel="true"
         type="primary"
       ></Matrix>
     </div>
 
     <div class="secondary">
-      <!-- <div>{{ texts.labels.secondary }}</div> -->
+      <div>{{ texts.labels.secondary }}</div>
       <Matrix
         :matrix="userSecondary"
         v-model="userSecondary"
-        :yLabel="true"
         type="secondary"
         @validate-field="validateSecondary"
       ></Matrix>
@@ -64,7 +62,7 @@
 
 .primary,
 .secondary {
-  @apply flex flex-wrap items-center justify-around;
+  @apply flex flex-wrap items-end justify-around;
 }
 </style>
 
@@ -118,7 +116,10 @@ export default {
   methods: {
     validateSecondary({ value, id }) {
       let [, index] = id.match(/.*__\d*_(\d*)/);
-      if (this.secondary[index].amount == value) {
+      if (
+        this.secondary[index][Object.keys(this.secondary[index])[0]][0]
+          .amount == value
+      ) {
         document.querySelector(`#${id}`).classList.remove("error");
         document.querySelector(`#${id}`).classList.add("success");
       } else if (value === "") {
