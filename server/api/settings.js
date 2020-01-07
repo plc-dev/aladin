@@ -1,4 +1,4 @@
-const { asyncErrorWrapper, jwtValidationMiddleware } = require("../helper");
+const { asyncErrorWrapper } = require("../helper");
 
 module.exports = (router, User, webpush, languages) => {
   /**
@@ -38,6 +38,22 @@ module.exports = (router, User, webpush, languages) => {
     })
   );
 
+  /**
+   * @swagger
+   * /language:
+   *  post:
+   *    summary: Returns the text object in the language of the passed country code. The fallback is english, in case the language is not supported.
+   *    parameters:
+   *      - in: body
+   *        name: language
+   *        schema:
+   *          type: string
+   *          required:
+   *            - countryCode
+   *    responses:
+   *      '200':
+   *        description: Text object in the specified language or english if the language is not supported or the country code is invalid
+   */
   router.post("/language", (req, res) => {
     let countryCode = req.body.countryCode.match(/\w{2}/);
     countryCode = countryCode.length ? countryCode[0] : "";

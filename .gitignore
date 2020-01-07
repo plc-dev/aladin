@@ -1,8 +1,7 @@
 # server
 /node_modules
 .env
-/server/publicExample
-/legacy
+server/exercises/sql/database/*
 
 # frontend
 /frontend/.DS_Store

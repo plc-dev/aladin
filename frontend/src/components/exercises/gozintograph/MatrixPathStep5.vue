@@ -127,7 +127,7 @@ import matrixMixin from "@/mixins/MatrixMixin";
 import { retrieveMatrix, matrixMultiplication, deepCopy } from "@/lib/helper";
 
 import { createNamespacedHelpers } from "vuex";
-const { mapGetters, mapState } = createNamespacedHelpers("gozintograph");
+const { mapGetters } = createNamespacedHelpers("gozintograph");
 export default {
   name: "MatrixPathStep5",
   components: { TextBox, TaskNavigation, Matrix, Button },
@@ -142,24 +142,6 @@ export default {
       const connections = graph.connections;
       const nodes = graph.level.flatMap(level => level.map(node => node));
       return retrieveMatrix(connections, nodes, 0);
-    },
-    userAggregatedMatrix: function() {
-      const graph = this.$store.state.gozintograph.graph;
-      const connections = graph.connections;
-      const nodes = graph.level.flatMap(level => level.map(node => node));
-      return retrieveMatrix(connections, nodes, 0, true);
-    },
-    userDirectMatrices: function() {
-      let amount = this.maxPathLength;
-      let matrices = [];
-      const graph = this.$store.state.gozintograph.graph;
-      const connections = graph.connections;
-      const nodes = graph.level.flatMap(level => level.map(node => node));
-      while (amount > 1) {
-        matrices.push(retrieveMatrix(connections, nodes, 0, true));
-        amount--;
-      }
-      return matrices;
     },
     directMatrices: function() {
       const d1 = this.directMatrix.map(vector =>
@@ -202,18 +184,15 @@ export default {
         return aggregated;
       }, this.dummyMatrix);
     },
-    ...mapState({
-      maxPathLength: state =>
-        state.graph.paths.reduce((max, path) => {
-          return max > path.length ? max : path.length;
-        }, 0)
-    }),
     ...mapGetters({
       directMatrix: "getDirectMatrix",
       unitMatrix: "getUnitMatrix",
       primary: "getFullPrimary",
       userSecondary: "getUserSecondaryFullVector",
-      secondary: "getFullSecondary"
+      secondary: "getFullSecondary",
+      userDirectMatrices: "getUserDirectMatrices",
+      maxPathLength: "getMaxPathLength",
+      userAggregatedMatrix: "getUserAggregatedMatrix"
     })
   }
 };
