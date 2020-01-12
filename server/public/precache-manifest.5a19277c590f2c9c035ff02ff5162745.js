@@ -4,12 +4,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/css/404.d763e97a.css"
   },
   {
-    "revision": "5a6392e1a6de95f2338f",
-    "url": "/css/app.1e709665.css"
+    "revision": "05e8c569649a10d6aabf",
+    "url": "/css/app.bab0d29f.css"
   },
   {
-    "revision": "3742e8c05dc9eb6d3a38",
-    "url": "/css/exercise.2a4dc001.css"
+    "revision": "bd461298880aa63713e7",
+    "url": "/css/exercise.453b20be.css"
   },
   {
     "revision": "d2245c1d9fd8db79f4df",
@@ -24,11 +24,15 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/css/register.c9184b7d.css"
   },
   {
+    "revision": "92c057a42d331581d07dac7621443241",
+    "url": "/img/exercises/gozintograph.PNG"
+  },
+  {
     "revision": "4889d6a9b3240a4b908b2d886ee51b3f",
     "url": "/img/exercises/gozintograph.jpg"
   },
   {
-    "revision": "21ecdb59e7af04ff6ded04e4b74b7e51",
+    "revision": "ddc051743ab2b0d3084a7be0dd92bea6",
     "url": "/index.html"
   },
   {
@@ -36,16 +40,16 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/js/404.b6471b4c.js"
   },
   {
-    "revision": "5a6392e1a6de95f2338f",
-    "url": "/js/app.37ec8ee2.js"
+    "revision": "05e8c569649a10d6aabf",
+    "url": "/js/app.a29f29af.js"
   },
   {
-    "revision": "de5408e90d2cc4c32dfd",
-    "url": "/js/chunk-vendors.ac92377d.js"
+    "revision": "58ad2a7f9120e44f6e88",
+    "url": "/js/chunk-vendors.e1bbfd0e.js"
   },
   {
-    "revision": "3742e8c05dc9eb6d3a38",
-    "url": "/js/exercise.4f61d754.js"
+    "revision": "bd461298880aa63713e7",
+    "url": "/js/exercise.a0725bcd.js"
   },
   {
     "revision": "d2245c1d9fd8db79f4df",
