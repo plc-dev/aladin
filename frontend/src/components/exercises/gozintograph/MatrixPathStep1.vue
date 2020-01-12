@@ -2,7 +2,7 @@
   <div>
     <TextBox class="solution__matrix--description">
       <template #header>{{ texts.description.header }}</template>
-      <template #body>{{ texts.description.body }}</template>
+      <template #body> <p v-html="texts.description.body"></p> </template>
     </TextBox>
 
     <div class="show__graph">
@@ -16,72 +16,81 @@
     </div>
 
     <div class="matrices">
-      <Matrix
-        type="directMatrix"
-        :x-label="true"
-        :y-label="true"
-        :matrix="userDirectMatrix"
-        @validate-field="validateField"
-      >
-        <template #bottom>
-          <div class="matrices__fill">
-            <Button
-              class="matrices__fill--zero"
-              :text="buttons.fillZero"
-              @click.native="fillMatrix($event.target)"
-            />
-            <Button
-              class="matrices__fill--complete"
-              :text="buttons.fillComplete"
-              @click.native="fillMatrix($event.target)"
-            />
-          </div>
-        </template>
-      </Matrix>
+      <div class="matrices__direct">
+        <p v-html="texts.matrices[0]"></p>
+        <Matrix
+          type="directMatrix"
+          :x-label="true"
+          :y-label="true"
+          :matrix="userDirectMatrix"
+          @validate-field="validateField"
+        >
+          <template #bottom>
+            <div class="matrices__fill">
+              <Button
+                class="matrices__fill--zero"
+                :text="buttons.fillZero"
+                @click.native="fillMatrix($event.target)"
+              />
+              <Button
+                class="matrices__fill--complete"
+                :text="buttons.fillComplete"
+                @click.native="fillMatrix($event.target)"
+              />
+            </div>
+          </template>
+        </Matrix>
+      </div>
 
-      <Matrix
-        type="unitMatrix"
-        :matrix="userUnitMatrix"
-        @validate-field="validateField"
-      >
-        <template #bottom>
-          <div class="matrices__fill">
-            <Button
-              class="matrices__fill--zero"
-              :text="buttons.fillZero"
-              @click.native="fillMatrix($event.target)"
-            />
-            <Button
-              class="matrices__fill--complete"
-              :text="buttons.fillComplete"
-              @click.native="fillMatrix($event.target)"
-            />
-          </div>
-        </template>
-      </Matrix>
+      <div class="matrices__unit">
+        <p v-html="texts.matrices[1]"></p>
+        <Matrix
+          type="unitMatrix"
+          :matrix="userUnitMatrix"
+          @validate-field="validateField"
+        >
+          <template #bottom>
+            <div class="matrices__fill">
+              <Button
+                class="matrices__fill--zero"
+                :text="buttons.fillZero"
+                @click.native="fillMatrix($event.target)"
+              />
+              <Button
+                class="matrices__fill--complete"
+                :text="buttons.fillComplete"
+                @click.native="fillMatrix($event.target)"
+              />
+            </div>
+          </template>
+        </Matrix>
+      </div>
 
-      <Matrix
-        type="subtractedMatrix"
-        :x-label="true"
-        :y-label="true"
-        :matrix="userSubtractedMatrix"
-        @validate-field="validateField"
-      >
-        <template #bottom>
-          <div class="matrices__fill">
-            <Button
-              class="matrices__fill--zero"
-              :text="buttons.fillZero"
-              @click.native="fillMatrix($event.target)"
-            />
-            <Button
-              class="matrices__fill--complete"
-              :text="buttons.fillComplete"
-              @click.native="fillMatrix($event.target)"
-            />
-          </div>
-        </template>
-      </Matrix>
+      <div class="matrices__subtracted">
+        <p v-html="texts.matrices[2]"></p>
+        <Matrix
+          type="subtractedMatrix"
+          :x-label="true"
+          :y-label="true"
+          :matrix="userSubtractedMatrix"
+          @validate-field="validateField"
+        >
+          <template #bottom>
+            <div class="matrices__fill">
+              <Button
+                class="matrices__fill--zero"
+                :text="buttons.fillZero"
+                @click.native="fillMatrix($event.target)"
+              />
+              <Button
+                class="matrices__fill--complete"
+                :text="buttons.fillComplete"
+                @click.native="fillMatrix($event.target)"
+              />
+            </div>
+          </template>
+        </Matrix>
+      </div>
     </div>
     <TaskNavigation
       :forward="true"
@@ -110,6 +119,12 @@
 
 .matrices {
   @apply flex flex-wrap w-full justify-around items-center mb-12;
+}
+
+.matrices__direct,
+.matrices__unit,
+.matrices__subtracted {
+  @apply flex flex-col items-center;
 }
 
 .matrices__fill {

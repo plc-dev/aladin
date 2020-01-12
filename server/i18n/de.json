@@ -18,14 +18,14 @@
     "overview": {
       "gozintograph": {
         "header": "Gozintograph",
-        "body": "Lass dir einen zufälligen Gozintograph in einem individuell einstellbaren Schwierigkeitsgrad erstellen und löse ihn unter Hilfestellung mit Matrizen oder Kantenmultiplikation!",
-        "img": "/img/exercises/gozintograph.jpg",
+        "body": "Lass dir einen Gozintographen mit individuell einstellbarer Komplexität zufällig erstellen und errechne für einen gegebenen Primärbedarf an Endprodukten den Bruttosekundärbedarf von Rohstoffen, Kaufteilen und Baugruppen mit Hilfe von Matrizenrechnung oder „Kantenmultiplikation.“",
+        "img": "/img/exercises/gozintograph.png",
         "alt": "gozintograph"
       }
     },
     "gozintograph": {
       "success": {
-        "title": "Herlichen Glückwunsch!",
+        "title": "Herzlichen Glückwunsch!",
         "body": "Möchtest du noch einen Graphen lösen oder dir das Ergebnis nochmal anschauen?",
         "labels": {
           "ok": "Nochmal",
@@ -48,7 +48,7 @@
           "min": "Kantenwert Min",
           "max": "Kantenwert Max"
         },
-        "button": "Generieren"
+        "button": "Gozintograph generieren"
       },
       "tabs": {
         "GozintographTask": {
@@ -68,7 +68,7 @@
           "step1": {
             "description": {
               "header": "Aufgabenbeschreibung",
-              "body": "Erzeuge alle Pfade des Gozintographen und multipliziere sie entsprechend des Primärbedarfvektors auf. Trage das Ergebnis in den Sekundärbedarfsvektor ein."
+              "body": "Gib nachstehend alle Pfade des Gozintographen an und multipliziere die Kantengewichte pro Pfad"
             }
           }
         },
@@ -91,33 +91,38 @@
           "step1": {
             "description": {
               "header": "Aufgabenbeschreibung",
-              "body": "Fülle die Matrix mit den Kantenwerten aus dem Graph. Die Matrix liest sich von links nach oben: [Zeile] * B0 werden für [Spalte] 1 A0 gebraucht. Bilde anschließend die Einheitsmatrix und subtrahiere davon die Direktbedarfsmatrix. Trage das Ergebnis in die letzte Matrix ein."
-            }
+              "body": "1.) Fülle die Direktbedarfsmatrix (links) mit den Kantengewichten aus dem Gozintographen. (Liegt keine Kante vor, beträgt das entsprechende Kantengewicht 0 Mengeneinheiten.) <br>2.) Fülle anschließend eine entsprechende Einheitsmatrix (Mitte) aus. <br>3.) Subtrahiere sodann die Einheitsmatrix von der Direktbedarfsmatrix und trage die Differenz in die rechte Matrix ein. (Die Matrix liest sich wie folgt: Für eine Mengeneinheit eines Materials aus einer Spalte q werden (p, q) Mengeneinheiten aus der Zeile p benötigt, oder das Material aus der Zeile p geht (p, q) mal direkt in das Material aus der Spalte q ein.)"
+            },
+            "matrices": ["Direktbedarfsmatrix <i>D</i>", "Einheitsmatrix <i>E</i>", "<i>E-D</i>"]
           },
           "step2": {
             "description": {
               "header": "Aufgabenbeschreibung",
               "body": "Invertiere die Ergebnismatrix aus dem vorherigen Schritt. Verwende hierzu deinen Taschenrechner oder lasse sie automatisch befüllen."
             },
+            "matrices": ["<i>E-D</i>", "<i>E-D</i> invertiert"],
             "button": "Komplettieren"
           },
           "step3": {
             "description": {
               "header": "Aufgabenbeschreibung",
               "body": "Multipliziere die invertierte Matrix mit dem Primärbedarfsvektor und fülle mit den Ergebnissen den Sekundärbedarfsvektor. Multipliziere hierfür jede Zeile mit dem Primärbedarfsvektor."
-            }
+            },
+            "matrices": ["Invertierte Matrix"]
           },
           "step4": {
             "description": {
               "header": "Aufgabenbeschreibung",
               "body": "Bilde die Direktbedarfsmatrix aus dem Graph heraus. Die Matrix liest sich von oben nach links: [Spalte] * B0 werden für [Zeile] 1 A0 gebraucht. Bilde in der zweiten Matrix die Einheitsmatrix."
-            }
+            },
+            "matrices": ["Direktbedarfsmatrix", "Einheitsmatrix"]
           },
           "step5": {
             "description": {
               "header": "Aufgabenbeschreibung",
               "body": "Bilde die Matrizen D^1 ... D^n mittels Matrixmultiplikation, wobei n die Anzahl des längsten gerichteten Pfades im Gozintograph ist. Addiere anschließend die Matrizen mit der Einheitsmatrix um die Gesamtbedarfsmatrix zu erhalten."
-            }
+            },
+            "matrices": ["Direktbedarfsmatrix <i>D^1</i>", "Einheitsmatrix", "Gesamtbedarfsmatrix", "<i>D^${index}</i>"]
           }
         }
       }

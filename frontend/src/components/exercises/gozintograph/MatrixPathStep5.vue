@@ -13,16 +13,24 @@
           :matrix="unitMatrix"
           :readonly="true"
         />
-        <Matrix
+        <div
+          class="matrices__top--direct"
           v-for="(e, index) in maxPathLength - 1"
           :key="index"
-          :type="`directMatrix__${index}`"
-          :x-label="!index ? true : false"
-          :y-label="!index ? true : false"
-          :matrix="directMatrix"
-          :readonly="true"
-        />
-        <Matrix type="unitMatrix" :matrix="unitMatrix" :readonly="true" />
+        >
+          <p v-html="texts.matrices[0]"></p>
+          <Matrix
+            :type="`directMatrix__${index}`"
+            :x-label="!index ? true : false"
+            :y-label="!index ? true : false"
+            :matrix="directMatrix"
+            :readonly="true"
+          />
+        </div>
+        <div class="matrices__top--unit">
+          <p v-html="texts.matrices[1]"></p>
+          <Matrix type="unitMatrix" :matrix="unitMatrix" :readonly="true" />
+        </div>
         <Matrix
           type="primary"
           :matrix="primary"
@@ -32,55 +40,68 @@
       </div>
 
       <div class="matrices__bottom">
-        <Matrix
-          type="directMatrix__0"
-          :matrix="directMatrix"
-          :readonly="true"
-          :x-label="true"
-          :y-label="true"
-        />
-        <Matrix
+        <div class="matrices__bottom--direct">
+          <p v-html="texts.matrices[0]"></p>
+          <Matrix
+            type="directMatrix__0"
+            :matrix="directMatrix"
+            :readonly="true"
+            :x-label="true"
+            :y-label="true"
+          />
+        </div>
+        <div
+          class="matrices__bottom--direct"
           v-for="(matrix, index) in userDirectMatrices"
           :key="index"
-          :type="`directMatrices__${index}`"
-          :matrix="userDirectMatrices[index]"
-          @validate-field="validateField"
         >
-          <template #bottom>
-            <div class="matrices__fill">
-              <Button
-                class="matrices__fill--zero"
-                :text="buttons.fillZero"
-                @click.native="fillMatrix($event.target, true)"
-              />
-              <Button
-                class="matrices__fill--complete"
-                :text="buttons.fillComplete"
-                @click.native="fillMatrix($event.target, true)"
-              />
-            </div>
-          </template>
-        </Matrix>
-        <Matrix
-          type="aggregatedMatrix"
-          :matrix="userAggregatedMatrix"
-          @validate-field="validateField"
-        >
-          <template #bottom>
-            <div class="matrices__fill">
-              <Button
-                class="matrices__fill--zero"
-                :text="buttons.fillZero"
-                @click.native="fillMatrix($event.target)"
-              />
-              <Button
-                class="matrices__fill--complete"
-                :text="buttons.fillComplete"
-                @click.native="fillMatrix($event.target)"
-              />
-            </div>
-          </template>
-        </Matrix>
+          <p
+            v-html="templateString(texts.matrices[3], { index: index + 2 })"
+          ></p>
+          <Matrix
+            :type="`directMatrices__${index}`"
+            :matrix="userDirectMatrices[index]"
+            @validate-field="validateField"
+          >
+            <template #bottom>
+              <div class="matrices__fill">
+                <Button
+                  class="matrices__fill--zero"
+                  :text="buttons.fillZero"
+                  @click.native="fillMatrix($event.target, true)"
+                />
+                <Button
+                  class="matrices__fill--complete"
+                  :text="buttons.fillComplete"
+                  @click.native="fillMatrix($event.target, true)"
+                />
+              </div>
+            </template>
+          </Matrix>
+        </div>
+        <div class="matrices__bottom--aggregated">
+          <p v-html="texts.matrices[2]"></p>
+          <Matrix
+            type="aggregatedMatrix"
+            :matrix="userAggregatedMatrix"
+            @validate-field="validateField"
+          >
+            <template #bottom>
+              <div class="matrices__fill">
+                <Button
+                  class="matrices__fill--zero"
+                  :text="buttons.fillZero"
+                  @click.native="fillMatrix($event.target)"
+                />
+                <Button
+                  class="matrices__fill--complete"
+                  :text="buttons.fillComplete"
+                  @click.native="fillMatrix($event.target)"
+                />
+              </div>
+            </template>
+          </Matrix>
+        </div>
         <Matrix
           type="secondary"
           :matrix="userSecondary"
@@ -110,11 +131,22 @@
 }
 
 .matrices__top {
-  @apply flex;
+  @apply flex items-end;
 }
 
 .matrices__bottom {
   @apply flex;
+}
+
+.matrices__bottom .matrix__secondary {
+  padding-top: 27px;
+}
+
+.matrices__bottom--direct,
+.matrices__bottom--aggregated,
+.matrices__top--direct,
+.matrices__top--unit {
+  @apply flex flex-col items-center;
 }
 </style>
 
@@ -124,7 +156,12 @@ import TaskNavigation from "@/components/TaskNavigation";
 import Matrix from "@/components/exercises/gozintograph/Matrix";
 import Button from "@/components/Button";
 import matrixMixin from "@/mixins/MatrixMixin";
-import { retrieveMatrix, matrixMultiplication, deepCopy } from "@/lib/helper";
+import {
+  retrieveMatrix,
+  matrixMultiplication,
+  deepCopy,
+  templateString
+} from "@/lib/helper";
 
 import { createNamespacedHelpers } from "vuex";
 const { mapGetters } = createNamespacedHelpers("gozintograph");
@@ -132,6 +169,9 @@ export default {
   name: "MatrixPathStep5",
   components: { TextBox, TaskNavigation, Matrix, Button },
   mixins: [matrixMixin],
+  data() {
+    return { templateString };
+  },
   computed: {
     texts: function() {
       const texts = this.$store.state.user.texts;

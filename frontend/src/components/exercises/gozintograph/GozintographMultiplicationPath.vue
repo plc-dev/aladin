@@ -20,6 +20,7 @@
       <Matrix
         :show="true"
         :matrix="primary"
+        :yLabel="true"
         :readonly="true"
         type="primary"
       ></Matrix>
@@ -30,6 +31,7 @@
       <Matrix
         :matrix="userSecondary"
         v-model="userSecondary"
+        :yLabel="true"
         type="secondary"
         @validate-field="validateSecondary"
       ></Matrix>
@@ -115,7 +117,7 @@ export default {
   },
   methods: {
     validateSecondary({ value, id }) {
-      let [, index] = id.match(/.*__\d*_(\d*)/);
+      let [, index] = id.match(/.*__(\d*)_\d*/);
       if (
         this.secondary[index][Object.keys(this.secondary[index])[0]][0]
           .amount == value

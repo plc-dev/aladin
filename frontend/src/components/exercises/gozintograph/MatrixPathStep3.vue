@@ -6,13 +6,16 @@
     </TextBox>
 
     <div class="matrices__multiplicate">
-      <Matrix
-        type="userInvertedMatrix"
-        :matrix="userInvertedMatrix"
-        :yLabel="true"
-        :xLabel="true"
-        :readonly="true"
-      ></Matrix>
+      <div class="matrices__inverted">
+        <p v-html="texts.matrices[0]"></p>
+        <Matrix
+          type="userInvertedMatrix"
+          :matrix="userInvertedMatrix"
+          :yLabel="true"
+          :xLabel="true"
+          :readonly="true"
+        ></Matrix>
+      </div>
 
       <Matrix
         type="primary"
@@ -40,6 +43,10 @@
 <style lang="postcss">
 .solution__matrix--description {
   @apply self-center text-center m-2 pb-4;
+}
+
+.matrices__inverted {
+  @apply flex flex-col items-center;
 }
 
 .matrices__multiplicate {
