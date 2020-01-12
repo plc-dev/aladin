@@ -30,6 +30,14 @@ export default {
           }
         }
       }
+      const self = this;
+      setTimeout(() => {
+        Array.from(
+          target.parentNode.previousElementSibling.querySelectorAll("input")
+        ).forEach(field =>
+          self.validateField({ value: field.value, id: field.id })
+        );
+      }, 5);
     },
     /**
      * Validates matrix field on the focusout-Event.

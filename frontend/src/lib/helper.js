@@ -54,7 +54,7 @@ export function collisionDetection(nodesToFix, fix, nodes) {
 }
 
 /**
- * Returns a integer array, derived from the passed string
+ * Returns an integer array, derived from the passed string
  * @param {string} base64String
  */
 export function urlBase64ToUint8Array(base64String) {
@@ -236,4 +236,26 @@ export function matrixMultiplication(A, B) {
       );
     });
   });
+}
+
+/**
+ * Returns a dynamically filled string on runtime
+ * Takes a template string in the form of 'This is a ...${template} ${string}' and an object with string/array values {template: ['template', 'engine'], string: 'string'}
+ * ...${} to concat an array of unknown length to a string on runtime
+ * ${} to substitute the placeholder for the passed value on runtime
+ * standard for concatWith is a empty space ' '
+ */
+export function templateString(template, values, concatWith) {
+  let output = template;
+  concatWith = concatWith || " ";
+  Object.keys(values).forEach(key => {
+    output = output
+      .replace(new RegExp("\\$" + `{\\.\\.\\.${key}}`, "g"), () =>
+        values[key].reduce((string, value, i) => {
+          return !i ? value : string + concatWith + value;
+        }, "")
+      )
+      .replace(new RegExp("\\$" + `{${key}}`, "g"), values[key]);
+  });
+  return output;
 }

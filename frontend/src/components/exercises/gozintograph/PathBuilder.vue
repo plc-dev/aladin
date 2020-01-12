@@ -254,14 +254,7 @@ export default {
     removePath(pathIndex) {
       this.userPaths.splice(pathIndex, 1);
       this.markedPaths = [];
-      this.validatePath(pathIndex - 1);
-      // Array.from(
-      //   document.querySelectorAll(
-      //     ".pathbuilder__path--state.correct, .pathbuilder__path--state.false"
-      //   )
-      // ).forEach(path =>
-      //   this.validatePath(path.nextSibling.getAttribute("pathIndex"))
-      // );
+      this.userPaths.forEach((path, index) => this.validatePath(index));
     },
     updateValues(value, pathIndex, connectionIndex) {
       const path = this.userPaths[pathIndex];
@@ -270,6 +263,7 @@ export default {
     },
     showPaths() {
       this.$store.commit("gozintograph/SET_USER_PATHS", deepCopy(this.paths));
+      this.validatePaths();
     },
     validatePath(index) {
       const userPath = this.userPaths[index];
@@ -321,6 +315,7 @@ export default {
       }
     },
     validatePaths() {
+      this.markedPaths = [];
       this.userPaths.forEach((path, index) => this.validatePath(index));
     }
   }

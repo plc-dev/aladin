@@ -6,26 +6,40 @@
     </TextBox>
 
     <div class="matrices">
-      <Matrix
-        type="subtractedMatrixCopy"
-        :xLabel="true"
-        :yLabel="true"
-        :readonly="true"
-        :matrix="subtractedMatrixCopy"
-        @validate-field="validateField"
-      ></Matrix>
+      <div class="matrices__subtracted">
+        <p v-html="texts.matrices[0]"></p>
+        <Matrix
+          type="subtractedMatrixCopy"
+          :xLabel="true"
+          :yLabel="true"
+          :readonly="true"
+          :matrix="subtractedMatrixCopy"
+        ></Matrix>
+      </div>
 
-      <Matrix
-        type="invertedMatrix"
-        :matrix="userInvertedMatrix"
-        @validate-field="validateField"
-      >
-        <template #bottom>
-          <div class="matrices__complete">
-            <Button :text="texts.button" @click.native="invert(true)" />
-          </div>
-        </template>
-      </Matrix>
+      <div class="matrices__inverted">
+        <p v-html="texts.matrices[1]"></p>
+        <Matrix
+          type="invertedMatrix"
+          :matrix="userInvertedMatrix"
+          @validate-field="validateField"
+        >
+          <template #bottom>
+            <div class="matrices__fill">
+              <Button
+                class="matrices__fill--zero"
+                :text="buttons.fillZero"
+                @click.native="fillMatrix($event.target)"
+              />
+              <Button
+                class="matrices__fill--complete"
+                :text="buttons.fillComplete"
+                @click.native="fillMatrix($event.target)"
+              />
+            </div>
+          </template>
+        </Matrix>
+      </div>
     </div>
 
     <TaskNavigation
@@ -46,15 +60,20 @@
   @apply flex flex-wrap w-full justify-around items-center mb-12;
 }
 
-.matrices__complete {
-  @apply flex justify-end w-full;
+.matrices__inverted,
+.matrices__subtracted {
+  @apply flex flex-col items-center;
 }
 
-.matrices__complete * {
+.matrices__fill {
+  @apply flex justify-center w-full cursor-pointer;
+  font-size: 12px;
+}
+
+.matrices__fill * {
   text-align: center;
   padding: 2px;
-  font-size: 12px;
-  max-width: 50%;
+  margin-left: 2.35em;
 }
 </style>
 

@@ -151,6 +151,13 @@ export default {
     },
     showOverlay() {
       document.querySelector(".overlay").style.height = "100vh";
+    },
+    menuResize() {
+      if (window.outerWidth < 640) {
+        this.open = false;
+      } else {
+        this.open = true;
+      }
     }
   },
   computed: {
@@ -169,6 +176,10 @@ export default {
     if (window.outerWidth < 640) {
       this.open = false;
     }
+    window.addEventListener("resize", this.menuResize);
+  },
+  destroyed() {
+    window.removeEventListener("resize", this.menuResize);
   }
 };
 </script>

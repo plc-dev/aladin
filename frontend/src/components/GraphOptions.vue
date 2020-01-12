@@ -43,19 +43,12 @@
         ></InputField>
       </div>
     </div>
-    <slot name="buttons"></slot>
   </div>
 </template>
 
 <style lang="postcss">
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  @apply m-0;
-  -webkit-appearance: none;
-}
-
 .graph__options--range {
-  @apply flex flex-col;
+  @apply flex flex-col pb-4;
 }
 
 .range__field {

@@ -7,14 +7,16 @@
           <div class="graph__options--hide" @click="toggleOptions">&Lt;</div>
         </div>
       </template>
-      <template #buttons>
-        <Button :text="text" @click.native="generateGraph()"></Button>
-      </template>
     </GraphOptions>
     <div class="graph__options--hidden" v-else>
       <div @click="toggleOptions">&Gt;</div>
     </div>
     <div class="graph"></div>
+    <Button
+      class="graph__generate"
+      :text="text"
+      @click.native="generateGraph()"
+    ></Button>
   </div>
 </template>
 
@@ -52,6 +54,12 @@
 
 .graph__options--hidden > div:hover {
   @apply text-highlight border-highlight;
+}
+
+.graph__generate {
+  @apply absolute right-0 text-center;
+  width: 200px;
+  border-radius: 0 0 5px 5px;
 }
 
 .graph {
@@ -163,14 +171,24 @@ export default {
       if (Object.keys(this.graph).length) {
         drawGozintograph(this.graph, appendTo, containerHeight);
       }
-    }
-  },
-  mounted() {
-    if (this.graph !== undefined && this.graph.hasOwnProperty("connections")) {
+    },
+    redraw() {
       const appendTo = document.querySelector(".graph");
       const containerHeight = document.querySelector(".exercise").offsetHeight;
-      drawGozintograph(this.graph, appendTo, containerHeight);
+      if (
+        this.graph !== undefined &&
+        this.graph.hasOwnProperty("connections")
+      ) {
+        drawGozintograph(this.graph, appendTo, containerHeight);
+      }
     }
+  },
+  activated() {
+    this.redraw();
+    window.addEventListener("resize", this.redraw);
+  },
+  deactivated() {
+    window.removeEventListener("resize", this.redraw);
   }
 };
 </script>
