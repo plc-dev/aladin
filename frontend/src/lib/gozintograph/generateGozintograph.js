@@ -1,7 +1,7 @@
 import { getRandomInt } from "@/lib/helper";
 
 /**
- * Returns a object containing nodes, edges and paths
+ * Returns a graph-object containing nodes, edges and paths
  * @param {number} depth
  * @param {object} rangeAmount
  * @param {object} rangeWidth
@@ -41,7 +41,8 @@ export function generateGraph(
       };
       node = {
         id: name(),
-        amount: i === 0 ? getRandomInt(rangeAmount.min, rangeAmount.max) : 0,
+        amount: !i ? getRandomInt(rangeAmount.min, rangeAmount.max) : 0,
+        need: i ? getRandomInt(rangeAmount.min, rangeAmount.max) : 0,
         isLeaf: true
       };
       currentLevel.push(node);
@@ -74,6 +75,7 @@ export function generateGraph(
   }
   let resourceIndex = 0;
   let purchasedIndex = 0;
+  // function to rename the leaf nodes semantically correct
   const renameLeaf = node => {
     if (/B/.test(node.id)) {
       const randomLabel = Math.round(Math.random());

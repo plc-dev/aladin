@@ -31,7 +31,7 @@
             :id="`${type}__${mIndex}_${vIndex}`"
             :class="`vector__${mIndex}--value`"
             type="number"
-            :readonly="readonly"
+            :disabled="readonly"
             v-model="node.amount"
             @click="onSelect()"
             @focusout="
