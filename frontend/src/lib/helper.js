@@ -246,10 +246,10 @@ export function matrixMultiplication(A, B) {
  * standard for concatWith is a empty space ' '
  */
 export function templateString(template, values, concatWith) {
-  let output = template;
+  let output = "";
   concatWith = concatWith || " ";
   Object.keys(values).forEach(key => {
-    output = output
+    output = template
       .replace(new RegExp("\\$" + `{\\.\\.\\.${key}}`, "g"), () =>
         values[key].reduce((string, value, i) => {
           return !i ? value : string + concatWith + value;
