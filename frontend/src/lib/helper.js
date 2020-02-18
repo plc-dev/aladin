@@ -259,3 +259,16 @@ export function templateString(template, values, concatWith) {
   });
   return output;
 }
+
+/**
+ * Naive check if two objects are equal (hold the same values to the same fields)
+ */
+export function isObjectEqual(x, y) {
+  const ok = Object.keys,
+    tx = typeof x,
+    ty = typeof y;
+  return x && y && tx === "object" && tx === ty
+    ? ok(x).length === ok(y).length &&
+        ok(x).every(key => isObjectEqual(x[key], y[key]))
+    : x === y;
+}

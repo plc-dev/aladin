@@ -1,17 +1,30 @@
 const { asyncErrorWrapper } = require("../helper");
+const path = require("path");
+const fs = require("fs");
 
-module.exports = (router, User) => {
+module.exports = router => {
   router.get(
-    "/getAllDB",
+    "/getDBList",
     asyncErrorWrapper(async (req, res) => {
-      const path = require("path");
-      const fs = require("fs");
       const appDir = path.dirname(require.main.filename);
       const directoryPath = path.join(appDir, "./exercises/sql/database");
       const dbList = await new Promise((resolve, reject) => {
         return fs.readdir(directoryPath, (err, filenames) => {
           if (err) reject(err);
-          resolve(filenames);
+          resolve(filenames.map(filename => {
+            let src = '<img src="https://miro.medium.com/max/2426/1*I3bp6yGM27SyMZYv3kqIwA.png" alt=""></img><br><button class="openEditor">Editor öffnen!</button>';
+            let img = src;
+            if (/^[abc].*/.test(filename)) {
+              src = path.join(appDir, `./exercises/sql/database/${filename}/${filename}.png`);  
+              img = fs.readFileSync(src, 'base64');
+              img = "data:image/png;base64, " + img;
+            } 
+            return {
+              dbName: filename, 
+              value: img,
+              img
+            };
+          }));
         });
       });
       res.status(201).json(dbList);
@@ -22,9 +35,7 @@ module.exports = (router, User) => {
     "/getDBQuestions",
     asyncErrorWrapper(async (req, res) => {
       const { dbName } = req.query;
-      const path = require("path");
-      const fs = require("fs");
-      const questionPath = path.resolve(require.main.filename, `../exercises/sql/spider/sorted_questions.json`);
+      const questionPath = path.resolve(require.main.filename, `../exercises/sql/sortedQueries.json`);
       const sortedQuestions = await new Promise((resolve, reject) => {
         return fs.readFile(questionPath, "utf8", (err, file) => {
           if (err) reject(err);
@@ -32,25 +43,55 @@ module.exports = (router, User) => {
         });
       });
 
-      res.status(201).json({ questions: sortedQuestions[dbName] });
+      res.status(201).json(sortedQuestions[dbName].map(question => ({
+        question: question.question, 
+        id: question.id, 
+        query: question.query,
+        userQuery: "",
+        result: "",
+        userResult: ""
+      })));
+    })
+  );
+
+  router.post("/submitQuery", asyncErrorWrapper(async (req, res) => {
+    const { dbName, userQuery, query, index } = req.body;
+    let userResult = 'No Query was passed', result;
+    try {
+      if (userQuery) {
+        const location = path.resolve(require.main.filename, `../exercises/sql/database/${dbName}/${dbName}.sqlite`);
+        const sqlConfig = { flavour: process.env.sqlFlavour, location };
+        const sqlDB = await require("../exercises/sql/sqlDAO")(sqlConfig);
+
+        [userResult, result] = await Promise.all([
+          sqlDB.all(userQuery, req.params.id),
+          sqlDB.all(query)
+        ]);
+      }
+      res.status(201).json({index, userResult, result});
+    } catch (err) {
+      res.status(201).json({index, userResult: err.message, result, err});
+    }
     })
   );
 
   router.post(
     "/createDB",
     asyncErrorWrapper(async (req, res) => {
-      let { uuid, sourceCode, dbName } = req.body;
-      const dbDir = require("path").resolve(require.main.filename, `../exercises/sql/database/${dbName}`);
-      const fs = require("fs");
+      let { uuid, sourceCode, dbName, sourceFlavour } = req.body;
+      const dbDir = path.resolve(require.main.filename, `../exercises/sql/database/${dbName}`);
       const exists = fs.existsSync(dbDir);
       if (exists) throw new Error("dbName already exists");
+      // create database 
       fs.mkdirSync(dbDir);
-      const location = require("path").resolve(require.main.filename, `../exercises/sql/database/${dbName}/${dbName}.sqlite`);
-
+      const location = path.resolve(require.main.filename, `../exercises/sql/database/${dbName}/${dbName}.sqlite`);
       const sqlConfig = { flavour: process.env.sqlFlavour, location };
       const sqlDB = await require("../exercises/sql/sqlDAO")(sqlConfig);
 
-      const sql = await require("../exercises/sql/sqlParser")(sourceCode, sqlDB);
+      // parse sourceCode from User
+      const sql = await require("../exercises/sql/parser/sqlParser")(sourceCode, sourceFlavour, sqlDB);
+
+      // fill database 
       sql.forEach(createTable =>
         sqlDB.serialize(() =>
           sqlDB.run(createTable, err => {
@@ -62,77 +103,31 @@ module.exports = (router, User) => {
     })
   );
 
-  /**
-   * @swagger
-   * /generateERD:
-   *  post:
-   *    summary: Validates the login data and sends user settings and ID to client
-   *    parameters:
-   *      - in: body
-   *        name: user
-   *        schema:
-   *          type: object
-   *          required:
-   *            - email
-   *              password
-   *          properties:
-   *            email:
-   *              type: string
-   *            password:
-   *              type: string
-   *    responses:
-   *      '200':
-   *        description: Login data valid
-   *      '409':
-   *        description: Validation error
-   */
   router.post(
-    "/generateERD",
+    "/createQueries",
     asyncErrorWrapper(async (req, res) => {
-      try {
-        const { uuid, sourceCode } = req.body;
+      let { uuid, dbName } = req.body;
+      const dbLocation = path.resolve(require.main.filename, `../exercises/sql/database/${dbName}/${dbName}.sqlite`);
+      const sqlConfig = { flavour: process.env.sqlFlavour, location: dbLocation };
+      const sqlDB = await require("../exercises/sql/sqlDAO")(sqlConfig);
 
-        // const { spawn } = require("child_process");
-        // const path = require("path");
-        // const pathToErd = path.resolve(__dirname, "../sql", "erd");
-        // const child = spawn(pathToErd, ["--fmt=png", "--output=" + "test"], { input: string, shell: true }).on("error", err => console.log(err));
-        // process.stdin.resume();
-        // child.stdin.resume();
-        // child.stdin.setEncoding("utf-8");
-        // child.stdin.write(string);
-        // // use child.stdout.setEncoding('utf8'); if you want text chunks
-        // child.stdout.on("data", chunk => {
-        //   // data from standard output is here as buffers
-        //   console.log(chunk);
-        // });
-        // child.on("exit", code => {
-        //   console.log(`child process exited with code ${code}`);
-        // });
+      const reflectTables = "SELECT sql FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%';";
 
-        // const { spawnSync } = require("child_process");
-        // const path = require("path");
-        // const pathToErd = path.resolve(__dirname, "../sql", "erd");
-        // // const pathToErd = require.resolve("../erd/erd");
-        // const child = spawnSync(pathToErd, ["--fmt=png", "--output=" + "test"], { input: string, shell: true });
-        // console.log(child.stderr.toString());
-        // console.log(child.stdout.toString());
-        // require("fs").writeFile("logo.png", child.output[2], "binary", function(err) {
-        //   if (err) throw err;
-        //   console.log("File saved.");
-        // });
+      await sqlDB.all(reflectTables, [], async (err, rows) => {
+        if (err) throw err;
+        const sourceCode = rows;
 
-        const { execFileSync } = require("child_process");
-        const path = require("path");
-        const pathToErd = path.resolve(__dirname, "../sql", "erd");
-        console.log("test");
-        const child = execFileSync(pathToErd, ["--fmt=png", "--output=" + "test"], { input: string, shell: true });
-        console.log(child.toString());
+        // parse metadata to json format
+        const parsedTables = await require("../exercises/sql/parser/sqlParser")({ sourceCode, sourceFlavour: "json", sqlDB });
 
-        // const user = await User.findOneAndUpdate({ _id: uuid }, { subscription }, { upsert: true });
-        res.status(201).json({});
-      } catch (err) {
-        console.log(err);
-      }
+        const paths = parsedTables.reduce((paths, tables) => {
+
+        }, [])
+
+        
+        res.status(201).json(parsedTables);
+      });
+
     })
   );
 
