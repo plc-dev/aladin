@@ -6,7 +6,7 @@
       class="show__erd"
       @click="showOverlay"
     />
-    <TextBox class="sdescription__sql">
+    <TextBox class="description__sql">
       <template #header>{{ texts.description.header }}</template>
       <template #body><p v-html="texts.description.body"></p></template>
     </TextBox>
@@ -24,7 +24,7 @@
       </AccordionItem>
     </Accordion>
 
-    <ScreenOverlay />
+    <ScreenOverlay class="sql_overlay" />
   </div>
 </template>
 
@@ -33,7 +33,7 @@
   @apply flex flex-col items-center justify-start w-full;
 }
 
-.sdescription__sql {
+.description__sql {
   @apply self-center text-center m-2 pb-4;
 }
 
@@ -45,7 +45,7 @@
   height: auto;
 }
 
-.overlay__content {
+.sql_overlay .overlay__content {
   @apply flex justify-center items-center;
 }
 
