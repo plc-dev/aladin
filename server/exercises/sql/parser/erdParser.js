@@ -1,4 +1,18 @@
-const { templateString } = require("../../helper");
+const { templateString } = require("../../../helper");
+
+module.exports = async (sourceCode, sqlDB) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const entities = sourceCode.match(entitiesRegex);
+      const relations = sourceCode.match(relationsRegex);
+      const parsedERD = parseERD(entities, relations);
+      const sql = parseToSQL(parsedERD, sqlDB.adapter);
+      resolve(sql);
+    } catch (err) {
+      if (err) reject(err);
+    }
+  });
+};
 
 /**
  * \[\w*\]          -> match entity enclosed in brackets
@@ -43,20 +57,6 @@ const relationsRegex = new RegExp(`[\\w_ <>{}:"-]*[?*+1]{1}--[?*+1]{1}[\\w_ <>{}
  * <([\\w_ -]*)>        -> fourth group holds name of the field in the original table
  */
 const relationPartsRegex = new RegExp(`([\\w_ -]*)<([\\w_ -]*)>[+*1 -]*([\\w_ -]*)<([\\w_ -]*)>`, "i");
-
-module.exports = async (sourceCode, sqlDB) => {
-  return new Promise((resolve, reject) => {
-    try {
-      const entities = sourceCode.match(entitiesRegex);
-      const relations = sourceCode.match(relationsRegex);
-      const parsedERD = parseERD(entities, relations);
-      const sql = parseToSQL(parsedERD, sqlDB.adapter);
-      resolve(sql);
-    } catch (err) {
-      if (err) reject(err);
-    }
-  });
-};
 
 function isMatchFound(returnValue) {
   if (returnValue === null) throw new Error("no match found");
@@ -120,8 +120,8 @@ function parseRelations(relations, tables) {
   return tables;
 }
 
-function parseToSQL(parsedERD, adapter) {
-  const createTables = parsedERD.map(table => {
+function parseToSQL(parsedSource, adapter) {
+  const createTables = parsedSource.map(table => {
     let createTable = `CREATE TABLE ${Object.keys(table)[0]}(\n`;
     const primary = [];
     table[Object.keys(table)[0]].map(line => {

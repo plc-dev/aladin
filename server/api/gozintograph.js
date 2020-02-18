@@ -32,7 +32,7 @@ module.exports = (router, User) => {
       const user = await User.findOne({ _id: uuid });
       if (user !== null) {
         user.solvedExercises.push(solvedExercise);
-        user.save.(done);
+        //user.save.(done);
         res.status(201).json({});
       } else {
         throw Error();

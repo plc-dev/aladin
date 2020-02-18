@@ -1,7 +1,7 @@
 import { getRandomInt } from "@/lib/helper";
 
 /**
- * Returns a object containing nodes, edges and paths
+ * Returns a graph-object containing nodes, edges and paths
  * @param {number} depth
  * @param {object} rangeAmount
  * @param {object} rangeWidth
@@ -41,7 +41,8 @@ export function generateGraph(
       };
       node = {
         id: name(),
-        amount: i === 0 ? getRandomInt(rangeAmount.min, rangeAmount.max) : 0,
+        amount: !i ? getRandomInt(rangeAmount.min, rangeAmount.max) : 0,
+        need: i ? getRandomInt(rangeAmount.min, rangeAmount.max) : 0,
         isLeaf: true
       };
       currentLevel.push(node);
@@ -74,6 +75,7 @@ export function generateGraph(
   }
   let resourceIndex = 0;
   let purchasedIndex = 0;
+  // function to rename the leaf nodes semantically correct
   const renameLeaf = node => {
     if (/B/.test(node.id)) {
       const randomLabel = Math.round(Math.random());
@@ -98,7 +100,7 @@ export function generateGraph(
     return node.id;
   };
   const renamed = [];
-  //get all leaf-nodes
+  //get all leaf-nodes, rename and add additional need of leaf nodes
   const leafs = graph.level.flatMap(nodes =>
     nodes
       .filter(node => node.isLeaf)
@@ -106,6 +108,7 @@ export function generateGraph(
         const id = renameLeaf(node);
         renamed.push({ previous: node.id, now: id });
         node.id = id;
+        node.amount += node.need;
         return node.id;
       })
   );
@@ -124,6 +127,7 @@ export function generateGraph(
       }
     });
   });
+  graph.level[0].forEach(node => (node.need = node.amount));
   //accumulate paths
   graph.paths = [];
   leafs.forEach(leaf => {
@@ -191,7 +195,9 @@ function generateConnections(
         // if parent has Connection it is no longer a leaf node
         parent.isLeaf = false;
         // calculate secondary needs vector
-        node.amount += parent.amount * newConnection.value;
+        node.amount +=
+          parent.amount * newConnection.value +
+          parent.need * newConnection.value;
         result.push(newConnection);
       }
       return result;

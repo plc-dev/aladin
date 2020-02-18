@@ -4,35 +4,7 @@
       class="exercises__exercise"
       v-for="(exercise, key) in exercises"
       :key="key"
-      :to="`exercise/${exercise.alt}`"
-    >
-      <img
-        class="exercises__exercise--img"
-        :src="exercise.img"
-        :alt="exercise.alt"
-      />
-      <span class="exercises__exercise--description">{{ exercise.body }}</span>
-    </router-link>
-
-    <router-link
-      class="exercises__exercise"
-      v-for="(exercise, key) in exercises"
-      :key="key"
-      :to="`exercise/${exercise.alt}`"
-    >
-      <img
-        class="exercises__exercise--img"
-        :src="exercise.img"
-        :alt="exercise.alt"
-      />
-      <span class="exercises__exercise--description">{{ exercise.body }}</span>
-    </router-link>
-
-    <router-link
-      class="exercises__exercise"
-      v-for="(exercise, key) in exercises"
-      :key="key"
-      :to="`exercise/${exercise.alt}`"
+      :to="`exercise/${exercise.route}`"
     >
       <img
         class="exercises__exercise--img"
@@ -57,6 +29,8 @@
   -moz-transition: margin 0.5s ease-out;
   -o-transition: margin 0.5s ease-out;
   max-width: 500px;
+  max-height: 500px;
+  min-height: 400px;
 }
 
 .exercises__exercise:hover {
@@ -65,7 +39,7 @@
 }
 
 .exercises__exercise--img {
-  @apply h-32 w-auto shadow-md;
+  @apply h-48 w-auto shadow-md;
 }
 
 .exercises__exercise--description {

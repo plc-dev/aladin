@@ -246,10 +246,10 @@ export function matrixMultiplication(A, B) {
  * standard for concatWith is a empty space ' '
  */
 export function templateString(template, values, concatWith) {
-  let output = template;
+  let output = "";
   concatWith = concatWith || " ";
   Object.keys(values).forEach(key => {
-    output = output
+    output = template
       .replace(new RegExp("\\$" + `{\\.\\.\\.${key}}`, "g"), () =>
         values[key].reduce((string, value, i) => {
           return !i ? value : string + concatWith + value;
@@ -258,4 +258,17 @@ export function templateString(template, values, concatWith) {
       .replace(new RegExp("\\$" + `{${key}}`, "g"), values[key]);
   });
   return output;
+}
+
+/**
+ * Naive check if two objects are equal (hold the same values to the same fields)
+ */
+export function isObjectEqual(x, y) {
+  const ok = Object.keys,
+    tx = typeof x,
+    ty = typeof y;
+  return x && y && tx === "object" && tx === ty
+    ? ok(x).length === ok(y).length &&
+        ok(x).every(key => isObjectEqual(x[key], y[key]))
+    : x === y;
 }

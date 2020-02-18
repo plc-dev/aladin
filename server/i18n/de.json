@@ -20,7 +20,15 @@
         "header": "Gozintograph",
         "body": "Lass dir einen Gozintographen mit individuell einstellbarer Komplexität zufällig erstellen und errechne für einen gegebenen Primärbedarf an Endprodukten den Bruttosekundärbedarf von Rohstoffen, Kaufteilen und Baugruppen mit Hilfe von Matrizenrechnung oder „Kantenmultiplikation.“",
         "img": "/img/exercises/gozintograph.png",
-        "alt": "gozintograph"
+        "alt": "Gozintograph",
+        "route": "gozintograph"
+      },
+      "sql": {
+        "header": "SQL-Abfragen",
+        "body": "Teste deine SQL-Kenntnisse mit einer Vielzahl an Abfragen über verschiedene Datenbanken oder erstelle eigene Abfragen indem du deine Datenbank in das System überträgst.",
+        "img": "/img/exercises/sql.jpg",
+        "alt": "SQL-Abfragen",
+        "route": "sql"
       }
     },
     "gozintograph": {
@@ -123,6 +131,24 @@
               "body": "Bilde die Matrizen D^1 ... D^n mittels Matrixmultiplikation, wobei n die Anzahl des längsten gerichteten Pfades im Gozintograph ist. Addiere anschließend die Matrizen mit der Einheitsmatrix um die Gesamtbedarfsmatrix zu erhalten."
             },
             "matrices": ["Direktbedarfsmatrix <i>D^1</i>", "Einheitsmatrix", "Gesamtbedarfsmatrix", "<i>D^${index}</i>"]
+          }
+        }
+      }
+    },
+    "sql": {
+      "tabs": {
+        "SqlGraphPath": {
+          "tab": "Editor",
+          "description": {
+            "header": "SQL-Abfragen",
+            "body": "Such dir eine Abfrage aus und versuche sie zu lösen!<br> Als Hilfestellung kannst du dir jederzeit das ERM zur Datenbank ansehen."
+          }
+        },
+        "SqlScope": {
+          "tab": "DB-Liste",
+          "description": {
+            "header": "SQL-Abfragen",
+            "body": "Teste deine SQL-Skills anhand einer der gelisteten Datenbanken und versuche die Abfragen zu lösen.<br> Als angemeldeter Nutzer kannst du zudem eigene Datenbanken und zugehörige Abfragen anlegen."
           }
         }
       }

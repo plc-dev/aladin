@@ -111,7 +111,11 @@ export default {
       }, {});
     },
     getPrimary(state) {
-      return state.graph.level[0].map(node => ({ [node.id]: [node] }));
+      return state.graph.level
+        .reduce((nodes, level) => (nodes = [...nodes, ...level]), [])
+        .flatMap(node => ({
+          [node.id]: [{ id: node.id, amount: node.need, isLeaf: node.isLeaf }]
+        }));
     },
     getFullPrimary(state) {
       return state.graph.level.reduce(
@@ -120,7 +124,7 @@ export default {
             vector[0]["P"].push(...level);
           } else {
             vector[0]["P"].push(
-              ...level.flatMap(node => ({ id: node.id, amount: 0 }))
+              ...level.flatMap(node => ({ id: node.id, amount: node.need }))
             );
           }
           return vector;

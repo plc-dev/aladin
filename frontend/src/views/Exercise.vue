@@ -16,6 +16,7 @@
         <component
           class="exercise__scope--body"
           :is="currentTabComponent"
+          @change-tab="changeTab"
         ></component>
       </keep-alive>
     </div>

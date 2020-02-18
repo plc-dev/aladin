@@ -6,9 +6,13 @@ export default {
   namespaced: true,
 
   state: {
-    publicVapidKey: "BHaC5UbbkQBKz6v-I-JQ2abGaTZYfvO6j1CtPQYIBqJJeXdNcETen-BMP0rqZTscCkjPtJDFwqFYwdPPGtX5Tzo",
+    publicVapidKey:
+      "BHaC5UbbkQBKz6v-I-JQ2abGaTZYfvO6j1CtPQYIBqJJeXdNcETen-BMP0rqZTscCkjPtJDFwqFYwdPPGtX5Tzo",
     settings: {
-      language: deserializeLocalStorage(localStorage.language) || navigator.language || "en",
+      language:
+        deserializeLocalStorage(localStorage.language) ||
+        navigator.language ||
+        "en",
       texts: deserializeLocalStorage(localStorage.texts) || {}
     },
     uuid: "",

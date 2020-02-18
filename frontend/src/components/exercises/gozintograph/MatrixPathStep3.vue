@@ -26,7 +26,7 @@
       ></Matrix>
 
       <Matrix
-        type="userSecondary"
+        type="secondary"
         :matrix="userSecondary"
         :yLabel="true"
         :xLabel="true"
