@@ -83,7 +83,7 @@ export default {
       return test;
     }
   },
-  activated() {
+  mounted() {
     this.getDBList();
   }
 };
