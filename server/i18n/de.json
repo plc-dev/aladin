@@ -19,7 +19,7 @@
       "gozintograph": {
         "header": "Gozintograph",
         "body": "Lass dir einen Gozintographen mit individuell einstellbarer Komplexität zufällig erstellen und errechne für einen gegebenen Primärbedarf an Endprodukten den Bruttosekundärbedarf von Rohstoffen, Kaufteilen und Baugruppen mit Hilfe von Matrizenrechnung oder „Kantenmultiplikation.“",
-        "img": "/img/exercises/gozintograph.png",
+        "img": "/img/exercises/gozintograph.PNG",
         "alt": "Gozintograph",
         "route": "gozintograph"
       },
