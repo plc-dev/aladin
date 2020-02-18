@@ -19,7 +19,7 @@
 }
 
 .accordion__item--header {
-  @apply flex justify-between w-full bg-main text-textColor cursor-pointer p-3;
+  @apply flex justify-between w-full bg-contrast text-background cursor-pointer p-3;
   border-bottom: solid 1px white;
 }
 
@@ -41,7 +41,7 @@
 }
 
 .accordion__item--content {
-  @apply bg-white hidden;
+  @apply bg-white hidden pb-1;
   overflow: hidden;
   height: 0;
   transition: height 350ms ease-in-out;

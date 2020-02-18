@@ -117,6 +117,11 @@ export default {
     selectedDB(newDB, oldDB) {
       if (newDB !== oldDB) {
         this.getQueryList();
+        Array.from(
+          document.querySelectorAll(".accordion__item")
+        ).forEach(listElement =>
+          listElement.classList.remove("success", "error", "active")
+        );
       }
     }
   },

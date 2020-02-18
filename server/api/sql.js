@@ -57,20 +57,22 @@ module.exports = router => {
   router.post("/submitQuery", asyncErrorWrapper(async (req, res) => {
     const { dbName, userQuery, query, index } = req.body;
     let userResult = 'No Query was passed', result;
+    const location = path.resolve(require.main.filename, `../exercises/sql/database/${dbName}/${dbName}.sqlite`);
+    const sqlConfig = { flavour: process.env.sqlFlavour, location };
+    const sqlDB = await require("../exercises/sql/sqlDAO")(sqlConfig);
     try {
       if (userQuery) {
-        const location = path.resolve(require.main.filename, `../exercises/sql/database/${dbName}/${dbName}.sqlite`);
-        const sqlConfig = { flavour: process.env.sqlFlavour, location };
-        const sqlDB = await require("../exercises/sql/sqlDAO")(sqlConfig);
-
         [userResult, result] = await Promise.all([
           sqlDB.all(userQuery, req.params.id),
           sqlDB.all(query)
         ]);
+        console.log(`Ran queries:\n${userQuery}\n${query}`);
       }
       res.status(201).json({index, userResult, result});
     } catch (err) {
       res.status(201).json({index, userResult: err.message, result, err});
+    } finally {
+      sqlDB.adapter.closeDB(sqlDB);
     }
     })
   );

@@ -4,12 +4,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/css/404.ee194d40.css"
   },
   {
-    "revision": "099b39f6b71ab0275d4e",
+    "revision": "ddb4b017b4afb370bfd2",
     "url": "/css/app.3453b5ed.css"
   },
   {
-    "revision": "8e144b9097d27315fb88",
-    "url": "/css/exercise.521847ab.css"
+    "revision": "fd5fdc2b58f09bb4d96f",
+    "url": "/css/exercise.6b04a860.css"
   },
   {
     "revision": "421036601217ff3c6026",
@@ -24,19 +24,19 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/css/register.4820afa8.css"
   },
   {
-    "revision": "ccb7339bd2209fe97532c49ab563c3c2",
-    "url": "/img/exercises/gozintograph.PNG"
-  },
-  {
     "revision": "4889d6a9b3240a4b908b2d886ee51b3f",
     "url": "/img/exercises/gozintograph.jpg"
+  },
+  {
+    "revision": "ccb7339bd2209fe97532c49ab563c3c2",
+    "url": "/img/exercises/gozintograph.png"
   },
   {
     "revision": "d7d99507c8b4d7768e940ece1408ca9e",
     "url": "/img/exercises/sql.jpg"
   },
   {
-    "revision": "b0c2f082520195639e179d37cb05fe53",
+    "revision": "ee7ea93bf2f770a8edbef14f6e634824",
     "url": "/index.html"
   },
   {
@@ -44,16 +44,16 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/js/404.f7962052.js"
   },
   {
-    "revision": "099b39f6b71ab0275d4e",
-    "url": "/js/app.b3836d5a.js"
+    "revision": "ddb4b017b4afb370bfd2",
+    "url": "/js/app.ef2f8f2a.js"
   },
   {
     "revision": "e942fe48eb55f8ec41bb",
     "url": "/js/chunk-vendors.03ea93dc.js"
   },
   {
-    "revision": "8e144b9097d27315fb88",
-    "url": "/js/exercise.d0575455.js"
+    "revision": "fd5fdc2b58f09bb4d96f",
+    "url": "/js/exercise.01076277.js"
   },
   {
     "revision": "421036601217ff3c6026",

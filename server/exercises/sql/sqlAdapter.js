@@ -7,6 +7,11 @@ const adapter = {
       const sqlite = require("sqlite");
       return sqlite.open(config.location, sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE);
     },
+    closeDB: db => {
+      const sqlite = require("sqlite");
+      console.log(`sqlite-DB closed!`);
+      return sqlite.close(db);
+    },
     types: {
       null: "NULL",
       notNull: "",
