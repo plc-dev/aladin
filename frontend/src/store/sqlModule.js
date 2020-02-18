@@ -62,7 +62,7 @@ export default {
         const response = await axios.get("/api/getDBList");
         commit("SET_DB_LIST", response.data);
       } catch (error) {
-        console.error(error);
+        //console.error(error);
       }
     },
     async getQueryList({ commit, state }) {
@@ -72,7 +72,7 @@ export default {
         );
         commit("SET_QUERY_LIST", response.data);
       } catch (error) {
-        console.error(error);
+        //console.error(error);
       }
     },
     async submitQuery({ commit }, payload) {
@@ -80,7 +80,7 @@ export default {
         const response = await axios.post("/api/submitQuery", payload);
         commit("SET_QUERY_RESULT", response.data);
       } catch (error) {
-        console.error(error);
+        //console.error(error);
       }
     }
   }
