@@ -63,7 +63,7 @@ A vapid-key-pair signed to your email can be generated via:
 - this website https://tools.reactpwa.com/vapid?email=test%40test.de (ONLY FOR TESTING PURPOSES!)
 - installing web-push globally via npm and generating the key-pair on your command-line: https://www.npmjs.com/package/web-push
 
-The connection string for your local MongoDB-Instance should look similar to 'mongodb://127.0.0.1:27017/<NAME_OF_YOUR_DATABASE>'
+The connection string for your local MongoDB-Instance should look similar to *mongodb://127.0.0.1:27017/<NAME_OF_YOUR_DATABASE>*
 
 The standard SQL-Flavour used is SQLite3 which is why the existing databases are not version controlled in this repository due to size limitations. 
 They can be downloaded [here](https://drive.google.com/open?id=1oMGgmI_tYP98At-NNRKRH8kdGKL03AxQ).
