@@ -12,6 +12,13 @@
         alt="graph"
         class="show__graph--img"
         @click="showOverlay"
+        v-tooltip.right="{
+          delay: {
+            show: 500,
+            hide: 100
+          },
+          content: 'Graph anzeigen'
+        }"
       />
     </div>
 

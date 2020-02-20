@@ -43,7 +43,8 @@ export function generateGraph(
         id: name(),
         amount: !i ? getRandomInt(rangeAmount.min, rangeAmount.max) : 0,
         need: i ? getRandomInt(rangeAmount.min, rangeAmount.max) : 0,
-        isLeaf: true
+        isLeaf: true,
+        needAdded: false
       };
       currentLevel.push(node);
       // skip root level, since it has no parents to have connections with (⌣̩̩́_⌣̩̩̀)
@@ -100,7 +101,8 @@ export function generateGraph(
     return node.id;
   };
   const renamed = [];
-  //get all leaf-nodes, rename and add additional need of leaf nodes
+
+  //get all leaf-nodes and rename semantically
   const leafs = graph.level.flatMap(nodes =>
     nodes
       .filter(node => node.isLeaf)
@@ -108,7 +110,6 @@ export function generateGraph(
         const id = renameLeaf(node);
         renamed.push({ previous: node.id, now: id });
         node.id = id;
-        node.amount += node.need;
         return node.id;
       })
   );
@@ -195,9 +196,11 @@ function generateConnections(
         // if parent has Connection it is no longer a leaf node
         parent.isLeaf = false;
         // calculate secondary needs vector
-        node.amount +=
-          parent.amount * newConnection.value +
-          parent.need * newConnection.value;
+        node.amount += parent.amount * newConnection.value;
+        if (!node.needAdded) {
+          node.needAdded = true;
+          node.amount += node.need;
+        }
         result.push(newConnection);
       }
       return result;

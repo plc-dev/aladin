@@ -50,6 +50,13 @@
                 lengthAllowed[userPaths[pIndex].length + 1].length
             "
             @click="addConnection(pIndex)"
+            v-tooltip.top="{
+              delay: {
+                show: 500,
+                hide: 100
+              },
+              content: 'Pfad erweitern'
+            }"
           >
             &plus;
           </div>
@@ -64,6 +71,13 @@
             class="pathbuilder__validate--path"
             v-if="cIndex === path.length - 1"
             @click="validatePath(pIndex)"
+            v-tooltip.right="{
+              delay: {
+                show: 500,
+                hide: 100
+              },
+              content: 'Pfad validieren'
+            }"
           >
             &quest;
           </div>
@@ -74,13 +88,42 @@
           class="pathbuilder__add--path"
           v-if="userPaths.length < paths.length"
           @click="addPath()"
+          v-tooltip.bottom="{
+            delay: {
+              show: 500,
+              hide: 100
+            },
+            content: 'Pfad hinzufügen'
+          }"
         >
           &plus;
         </div>
-        <div class="pathbuilder__validate--paths" @click="validatePaths">
+        <div
+          class="pathbuilder__validate--paths"
+          @click="validatePaths"
+          v-tooltip.bottom="{
+            delay: {
+              show: 500,
+              hide: 100
+            },
+            content: 'Pfade validieren'
+          }"
+        >
           &quest;
         </div>
-        <div class="pathbuilder__show--paths" @click="showPaths">&equals;</div>
+        <div
+          class="pathbuilder__show--paths"
+          @click="showPaths"
+          v-tooltip.bottom="{
+            delay: {
+              show: 500,
+              hide: 100
+            },
+            content: 'Lösung anzeigen'
+          }"
+        >
+          &equals;
+        </div>
       </div>
     </ul>
   </div>
