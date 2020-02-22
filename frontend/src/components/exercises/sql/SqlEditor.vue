@@ -1,6 +1,10 @@
 <template>
   <div class="sql__editor">
-    <textarea class="sql__editor--textfield" v-model="userQuery"></textarea>
+    <textarea
+      class="sql__editor--textfield"
+      v-model="userQuery"
+      @keydown="handleKeyCombination"
+    ></textarea>
     <div class="sql__editor--controls">
       <Button
         class="sql__button"
@@ -53,6 +57,12 @@ export default {
     Button
   },
   methods: {
+    handleKeyCombination: function(event) {
+      // ctrl + enter
+      if (event.ctrlKey && event.keyCode == 13) {
+        this.submitQuery();
+      }
+    },
     submitQuery: function() {
       const payload = {
         userQuery: this.queryList[this.queryIndex].userQuery,

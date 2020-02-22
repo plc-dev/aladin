@@ -1,0 +1,13 @@
+Gozintograph:
+
+TODO:
+
+- Matrizeninversion: Matrizen übereinander stellen wie in Matrixmultiplikation
+
+Probleme || Ideen:
+
+- Darstellung bei Kantenmultiplikation: Overlay mit einzeiligem Pathbuilder und farblicher Markierung bereits gefundener Pfade
+
+- Darstellung einer generativen Aufgabenstellung nach Generierung des Graphen: Evtl. Routing zum Aufgaben-Task mit weiterführender Navigation zu den Lösungswegen
+
+- Evtl. Graph resizable und draggable machen

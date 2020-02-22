@@ -1,4 +1,4 @@
-import { getRandomInt } = require('../../helper');
+const { getRandomInt } = require('../../helper');
 
 /**
  * Returns a object containing nodes, edges and paths

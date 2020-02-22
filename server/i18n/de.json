@@ -81,7 +81,7 @@
           }
         },
         "GozintographMatrixPath": {
-          "tab": "Matritzen",
+          "tab": "Matrizen",
           "matrixButtons": {
             "fillZero": "Auffüllen",
             "fillComplete": "Komplettieren"
@@ -137,7 +137,7 @@
     },
     "sql": {
       "tabs": {
-        "SqlGraphPath": {
+        "SqlLabeledPath": {
           "tab": "Editor",
           "description": {
             "header": "SQL-Abfragen",

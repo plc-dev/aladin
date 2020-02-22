@@ -228,14 +228,14 @@ export function matrixMultiplication(A, B) {
     .fill(0)
     .map(() => new Array(B[0].length).fill(0));
 
-  return result.map((vector, vIndex) => {
-    return vector.map((field, fieldIndex) => {
-      return A[vIndex].reduce(
+  return result.map((vector, vIndex) =>
+    vector.map((field, fieldIndex) =>
+      A[vIndex].reduce(
         (sum, resField, resIndex) => sum + resField * B[resIndex][fieldIndex],
         0
-      );
-    });
-  });
+      )
+    )
+  );
 }
 
 /**

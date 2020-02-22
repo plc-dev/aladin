@@ -93,7 +93,7 @@ module.exports = router => {
       // parse sourceCode from User
       const sql = await require("../exercises/sql/parser/sqlParser")(sourceCode, sourceFlavour, sqlDB);
 
-      // fill database 
+      // fill database  TODO: ADJUST TO ASYNC INTERFACE
       sql.forEach(createTable =>
         sqlDB.serialize(() =>
           sqlDB.run(createTable, err => {
@@ -112,24 +112,15 @@ module.exports = router => {
       const dbLocation = path.resolve(require.main.filename, `../exercises/sql/database/${dbName}/${dbName}.sqlite`);
       const sqlConfig = { flavour: process.env.sqlFlavour, location: dbLocation };
       const sqlDB = await require("../exercises/sql/sqlDAO")(sqlConfig);
-
+      
       const reflectTables = "SELECT sql FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%';";
 
-      await sqlDB.all(reflectTables, [], async (err, rows) => {
-        if (err) throw err;
-        const sourceCode = rows;
+      const rawTables = await sqlDB.all(reflectTables);
+      const parsedTables = await require("../exercises/sql/parser/sqlParser")({ sourceCode: rawTables, sourceFlavour: "json", sqlDB });
 
-        // parse metadata to json format
-        const parsedTables = await require("../exercises/sql/parser/sqlParser")({ sourceCode, sourceFlavour: "json", sqlDB });
+      // TODO transform to graph and get random query
 
-        const paths = parsedTables.reduce((paths, tables) => {
-
-        }, [])
-
-        
-        res.status(201).json(parsedTables);
-      });
-
+      res.status(201).json(parsedTables);
     })
   );
 

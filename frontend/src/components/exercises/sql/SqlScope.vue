@@ -59,7 +59,10 @@ export default {
       this.$store.dispatch("sql/getDBList");
     },
     openEditor(index) {
-      this.$emit("change-tab", document.querySelector('[tab="SqlGraphPath"]'));
+      this.$emit(
+        "change-tab",
+        document.querySelector('[tab="SqlLabeledPath"]')
+      );
       const dbName = this.dbList[index].dbName;
       this.$store.commit("sql/SET_DB", { dbName, index });
     }
