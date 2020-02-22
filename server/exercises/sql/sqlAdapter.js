@@ -5,7 +5,10 @@ const adapter = {
   sqlite: {
     connectDB: config => {
       const sqlite = require("sqlite");
-      return sqlite.open(config.location, sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE);
+      return sqlite.open(
+        config.location,
+        sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE
+      );
     },
     closeDB: db => {
       const sqlite = require("sqlite");
@@ -22,7 +25,8 @@ const adapter = {
       autoIncrement: "",
       date: "TEXT"
     },
-    createForeignKey: "FOREIGN KEY (${foreignKey}) REFERENCES ${providingTable} (${originalColumn})",
+    createForeignKey:
+      "FOREIGN KEY (${foreignKey}) REFERENCES ${providingTable} (${originalColumn})",
     createPrimaryKey: "PRIMARY KEY(${...primary})"
   },
   sqlServer: {
@@ -36,7 +40,7 @@ const adapter = {
       float: "",
       string: ["nchar (${length})", "nvarchar (${length})", "ntext"],
       blob: "image",
-      date: "datetime" 
+      date: "datetime"
     }
   }
 };

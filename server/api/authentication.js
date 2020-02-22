@@ -35,10 +35,15 @@ module.exports = (router, jwt, User) => {
     asyncErrorWrapper(async (req, res) => {
       const { email, password } = req.body;
       let user = await User.findOne({ email });
-      if (user != null || /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)) {
+      if (
+        user != null ||
+        /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)
+      ) {
         throw new ValidationError("ValidationError");
       } else {
-        const token = jwt.sign({ email }, process.env.jwtSecret, { expiresIn: "72h" });
+        const token = jwt.sign({ email }, process.env.jwtSecret, {
+          expiresIn: "72h"
+        });
         const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
         user = await User.create({ email, password: hashedPassword });
         res.status(201).json({ uuid: user._id, token });
@@ -78,7 +83,9 @@ module.exports = (router, jwt, User) => {
       if (user === null) {
         throw new ValidationError("");
       } else if (bcrypt.compareSync(password, user.password)) {
-        const token = jwt.sign({ email }, process.env.jwtSecret, { expiresIn: "72h" });
+        const token = jwt.sign({ email }, process.env.jwtSecret, {
+          expiresIn: "72h"
+        });
         res.status(200).json({
           token,
           // vapidPublicKey: ,
@@ -117,7 +124,9 @@ module.exports = (router, jwt, User) => {
       await jwtValidationMiddleware(req, res, next, jwt);
       const uuid = req.query.uuid;
       let user = await User.findById(uuid);
-      const token = jwt.sign({ email: user.email }, process.env.jwtSecret, { expiresIn: "72h" });
+      const token = jwt.sign({ email: user.email }, process.env.jwtSecret, {
+        expiresIn: "72h"
+      });
       res.status(200).send({
         success: true,
         message: "Authentication successful",

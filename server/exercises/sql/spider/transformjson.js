@@ -3,7 +3,7 @@ const path = require("path");
 
 const devloc = path.resolve(require.main.filename, `..//sorted_questions.json`);
 
-const sorted_questions = JSON.parse(fs.readFileSync(devloc, 'utf8'));
+const sorted_questions = JSON.parse(fs.readFileSync(devloc, "utf8"));
 
 let i = 0;
 for (db in sorted_questions) {

@@ -20,7 +20,10 @@ module.exports = async (sourceCode, sqlDB) => {
  * (#\w*)?          -> match color code if existing
  * [\w*"{}:,+\s]*   -> match valid table description syntax
  */
-const entitiesRegex = new RegExp(`\\[\\w*\\][\\w*"{}:,+\\s]*(#\\w*)?[\\w*"{}:,+\\s]*`, "ig");
+const entitiesRegex = new RegExp(
+  `\\[\\w*\\][\\w*"{}:,+\\s]*(#\\w*)?[\\w*"{}:,+\\s]*`,
+  "ig"
+);
 
 /**
  * \\\[(\\w*)\\]     -> group holds entity name
@@ -40,14 +43,20 @@ const columnRegex = new RegExp(`(?<=[\\n\\r])[*+\\w{}"":, ]*`, "ig");
  * ([\\w, _-]*)     -> third group holds column attributes
  * "}               -> match end of the column attributes
  */
-const columnPartsRegex = new RegExp(`([+*]{0,2})([a-zA-Z_ -]*){[\\w\\s:]*"([\\w, _-]*)"}`, "i");
+const columnPartsRegex = new RegExp(
+  `([+*]{0,2})([a-zA-Z_ -]*){[\\w\\s:]*"([\\w, _-]*)"}`,
+  "i"
+);
 
 /**
  * [w_ {}:"-]           -> match first entity and column
  * [?*+1]{1}--[?*+1]{1} -> match cardinality, eg. *--+
  * [\w_ {}:"-]*         -> match second entity and column
  */
-const relationsRegex = new RegExp(`[\\w_ <>{}:"-]*[?*+1]{1}--[?*+1]{1}[\\w_ <>{}:"-]*`, "ig");
+const relationsRegex = new RegExp(
+  `[\\w_ <>{}:"-]*[?*+1]{1}--[?*+1]{1}[\\w_ <>{}:"-]*`,
+  "ig"
+);
 
 /**
  * ([\\w_ -]*)          -> first group holds table name receiving a foreign key
@@ -56,7 +65,10 @@ const relationsRegex = new RegExp(`[\\w_ <>{}:"-]*[?*+1]{1}--[?*+1]{1}[\\w_ <>{}
  * ([\\w_ -]*)          -> third group holds table name providing a foreign key
  * <([\\w_ -]*)>        -> fourth group holds name of the field in the original table
  */
-const relationPartsRegex = new RegExp(`([\\w_ -]*)<([\\w_ -]*)>[+*1 -]*([\\w_ -]*)<([\\w_ -]*)>`, "i");
+const relationPartsRegex = new RegExp(
+  `([\\w_ -]*)<([\\w_ -]*)>[+*1 -]*([\\w_ -]*)<([\\w_ -]*)>`,
+  "i"
+);
 
 function isMatchFound(returnValue) {
   if (returnValue === null) throw new Error("no match found");
@@ -66,7 +78,8 @@ function isColumnDuplicate(tables) {
   tables.forEach(table => {
     const columns = table[Object.keys(table)].map(column => column.name);
     const columnSet = new Set(columns);
-    if (columnSet.size !== columns.length) throw new Error("duplicate column in table");
+    if (columnSet.size !== columns.length)
+      throw new Error("duplicate column in table");
   });
 }
 
@@ -102,7 +115,13 @@ function parseColumns(columns) {
 
 function parseRelations(relations, tables) {
   relations.forEach(relation => {
-    let [, receivingTable, foreignKey, originalColumn, providingTable] = relation.match(relationPartsRegex);
+    let [
+      ,
+      receivingTable,
+      foreignKey,
+      originalColumn,
+      providingTable
+    ] = relation.match(relationPartsRegex);
 
     tables.findIndex(table => {
       const tableName = Object.keys(table)[0];
@@ -128,7 +147,8 @@ function parseToSQL(parsedSource, adapter) {
       if (line.constraints !== undefined) {
         if (/\*/.test(line.constraints)) primary.push(line.name);
         createTable += `"${line.name}" ${adapter.types[line.attributes[0]]}`;
-        secondAttribute = line.attributes.length === 2 ? ` ${line.attributes[1]}` : "";
+        secondAttribute =
+          line.attributes.length === 2 ? ` ${line.attributes[1]}` : "";
         createTable += secondAttribute + ",\n";
       } else {
         createTable +=
@@ -139,7 +159,12 @@ function parseToSQL(parsedSource, adapter) {
           }) + "\n";
       }
     });
-    if (primary.length) createTable += templateString(adapter.createPrimaryKey, { primary }, ", ");
+    if (primary.length)
+      createTable += templateString(
+        adapter.createPrimaryKey,
+        { primary },
+        ", "
+      );
     else createTable = createTable.replace(/,([^,]*)$/, "");
     createTable += "\n);";
     return createTable;

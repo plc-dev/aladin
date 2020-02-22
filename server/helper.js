@@ -48,7 +48,9 @@ module.exports = {
     let languages = {};
     fs.readdirSync(directoryPath).forEach(file => {
       const countryCode = file.match(/(\w{2})\./)[1];
-      const languageJson = { [countryCode]: JSON.parse(fs.readFileSync(`${directoryPath}/${file}`)) };
+      const languageJson = {
+        [countryCode]: JSON.parse(fs.readFileSync(`${directoryPath}/${file}`))
+      };
       Object.assign(languages, languageJson);
     });
     return languages;

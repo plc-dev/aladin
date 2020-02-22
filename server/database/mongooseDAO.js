@@ -7,7 +7,10 @@ module.exports = async () => {
     mongoose.set("useFindAndModify", false);
 
     // Setup Connection
-    await mongoose.connect(process.env.mongooseConnection, { useNewUrlParser: true, useUnifiedTopology: true });
+    await mongoose.connect(process.env.mongooseConnection, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
 
     // Add all models to one object for better accessibility
     const db = mongoose;

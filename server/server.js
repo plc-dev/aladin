@@ -14,13 +14,23 @@ const app = express();
 
   app.use(cors());
   app.use(bodyParser.json({ limit: "50mb" }));
-  app.use(bodyParser.urlencoded({ limit: "50mb", extended: true, parameterLimit: 50000 }));
+  app.use(
+    bodyParser.urlencoded({
+      limit: "50mb",
+      extended: true,
+      parameterLimit: 50000
+    })
+  );
 
   // load all possible Languages
   const languages = languageLoader();
 
   // setup web-push
-  webpush.setVapidDetails("mailto:test@test.de", process.env.publicVapidKey, process.env.privateVapidKey);
+  webpush.setVapidDetails(
+    "mailto:test@test.de",
+    process.env.publicVapidKey,
+    process.env.privateVapidKey
+  );
 
   // Set up mongoDB
   const mdb = await require("./database/mongooseDAO")();
@@ -30,8 +40,17 @@ const app = express();
   app.use("/api-doc", serve, docs);
 
   // setup and handle api
-  const authentication = require("./api/authentication")(express.Router(), jwt, mdb.models.User);
-  const settings = require("./api/settings")(express.Router(), mdb.models.User, webpush, languages);
+  const authentication = require("./api/authentication")(
+    express.Router(),
+    jwt,
+    mdb.models.User
+  );
+  const settings = require("./api/settings")(
+    express.Router(),
+    mdb.models.User,
+    webpush,
+    languages
+  );
   const sql = require("./api/sql")(express.Router(), mdb.models.User);
   app.use("/api", authentication);
   app.use("/api", settings);
@@ -47,7 +66,9 @@ const app = express();
   });
 
   // bind frontend to base route
-  app.get(/^[$\/]/, (req, res) => res.sendFile(__dirname + "/public/index.html"));
+  app.get(/^[$\/]/, (req, res) =>
+    res.sendFile(__dirname + "/public/index.html")
+  );
 
   // load error handling middleware to avoid verbose try/catch on every route
   app.use(require("./errorHandling/errorHandler"));
