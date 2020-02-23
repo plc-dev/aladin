@@ -13,13 +13,13 @@
         @click.native="submitQuery"
       />
     </div>
-    <div class="sql__editor--result"></div>
+    <div class="testssss"><div class="sql__editor--result"></div></div>
   </div>
 </template>
 
 <style lang="postcss">
 .sql__editor {
-  @apply flex flex-col w-full items-center;
+  @apply flex flex-col w-full;
 }
 
 .sql__editor > * {
@@ -34,14 +34,22 @@
 
 .sql__button {
   @apply text-center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .sql__editor--result {
+  @apply flex;
   height: auto;
+  overflow-x: scroll;
 }
 
 .sql__editor--result * {
+  @apply text-center;
   border: 1px solid black;
+  padding: 10px;
+  margin-left: auto;
+  margin-right: auto;
 }
 </style>
 

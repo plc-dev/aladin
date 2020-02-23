@@ -1,0 +1,4 @@
+java -jar schemaspy-6.1.0.jar -vizjs -imageformat svg -db ../database/northwind/northwind.sqlite -cat % -s northwind
+
+
+./schemacrawler.cmd --database ./database/northwind/northwind.sqlite --command=schema --output-format=png --output-file=graph.png --info-level=maximum --server=sqlite --table-types=TABLE

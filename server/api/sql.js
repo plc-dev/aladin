@@ -133,7 +133,7 @@ module.exports = router => {
   );
 
   router.post(
-    "/createQueries",
+    "/generateQuery",
     asyncErrorWrapper(async (req, res) => {
       let { uuid, dbName } = req.body;
       const dbLocation = path.resolve(
@@ -149,16 +149,15 @@ module.exports = router => {
       const reflectTables =
         "SELECT sql FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%';";
 
-      const rawTables = await sqlDB.all(reflectTables);
+      const rawTables = await sqlDB.adapter.queryDB(sqlDB, reflectTables);
       const parsedTables = await require("../exercises/sql/parser/sqlParser")({
         sourceCode: rawTables,
         sourceFlavour: "json",
         sqlDB
       });
+      const query = await require("../exercises/sql/queryBuilder")(sqlDB);
 
-      // TODO transform to graph and get random query
-
-      res.status(201).json(parsedTables);
+      res.status(201).json(query);
     })
   );
 

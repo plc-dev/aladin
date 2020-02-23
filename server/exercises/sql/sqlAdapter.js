@@ -15,6 +15,7 @@ const adapter = {
       console.log(`sqlite-DB closed!`);
       return sqlite.close(db);
     },
+    queryDB: async (db, query) => await db.all(query),
     types: {
       null: "NULL",
       notNull: "",

@@ -1,6 +1,6 @@
 const { getRandomInt } = require("../../helper");
 
-class UCG {
+module.exports = class UCG {
   constructor({ vertices, edges, paths }) {
     this.vertices = vertices || this.generateVertices();
     this.edges = edges || this.generateEdges();
@@ -33,6 +33,4 @@ class UCG {
   }
 
   findPaths() {}
-}
-
-const test = new UCG({});
+};

@@ -65,7 +65,9 @@ const parse = statement =>
         });
         // column name
       } else if (
-        (!/foreign key/i.test(line) && columnRegex1.test(line)) ||
+        (!/foreign key/i.test(line) &&
+          !/(ON DELETE|ON UPDATE)/i.test(line) &&
+          columnRegex1.test(line)) ||
         columnRegex2.test(line)
       ) {
         let complete, columnName, type, isPrimary;
@@ -83,5 +85,5 @@ const parse = statement =>
 
       return table;
     },
-    { columns: [], keyConstraints: [], edges: [] }
+    { columns: [], keyConstraints: [] }
   );

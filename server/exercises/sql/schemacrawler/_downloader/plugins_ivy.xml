@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="https://ant.apache.org/ivy/schemas/ivy.xsd">
+  <info organisation="us.fatehi" module="schemacrawler"/>
+  <dependencies>
+    <dependency org="us.fatehi" name="schemacrawler-timesten"
+      rev="16.4.1" />
+    <dependency org="us.fatehi" name="schemacrawler-sapiq"
+      rev="16.4.1" />
+
+    <exclude org="us.fatehi" module="schemacrawler" />
+    <exclude org="org.hsqldb" module="hsqldb" />
+
+    <exclude type="source" ext="jar" />
+    <exclude type="sources" ext="jar" />
+    <exclude type="test" ext="jar" />
+    <exclude type="javadoc" ext="jar" />
+  </dependencies>
+</ivy-module>
