@@ -16,6 +16,7 @@ module.exports = router => {
               let src =
                 '<img src="https://miro.medium.com/max/2426/1*I3bp6yGM27SyMZYv3kqIwA.png" alt=""></img><br><button class="openEditor">Editor öffnen!</button>';
               let img = src;
+              // TODO Remove check after every db has an <erd>.png
               if (/^[abc].*/.test(filename)) {
                 src = path.join(
                   appDir,
@@ -52,16 +53,16 @@ module.exports = router => {
         });
       });
 
-      res.status(201).json(
+      if (!sortedQuestions[dbName]) res.status(200).json([]);
+      else res.status(201).json(
         sortedQuestions[dbName].map(question => ({
-          question: question.question,
-          id: question.id,
-          query: question.query,
-          userQuery: "",
-          result: "",
-          userResult: ""
-        }))
-      );
+        question: question.question,
+        id: question.id,
+        query: question.query,
+        userQuery: "",
+        result: "",
+        userResult: ""
+      })));
     })
   );
 
