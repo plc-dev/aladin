@@ -17,14 +17,13 @@ module.exports = router => {
                 '<img src="https://miro.medium.com/max/2426/1*I3bp6yGM27SyMZYv3kqIwA.png" alt=""></img><br><button class="openEditor">Editor öffnen!</button>';
               let img = src;
               // TODO Remove check after every db has an <erd>.png
-              if (/^[abc].*/.test(filename)) {
-                src = path.join(
-                  appDir,
-                  `./exercises/sql/database/${filename}/${filename}.png`
-                );
-                img = fs.readFileSync(src, "base64");
-                img = "data:image/png;base64, " + img;
-              }
+              src = path.join(
+                appDir,
+                `./exercises/sql/database/${filename}/${filename}.png`
+              );
+              img = fs.readFileSync(src, "base64");
+              img = "data:image/png;base64, " + img;
+
               return {
                 dbName: filename,
                 value: img,
