@@ -2,11 +2,17 @@
   <div class="path">
     <TextBox class="path__description">
       <template #header>{{ texts.task.description.header }}</template>
-      <template #body>{{ texts.task.description.body }}</template>
+      <template #body>
+        <p v-html="texts.task.description.body"></p>
+        <Button
+          :text="'Lösen!'"
+          :type="'submit'"
+          @click.native="showSolution"
+        ></Button>
+      </template>
     </TextBox>
 
     <div class="show__graph">
-      Graph anzeigen:
       <img
         src="/img/icons/graph.png"
         alt="graph"
@@ -78,6 +84,7 @@
 <script>
 import PathBuilder from "@/components/exercises/gozintograph/PathBuilder";
 import TextBox from "@/components/TextBox";
+import Button from "@/components/Button";
 import Matrix from "@/components/exercises/gozintograph/Matrix";
 import ScreenOverlay from "@/components/ScreenOverlay";
 import { drawGozintograph } from "@/lib/gozintograph/drawGozintograph";
@@ -86,7 +93,8 @@ export default {
     PathBuilder,
     TextBox,
     Matrix,
-    ScreenOverlay
+    ScreenOverlay,
+    Button
   },
   computed: {
     texts: function() {
@@ -123,6 +131,28 @@ export default {
     }
   },
   methods: {
+    showSolution() {
+      const userSecondary = Array.from(
+        document.querySelectorAll(".matrix__secondary input")
+      );
+      const secondary = this.secondary.reduce(
+        (values, nodes) => [
+          ...values,
+          ...Object.keys(nodes).reduce(
+            (value, node) => [nodes[node][0].amount],
+            []
+          )
+        ],
+        []
+      );
+      document.querySelector(".pathbuilder__show--paths").click();
+      document.querySelector(".pathbuilder__validate--paths").click();
+
+      userSecondary.forEach((node, index) => {
+        node.value = secondary[index];
+        this.validateSecondary({ id: node.id, value: node.value });
+      });
+    },
     validateSecondary({ value, id }) {
       let [, index] = id.match(/.*__(\d*)_\d*/);
       if (

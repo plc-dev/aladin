@@ -2,7 +2,9 @@
   <div class="matrices__selection">
     <TextBox class="matrices__selection--description">
       <template #header>{{ texts.description.header }}</template>
-      <template #body>{{ texts.description.body }}</template>
+      <template #body>
+        <p v-html="texts.description.body"></p>
+      </template>
     </TextBox>
 
     <div class="show__graph">

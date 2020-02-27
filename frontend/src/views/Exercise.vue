@@ -133,10 +133,14 @@ export default {
       const tabs = this.tabComponents;
       if (!tabs.length) this.$router.push("/404");
       this.currentTabComponent = tabs[0];
+      // TODO: Extract into Mixin, to acustom the needs of the specific exercise
       document.querySelector(".tab:first-child").classList.add("active");
       Array.from(
         document.querySelectorAll(".tab:not(:first-child):not(:nth-child(2))")
       ).forEach(tab => tab.classList.add("disabled"));
+      if (document.querySelectorAll('[tab="SqlTask"]').length) {
+        document.querySelector('[tab="SqlTask"]').classList.add("disabled");
+      }
     }
   }
 };

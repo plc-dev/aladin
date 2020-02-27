@@ -4,8 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server/server.js",
-    "dev": "nodemon server/server.js",
+    "start": "node --max_old_space_size=16384 server/server.js",
+    "dev": "nodemon --max_old_space_size=16384 server/server.js",
     "doc": "jsdoc -c jsdoc.json"
   },
   "keywords": [],

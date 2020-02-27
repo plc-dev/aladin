@@ -64,6 +64,7 @@ export default {
           : parseFloat(stepIndex) - 1;
       if (typeof direction === "number") stepIndex = direction;
       this.currentStep = `${step}${stepIndex}`;
+      this.$store.commit("gozintograph/SET_MATRIX_PATH_STEP", this.currentStep);
     }
   },
   mounted() {
@@ -73,6 +74,9 @@ export default {
     } else {
       this.currentStep = this.step;
     }
+  },
+  activated() {
+    this.currentStep = this.$store.state.gozintograph.matrixPathStep;
   }
 };
 </script>

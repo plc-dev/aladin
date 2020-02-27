@@ -95,6 +95,13 @@ export default {
       }
     };
   },
+  mounted() {
+    document.addEventListener("keydown", e => {
+      if (e.key === "p" && e.altKey) {
+        this.$store.commit("user/TOGGLE_PRESENTER_MODE");
+      }
+    });
+  },
   computed: {
     ...mapState(["publicVapidKey"])
   },

@@ -76,7 +76,7 @@
           "step1": {
             "description": {
               "header": "Aufgabenbeschreibung",
-              "body": "Gib nachstehend alle Pfade des Gozintographen an und multipliziere die Kantengewichte pro Pfad"
+              "body": "Gib nachstehend alle Pfade des Gozintographen an und multipliziere die Kantengewichte pro Pfad."
             }
           }
         },
@@ -114,21 +114,21 @@
           "step3": {
             "description": {
               "header": "Aufgabenbeschreibung",
-              "body": "Multipliziere die invertierte Matrix mit dem Primärbedarfsvektor und fülle mit den Ergebnissen den Sekundärbedarfsvektor. Multipliziere hierfür jede Zeile mit dem Primärbedarfsvektor."
+              "body": "Multipliziere die invertierte Matrix mit dem Primärbedarfsvektor und fülle mit den Ergebnissen den Sekundärbedarfsvektor. <br> Multipliziere hierfür jede Zeile mit dem Primärbedarfsvektor."
             },
             "matrices": ["Invertierte Matrix"]
           },
           "step4": {
             "description": {
               "header": "Aufgabenbeschreibung",
-              "body": "Bilde die Direktbedarfsmatrix aus dem Graph heraus. Die Matrix liest sich von oben nach links: [Spalte] * B0 werden für [Zeile] 1 A0 gebraucht. Bilde in der zweiten Matrix die Einheitsmatrix."
+              "body": "Bilde die Direktbedarfsmatrix aus dem Graph heraus. Die Matrix liest sich von oben nach links: [Spalte] * B0 werden für [Zeile] 1 A0 gebraucht. <br> Bilde in der zweiten Matrix die Einheitsmatrix."
             },
             "matrices": ["Direktbedarfsmatrix", "Einheitsmatrix"]
           },
           "step5": {
             "description": {
               "header": "Aufgabenbeschreibung",
-              "body": "Bilde die Matrizen D^1 ... D^n mittels Matrixmultiplikation, wobei n die Anzahl des längsten gerichteten Pfades im Gozintograph ist. Addiere anschließend die Matrizen mit der Einheitsmatrix um die Gesamtbedarfsmatrix zu erhalten."
+              "body": "Bilde die Matrizen D^1 ... D^n mittels Matrixmultiplikation, wobei n die Anzahl des längsten gerichteten Pfades im Gozintograph ist. <br> Addiere anschließend die Matrizen mit der Einheitsmatrix um die Gesamtbedarfsmatrix zu erhalten."
             },
             "matrices": ["Direktbedarfsmatrix <i>D^1</i>", "Einheitsmatrix", "Gesamtbedarfsmatrix", "<i>D^${index}</i>"]
           }
@@ -137,18 +137,19 @@
     },
     "sql": {
       "tabs": {
-        "SqlLabeledPath": {
+        "SqlTask": {
           "tab": "Editor",
           "description": {
             "header": "SQL-Abfragen",
-            "body": "Such dir eine Abfrage aus und versuche sie zu lösen!<br> Als Hilfestellung kannst du dir jederzeit das ERM zur Datenbank ansehen."
-          }
+            "body": "Such dir eine bestehende Abfrage aus oder lasse dir eine zufällige generieren und versuche sie zu lösen!<br>Generierte Aufgaben die semantisch besonders sinnvoll erscheinen kannst du mit einer besseren Beschreibung versehen und allen Nutzern vorschlagen. <br> Erhält Sie genügend Pluspunkte wird sie in die bestehende Liste übernommen.  <br> Als Hilfestellung kannst du dir jederzeit das ERM zur Datenbank ansehen."
+          },
+          "emptyQueryList": "Es existieren keine bestehenden Abfragen zu dieser Datenbank. Lass dir eine generieren!"
         },
         "SqlScope": {
           "tab": "DB-Liste",
           "description": {
             "header": "SQL-Abfragen",
-            "body": "Teste deine SQL-Skills anhand einer der gelisteten Datenbanken und versuche die Abfragen zu lösen.<br> Als angemeldeter Nutzer kannst du zudem eigene Datenbanken und zugehörige Abfragen anlegen."
+            "body": "Teste deine SQL-Skills anhand einer der gelisteten Datenbanken und versuche die Abfragen zu lösen."
           }
         }
       }

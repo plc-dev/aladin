@@ -10,10 +10,193 @@ if (texts) {
   optionLabels = texts.exercises.gozintograph.options;
 }
 
+const presenterGozintographs = [
+  {
+    level: [
+      [
+        { id: "P0", amount: 10, need: 10, isLeaf: false, needAdded: false },
+        { id: "P1", amount: 2, need: 2, isLeaf: false, needAdded: false }
+      ],
+      [
+        { id: "K0", amount: 68, need: 8, isLeaf: true, needAdded: true },
+        { id: "B1", amount: 31, need: 1, isLeaf: false, needAdded: true },
+        { id: "K1", amount: 13, need: 3, isLeaf: true, needAdded: true }
+      ],
+      [{ id: "R0", amount: 147, need: 9, isLeaf: true, needAdded: true }]
+    ],
+    connections: [
+      { parent: "P0", child: "K0", value: 6, type: "root" },
+      { parent: "P0", child: "B1", value: 3, type: "root" },
+      { parent: "P1", child: "K1", value: 5, type: "root" },
+      { parent: "P1", child: "R0", value: 7, type: "root" },
+      { parent: "B1", child: "R0", value: 4, type: "" }
+    ],
+    paths: [
+      [{ parent: "P0", child: "K0", value: 6, type: "root" }],
+      [{ parent: "P1", child: "K1", value: 5, type: "root" }],
+      [{ parent: "P1", child: "R0", value: 7, type: "root" }],
+      [
+        { parent: "B1", child: "R0", value: 4, type: "" },
+        { parent: "P0", child: "B1", value: 3, type: "root" }
+      ]
+    ],
+    depth: 3
+  },
+  {
+    level: [
+      [
+        { id: "P0", amount: 2, need: 2, isLeaf: false, needAdded: false },
+        { id: "P1", amount: 10, need: 10, isLeaf: false, needAdded: false }
+      ],
+      [
+        { id: "R0", amount: 110, need: 10, isLeaf: true, needAdded: true },
+        { id: "B1", amount: 28, need: 10, isLeaf: false, needAdded: true },
+        { id: "B2", amount: 6, need: 2, isLeaf: false, needAdded: true }
+      ],
+      [
+        { id: "R1", amount: 36, need: 6, isLeaf: true, needAdded: true },
+        { id: "K0", amount: 63, need: 3, isLeaf: true, needAdded: true }
+      ]
+    ],
+    connections: [
+      { parent: "P1", child: "R0", value: 10, type: "root" },
+      { parent: "P0", child: "B1", value: 9, type: "root" },
+      { parent: "P0", child: "B2", value: 2, type: "root" },
+      { parent: "P0", child: "R1", value: 1, type: "root" },
+      { parent: "B1", child: "R1", value: 1, type: "" },
+      { parent: "P1", child: "K0", value: 3, type: "root" },
+      { parent: "B2", child: "K0", value: 5, type: "" }
+    ],
+    paths: [
+      [{ parent: "P1", child: "R0", value: 10, type: "root" }],
+      [{ parent: "P0", child: "R1", value: 1, type: "root" }],
+      [
+        { parent: "B1", child: "R1", value: 1, type: "" },
+        { parent: "P0", child: "B1", value: 9, type: "root" }
+      ],
+      [{ parent: "P1", child: "K0", value: 3, type: "root" }],
+      [
+        { parent: "B2", child: "K0", value: 5, type: "" },
+        { parent: "P0", child: "B2", value: 2, type: "root" }
+      ]
+    ],
+    depth: 3
+  },
+  {
+    level: [
+      [
+        { id: "P0", amount: 8, need: 8, isLeaf: false, needAdded: false },
+        { id: "P1", amount: 6, need: 6, isLeaf: false, needAdded: false },
+        { id: "P2", amount: 8, need: 8, isLeaf: false, needAdded: false }
+      ],
+      [
+        { id: "K0", amount: 34, need: 4, isLeaf: true, needAdded: true },
+        { id: "K1", amount: 83, need: 3, isLeaf: true, needAdded: true },
+        { id: "B2", amount: 49, need: 1, isLeaf: false, needAdded: true }
+      ],
+      [{ id: "K2", amount: 226, need: 4, isLeaf: true, needAdded: true }]
+    ],
+    connections: [
+      { parent: "P1", child: "K0", value: 5, type: "root" },
+      { parent: "P0", child: "K1", value: 10, type: "root" },
+      { parent: "P1", child: "B2", value: 8, type: "root" },
+      { parent: "P0", child: "K2", value: 6, type: "root" },
+      { parent: "P1", child: "K2", value: 6, type: "root" },
+      { parent: "P2", child: "K2", value: 5, type: "root" },
+      { parent: "B2", child: "K2", value: 2, type: "" }
+    ],
+    paths: [
+      [{ parent: "P1", child: "K0", value: 5, type: "root" }],
+      [{ parent: "P0", child: "K1", value: 10, type: "root" }],
+      [{ parent: "P0", child: "K2", value: 6, type: "root" }],
+      [{ parent: "P1", child: "K2", value: 6, type: "root" }],
+      [{ parent: "P2", child: "K2", value: 5, type: "root" }],
+      [
+        { parent: "B2", child: "K2", value: 2, type: "" },
+        { parent: "P1", child: "B2", value: 8, type: "root" }
+      ]
+    ],
+    depth: 3
+  },
+  {
+    level: [
+      [
+        { id: "P0", amount: 1, need: 1, isLeaf: false, needAdded: false },
+        { id: "P1", amount: 1, need: 1, isLeaf: false, needAdded: false }
+      ],
+      [
+        { id: "K0", amount: 18, need: 9, isLeaf: true, needAdded: true },
+        { id: "B1", amount: 9, need: 1, isLeaf: false, needAdded: true },
+        { id: "B2", amount: 15, need: 8, isLeaf: false, needAdded: true }
+      ],
+      [{ id: "B3", amount: 29, need: 4, isLeaf: false, needAdded: true }],
+      [{ id: "K1", amount: 424, need: 10, isLeaf: true, needAdded: true }]
+    ],
+    connections: [
+      { parent: "P1", child: "K0", value: 9, type: "root" },
+      { parent: "P0", child: "B1", value: 8, type: "root" },
+      { parent: "P0", child: "B2", value: 1, type: "root" },
+      { parent: "P1", child: "B2", value: 6, type: "root" },
+      { parent: "P0", child: "B3", value: 7, type: "root" },
+      { parent: "B1", child: "B3", value: 2, type: "" },
+      { parent: "P1", child: "K1", value: 4, type: "root" },
+      { parent: "B2", child: "K1", value: 8, type: "" },
+      { parent: "B3", child: "K1", value: 10, type: "" }
+    ],
+    paths: [
+      [{ parent: "P1", child: "K0", value: 9, type: "root" }],
+      [{ parent: "P1", child: "K1", value: 4, type: "root" }],
+      [
+        { parent: "B2", child: "K1", value: 8, type: "" },
+        { parent: "P0", child: "B2", value: 1, type: "root" }
+      ],
+      [
+        { parent: "B2", child: "K1", value: 8, type: "" },
+        { parent: "P1", child: "B2", value: 6, type: "root" }
+      ],
+      [
+        { parent: "B3", child: "K1", value: 10, type: "" },
+        { parent: "P0", child: "B3", value: 7, type: "root" }
+      ],
+      [
+        { parent: "B3", child: "K1", value: 10, type: "" },
+        { parent: "B1", child: "B3", value: 2, type: "" },
+        { parent: "P0", child: "B1", value: 8, type: "root" }
+      ]
+    ],
+    depth: 4
+  },
+  {
+    level: [
+      [
+        { id: "P0", amount: 7, need: 7, isLeaf: false, needAdded: false },
+        { id: "P1", amount: 6, need: 6, isLeaf: false, needAdded: false }
+      ],
+      [
+        { id: "K0", amount: 90, need: 6, isLeaf: true, needAdded: true },
+        { id: "R0", amount: 33, need: 9, isLeaf: true, needAdded: true }
+      ]
+    ],
+    connections: [
+      { parent: "P0", child: "K0", value: 6, type: "root" },
+      { parent: "P1", child: "K0", value: 7, type: "root" },
+      { parent: "P1", child: "R0", value: 4, type: "root" }
+    ],
+    paths: [
+      [{ parent: "P0", child: "K0", value: 6, type: "root" }],
+      [{ parent: "P1", child: "K0", value: 7, type: "root" }],
+      [{ parent: "P1", child: "R0", value: 4, type: "root" }]
+    ],
+    depth: 2
+  }
+];
+
 export default {
   namespaced: true,
 
   state: {
+    presenterGozintographs: presenterGozintographs,
+    presenterGozintographIndex: 0,
     graph: {},
     currentTab: "",
     matrixPathStep: "",
@@ -226,6 +409,15 @@ export default {
   },
 
   mutations: {
+    SET_GOZINTOGRAPH_PRESENTER_INDEX(state) {
+      const current = state.presenterGozintographIndex;
+      const max = state.presenterGozintographs.length - 1;
+      if (current === max) {
+        state.presenterGozintographIndex = 0;
+      } else {
+        state.presenterGozintographIndex++;
+      }
+    },
     SET_OPTIONS(state, options) {
       state.options = options;
     },

@@ -2,7 +2,11 @@
   <div class="matrices__multiplication">
     <TextBox class="matrices__selection--description">
       <template #header>{{ texts.description.header }}</template>
-      <template #body>{{ texts.description.body }}</template>
+      <template #body>
+        <p v-html="texts.description.body"></p>
+        <Button :text="'Lösen!'" :type="'submit'" @click.native="showSolution">
+        </Button>
+      </template>
     </TextBox>
 
     <div class="matrices">

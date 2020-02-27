@@ -146,13 +146,20 @@ export default {
   methods: {
     ...mapActions(["setGraph"]),
     generateGraph() {
-      const graph = generateGraph(
-        this.parameters.depth,
-        this.parameters.rangeAmount,
-        this.parameters.rangeWidth,
-        this.parameters.rangeValue,
-        this.parameters.connectionThreshold
+      this.$store.commit(
+        "gozintograph/SET_MATRIX_PATH_STEP",
+        "MatrixPathStep0"
       );
+      let graph = {};
+      if (this.$store.state.user.presenterMode) {
+        const graphs = this.$store.state.gozintograph.presenterGozintographs;
+        const index = this.$store.state.gozintograph.presenterGozintographIndex;
+        graph = graphs[index];
+        console.warn(graphs, index);
+        this.$store.commit("gozintograph/SET_GOZINTOGRAPH_PRESENTER_INDEX");
+      } else {
+        graph = generateGraph(this.parameters);
+      }
       this.setGraph(graph);
 
       const appendTo = document.querySelector(".graph");

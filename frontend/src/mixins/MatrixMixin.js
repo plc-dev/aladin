@@ -2,6 +2,24 @@ import { camelCase } from "@/lib/helper";
 
 export default {
   methods: {
+    showSolution() {
+      const userSecondary = Array.from(
+        document.querySelectorAll(".matrix__secondary input")
+      );
+      const secondary = this.secondary[0]["S"].reduce(
+        (values, node) => [...values, node.amount],
+        []
+      );
+      if (this.$store.state.gozintograph.matrixPathStep === "MatrixPathStep5") {
+        Array.from(
+          document.querySelectorAll(".matrices__fill--complete")
+        ).forEach(node => node.click());
+      }
+      userSecondary.forEach((node, index) => {
+        node.value = secondary[index];
+        this.validateSecondary({ id: node.id, value: node.value });
+      });
+    },
     fillMatrix(target, array) {
       const onlyZero = /zero/.test(target.classList);
       let filledMatrix, userMatrix;

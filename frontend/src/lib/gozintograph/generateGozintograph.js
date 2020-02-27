@@ -8,13 +8,13 @@ import { getRandomInt } from "@/lib/helper";
  * @param {object} rangeValue
  * @param {number} connectionThreshold
  */
-export function generateGraph(
+export function generateGraph({
   depth,
   rangeAmount,
   rangeWidth,
   rangeValue,
   connectionThreshold
-) {
+}) {
   const graph = {
     level: [],
     connections: [],

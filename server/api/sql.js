@@ -1,4 +1,4 @@
-const { asyncErrorWrapper } = require("../helper");
+const { asyncErrorWrapper, flattenObj } = require("../helper");
 const path = require("path");
 const fs = require("fs");
 
@@ -54,24 +54,26 @@ module.exports = router => {
       });
 
       if (!sortedQuestions[dbName]) res.status(200).json([]);
-      else res.status(201).json(
-        sortedQuestions[dbName].map(question => ({
-        question: question.question,
-        id: question.id,
-        query: question.query,
-        userQuery: "",
-        result: "",
-        userResult: ""
-      })));
+      else
+        res.status(201).json(
+          sortedQuestions[dbName].map(question => ({
+            question: question.question,
+            id: question.id,
+            query: question.query,
+            userQuery: "",
+            result: "",
+            userResult: ""
+          }))
+        );
     })
   );
 
   router.post(
     "/submitQuery",
     asyncErrorWrapper(async (req, res) => {
-      const { dbName, userQuery, query, index } = req.body;
+      const { dbName, userQuery, query, index, type } = req.body;
       let userResult = "No Query was passed",
-        result;
+        result = "false";
       const location = path.resolve(
         require.main.filename,
         `../exercises/sql/database/${dbName}/${dbName}.sqlite`
@@ -86,9 +88,11 @@ module.exports = router => {
           ]);
           console.log(`Ran queries:\n${userQuery}\n${query}`);
         }
-        res.status(201).json({ index, userResult, result });
+        res.status(201).json({ index, userResult, result, type });
       } catch (err) {
-        res.status(201).json({ index, userResult: err.message, result, err });
+        res
+          .status(201)
+          .json({ index, userResult: err.message, result, err, type });
       } finally {
         sqlDB.adapter.closeDB(sqlDB);
       }
@@ -156,9 +160,22 @@ module.exports = router => {
         sourceFlavour: "json",
         sqlDB
       });
-      const query = await require("../exercises/sql/queryBuilder")(sqlDB);
+      const {
+        query,
+        questionBluePrint
+      } = await require("../exercises/sql/queryBuilder")(sqlDB);
 
-      res.status(201).json(query);
+      const question = require("../exercises/sql/naturalLanguageParser")(
+        questionBluePrint,
+        sqlDB
+      );
+
+      sqlDB.adapter.closeDB(sqlDB);
+
+      const builtQuery = Object.keys(query)
+        .map(key => query[key])
+        .join("");
+      res.status(201).json({ query: builtQuery, question });
     })
   );
 

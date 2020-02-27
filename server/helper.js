@@ -85,5 +85,35 @@ module.exports = {
         .replace(new RegExp("\\$" + `{${key}}`, "g"), values[key]);
     });
     return output;
+  },
+
+  /**
+   * Returns a new string which replaces a substring at a certain index
+   * @param {String} string
+   * @param {String} replacement
+   * @param {Number} index
+   * @param {Number} replacingLength
+   */
+  replaceAt: (string, replacement, index, replacingLength) =>
+    string.substr(0, index) +
+    replacement +
+    string.substr(index + replacingLength),
+
+  /**
+   *
+   * @param {*} value
+   * @param {*} currentKey
+   */
+  flattenObj: (value, currentKey) => {
+    return Object.keys(value).reduce((result, key) => {
+      const tempKey = currentKey ? `${currentKey}.${key}` : key;
+
+      if (typeof value[key] !== "object") {
+        result[tempKey] = value[key];
+      } else {
+        result = { ...result, ...flattenObj(value[key], tempKey) };
+      }
+      return result;
+    }, {});
   }
 };
