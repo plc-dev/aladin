@@ -2,36 +2,57 @@
   <div class="matrix">
     <TextBox class="solution__matrix--description">
       <template #header>{{ texts.description.header }}</template>
-      <template #body>{{ texts.description.body }}</template>
+      <template #body>
+        <p v-html="texts.description.body"></p>
+        <Button
+          :text="'Lösen!'"
+          :type="'submit'"
+          @click.native="showSolution"
+        ></Button>
+      </template>
     </TextBox>
 
     <div class="matrices__multiplicate">
-      <div class="matrices__inverted">
-        <p v-html="texts.matrices[0]"></p>
+      <div class="matrices__top">
         <Matrix
           type="userInvertedMatrix"
+          style="visibility: hidden"
           :matrix="userInvertedMatrix"
-          :yLabel="true"
+          :yLabel="false"
+          :xLabel="false"
+          :readonly="true"
+        ></Matrix>
+
+        <Matrix
+          type="primary"
+          :matrix="primary"
           :xLabel="true"
+          :yLabel="true"
           :readonly="true"
         ></Matrix>
       </div>
 
-      <Matrix
-        type="primary"
-        :matrix="primary"
-        :xLabel="true"
-        :yLabel="true"
-        :readonly="true"
-      ></Matrix>
+      <div class="matrices__bottom">
+        <div class="matrices__inverted">
+          <p v-html="texts.matrices[0]"></p>
+          <Matrix
+            type="userInvertedMatrix"
+            :matrix="userInvertedMatrix"
+            :yLabel="true"
+            :xLabel="true"
+            :readonly="true"
+          ></Matrix>
+        </div>
 
-      <Matrix
-        type="secondary"
-        :matrix="userSecondary"
-        :yLabel="true"
-        :xLabel="true"
-        @validate-field="validateSecondary"
-      ></Matrix>
+        <Matrix
+          type="secondary"
+          :matrix="userSecondary"
+          :yLabel="true"
+          :xLabel="true"
+          @validate-field="validateSecondary"
+        >
+        </Matrix>
+      </div>
     </div>
     <TaskNavigation
       :backward="true"
@@ -50,10 +71,11 @@
 }
 
 .matrices__multiplicate {
-  @apply flex justify-between w-full items-center overflow-auto;
+  @apply flex flex-col justify-between w-full items-center overflow-auto;
 }
 
-.matrices__multiplicate > div {
+.matrices__top > div,
+.matrices__bottom > div {
   @apply px-4;
 }
 
@@ -66,6 +88,7 @@
 
 <script>
 import Matrix from "@/components/exercises/gozintograph/Matrix";
+import Button from "@/components/Button";
 import TextBox from "@/components/TextBox";
 import TaskNavigation from "@/components/TaskNavigation";
 import matrixMixin from "@/mixins/MatrixMixin";
@@ -86,7 +109,8 @@ export default {
   components: {
     Matrix,
     TextBox,
-    TaskNavigation
+    TaskNavigation,
+    Button
   },
   mixins: [matrixMixin],
   computed: {

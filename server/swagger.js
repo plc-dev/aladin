@@ -17,7 +17,9 @@ const swaggerOptions = {
         url: "http://www.wtfpl.net/"
       },
       version: "1.0.0",
-      servers: [{ url: "http://localhost:8080", description: "Local dev-server" }]
+      servers: [
+        { url: "http://localhost:8080", description: "Local dev-server" }
+      ]
     },
     basePath: "/api"
   },

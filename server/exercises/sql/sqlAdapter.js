@@ -5,12 +5,44 @@ const adapter = {
   sqlite: {
     connectDB: config => {
       const sqlite = require("sqlite");
-      return sqlite.open(config.location, sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE);
+      return sqlite.open(
+        config.location,
+        sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE
+      );
     },
     closeDB: db => {
       const sqlite = require("sqlite");
       console.log(`sqlite-DB closed!`);
-      return sqlite.close(db);
+      sqlite.close(db);
+      return;
+    },
+    queryDB: async (db, query) => await db.all(query),
+    numericOperators: ["BETWEEN", "<>", "<", ">", "<=", ">=", "="],
+    textOperators: ["LIKE", "NOT LIKE", "<>", "="],
+    aggregateTypes: ["MAX", "MIN", "AVG", "COUNT", "SUM"],
+    textualRepresentation: {
+      BETWEEN: "zwischen ${value1} und ${value2} liegt",
+      "<>": "ungleich",
+      "<": "kleiner",
+      ">": "größer",
+      "<=": "kleiner oder gleich",
+      ">=": "größer oder gleich",
+      "=": "gleich",
+      LIKE: [
+        '"${value}" enthalten muss"',
+        'mit "${value}" enden muss',
+        'mit "${value}" beginnen muss'
+      ],
+      "NOT LIKE": [
+        'nicht "${value}" enthalten darf',
+        'nicht "mit ${value}" enden darf',
+        'nicht mit "${value}" beginnen darf'
+      ],
+      SUM: "die Summe von ${column}",
+      AVG: "den Durchschnitt von ${column}",
+      MAX: "das Maximum von ${column}",
+      MIN: "das Minimum von ${column}",
+      COUNT: "die Anzahl von ${column}"
     },
     types: {
       null: "NULL",
@@ -22,7 +54,8 @@ const adapter = {
       autoIncrement: "",
       date: "TEXT"
     },
-    createForeignKey: "FOREIGN KEY (${foreignKey}) REFERENCES ${providingTable} (${originalColumn})",
+    createForeignKey:
+      "FOREIGN KEY (${foreignKey}) REFERENCES ${providingTable} (${originalColumn})",
     createPrimaryKey: "PRIMARY KEY(${...primary})"
   },
   sqlServer: {
@@ -36,7 +69,7 @@ const adapter = {
       float: "",
       string: ["nchar (${length})", "nvarchar (${length})", "ntext"],
       blob: "image",
-      date: "datetime" 
+      date: "datetime"
     }
   }
 };

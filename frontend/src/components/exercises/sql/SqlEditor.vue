@@ -1,6 +1,11 @@
 <template>
   <div class="sql__editor">
-    <textarea class="sql__editor--textfield" v-model="userQuery"></textarea>
+    <textarea
+      class="sql__editor--textfield"
+      v-model="userQuery"
+      @keydown="handleKeyCombination"
+    >
+    </textarea>
     <div class="sql__editor--controls">
       <Button
         class="sql__button"
@@ -9,13 +14,15 @@
         @click.native="submitQuery"
       />
     </div>
-    <div class="sql__editor--result"></div>
+    <div>
+      <div class="sql__editor--result"></div>
+    </div>
   </div>
 </template>
 
 <style lang="postcss">
 .sql__editor {
-  @apply flex flex-col w-full items-center;
+  @apply flex flex-col w-full;
 }
 
 .sql__editor > * {
@@ -30,14 +37,22 @@
 
 .sql__button {
   @apply text-center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .sql__editor--result {
+  @apply flex;
   height: auto;
+  overflow-x: scroll;
 }
 
 .sql__editor--result * {
+  @apply text-center;
   border: 1px solid black;
+  padding: 10px;
+  margin-left: auto;
+  margin-right: auto;
 }
 </style>
 
@@ -47,37 +62,65 @@ import { isObjectEqual } from "@/lib/helper";
 
 export default {
   props: {
-    queryIndex: { type: Number, required: true }
+    type: { type: String, required: true },
+    queryIndex: { type: Number }
   },
   components: {
     Button
   },
   methods: {
+    handleKeyCombination: function(event) {
+      // ctrl + enter
+      if (event.ctrlKey && event.keyCode == 13) {
+        this.submitQuery();
+      }
+    },
     submitQuery: function() {
-      const payload = {
-        userQuery: this.queryList[this.queryIndex].userQuery,
-        query: this.queryList[this.queryIndex].query,
-        dbName: this.$store.state.sql.selectedDB.dbName,
-        index: this.queryIndex
-      };
+      let payload;
+      if (this.type === "existing") {
+        payload = {
+          userQuery: this.queryList[this.queryIndex].userQuery,
+          query: this.queryList[this.queryIndex].query,
+          dbName: this.selectedDB,
+          index: this.queryIndex,
+          type: this.type
+        };
+      } else if (this.type === "generated") {
+        payload = {
+          userQuery: this.userQuery,
+          query: this.$store.state.sql.generated[this.selectedDB][
+            this.queryIndex
+          ].query,
+          dbName: this.selectedDB,
+          index: this.queryIndex,
+          type: this.type
+        };
+      }
 
       this.$store.dispatch("sql/submitQuery", payload).then(() => {
-        document.querySelectorAll(".sql__editor--result")[
-          this.queryIndex
-        ].innerHTML = this.result;
-        this.validate();
+        document.querySelectorAll(
+          `.accordion__${this.type} .sql__editor--result`
+        )[this.queryIndex].innerHTML = this.result;
+        this.validate(this.type);
       });
     },
-    validate: function() {
-      const query = document.querySelectorAll(".accordion__queryList--item")[
+    validate: function(type) {
+      const query = document.querySelectorAll(`.accordion__${this.type}--item`)[
         this.queryIndex
       ];
-      if (
-        isObjectEqual(
-          this.queryList[this.queryIndex].userResult,
-          this.queryList[this.queryIndex].result
-        )
-      ) {
+      let userResult, result;
+      if (type === "generated") {
+        userResult = this.$store.state.sql.generated[this.selectedDB][
+          this.queryIndex
+        ].userResult;
+        result = this.$store.state.sql.generated[this.selectedDB][
+          this.queryIndex
+        ].result;
+      } else {
+        userResult = this.queryList[this.queryIndex].userResult;
+        result = this.queryList[this.queryIndex].result;
+      }
+      if (isObjectEqual(userResult, result)) {
         query.classList.add("success");
         query.classList.remove("error");
       } else {
@@ -90,19 +133,39 @@ export default {
     queryList() {
       return this.$store.state.sql.queryList;
     },
+    selectedDB() {
+      return this.$store.state.sql.selectedDB.dbName;
+    },
     userQuery: {
       get: function() {
-        return this.queryList[this.queryIndex].userQuery;
+        if (this.type === "existing") {
+          return this.queryList[this.queryIndex].userQuery;
+        } else if (this.type === "generated") {
+          const selectedDB = this.$store.state.sql.selectedDB.dbName;
+          return this.$store.state.sql.generated[selectedDB][this.queryIndex]
+            .userQuery;
+        }
+        return [];
       },
       set: function(userQuery) {
-        this.$store.commit("sql/SET_USER_QUERY", {
-          userQuery,
-          index: this.queryIndex
-        });
+        if (this.type === "existing") {
+          this.$store.commit("sql/SET_USER_QUERY_LIST", {
+            userQuery,
+            index: this.queryIndex
+          });
+        } else if (this.type === "generated") {
+          this.$store.commit("sql/SET_USER_QUERY_GENERATED", {
+            userQuery,
+            index: this.queryIndex
+          });
+        }
       }
     },
     result() {
-      return this.$store.getters["sql/getFormatedResult"](this.queryIndex);
+      return this.$store.getters["sql/getFormatedResult"]({
+        index: this.queryIndex,
+        type: this.type
+      });
     }
   }
 };

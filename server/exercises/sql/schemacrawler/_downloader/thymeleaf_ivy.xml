@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="https://ant.apache.org/ivy/schemas/ivy.xsd">
+  <info organisation="us.fatehi" module="schemacrawler"/>
+  <dependencies>
+    <dependency org="org.thymeleaf" name="thymeleaf"
+      rev="3.0.11.RELEASE" />
+    <dependency org="org.slf4j" name="slf4j-jdk14"
+      rev="1.7.26" />
+
+    <exclude org="com.fasterxml.jackson.core" module="jackson-databind" />
+    <exclude org="com.fasterxml.jackson.core" module="jackson-annotations" />
+    <exclude org="com.fasterxml.jackson.core" module="jackson-core" />
+    <exclude org="com.fasterxml.jackson.datatype" module="jackson-datatype-jsr310" />
+
+    <exclude type="source" ext="jar" />
+    <exclude type="sources" ext="jar" />
+    <exclude type="test" ext="jar" />
+    <exclude type="javadoc" ext="jar" />
+  </dependencies>
+</ivy-module>

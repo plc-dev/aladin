@@ -8,13 +8,13 @@ import { getRandomInt } from "@/lib/helper";
  * @param {object} rangeValue
  * @param {number} connectionThreshold
  */
-export function generateGraph(
+export function generateGraph({
   depth,
   rangeAmount,
   rangeWidth,
   rangeValue,
   connectionThreshold
-) {
+}) {
   const graph = {
     level: [],
     connections: [],
@@ -23,6 +23,7 @@ export function generateGraph(
   };
   let width, currentLevel, node;
   const labels = ["P", "B", ["K", "R"]];
+  let bCount = 0;
 
   // generate levels for specified depth
   for (let i = 0; i < depth; i++) {
@@ -33,8 +34,11 @@ export function generateGraph(
     for (let j = 0; j < width; j++) {
       const name = () => {
         if (!i) return `${labels[i]}${j}`;
-        if (i < depth - 1) return `${labels[1]}${j}`;
-        else {
+        if (i < depth - 1) {
+          const label = `${labels[1]}${bCount}`;
+          bCount++;
+          return label;
+        } else {
           const randomLabel = Math.round(Math.random());
           return `${labels[2][randomLabel]}${j}`;
         }
@@ -100,11 +104,11 @@ export function generateGraph(
     }
     return node.id;
   };
-  const renamed = [];
 
+  const renamed = [];
   //get all leaf-nodes and rename semantically
-  const leafs = graph.level.flatMap(nodes =>
-    nodes
+  const leafs = graph.level.flatMap(level =>
+    level
       .filter(node => node.isLeaf)
       .map(node => {
         const id = renameLeaf(node);
@@ -113,6 +117,7 @@ export function generateGraph(
         return node.id;
       })
   );
+
   // rename node.ids in connections
   graph.connections.forEach(connection => {
     let childRenamed = 1;

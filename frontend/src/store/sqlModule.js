@@ -1,4 +1,5 @@
 import axios from "axios";
+import Vue from "vue/dist/vue.js";
 
 export default {
   namespaced: true,
@@ -10,11 +11,15 @@ export default {
       index: null
     },
     queryList: [],
-    currentTab: ""
+    currentTab: "",
+    generated: {}
   },
   getters: {
-    getFormatedResult: state => index => {
-      const userResult = state.queryList[index].userResult;
+    getFormatedResult: state => ({ index, type }) => {
+      const userResult =
+        type === "existing"
+          ? state.queryList[index].userResult
+          : state.generated[state.selectedDB.dbName][index].userResult;
       if (typeof userResult !== "object") return userResult;
       return userResult
         .reduce((table, dataRow, index) => {
@@ -45,15 +50,40 @@ export default {
     SET_QUERY_LIST(state, queries) {
       state.queryList = queries;
     },
+    SET_GENERATED_LIST(state, { query, question }) {
+      const selectedDB = state.selectedDB.dbName;
+      if (!state.generated[selectedDB])
+        state.generated[selectedDB] = Vue.set(state.generated, selectedDB, []);
+      state.generated[selectedDB] = [
+        ...state.generated[selectedDB],
+        {
+          query,
+          question: question || "test",
+          userQuery: "",
+          userResult: "",
+          result: ""
+        }
+      ];
+    },
     SET_CURRENT_TAB(state, tab) {
       state.currentTab = tab;
     },
-    SET_QUERY_RESULT(state, { index, userResult, result }) {
-      state.queryList[index].userResult = userResult;
-      state.queryList[index].result = result;
+    SET_QUERY_RESULT(state, { index, userResult, result, type }) {
+      if (type === "generated") {
+        const selectedDB = state.selectedDB.dbName;
+        state.generated[selectedDB][index].userResult = userResult;
+        state.generated[selectedDB][index].result = result;
+      } else {
+        state.queryList[index].userResult = userResult;
+        state.queryList[index].result = result;
+      }
     },
-    SET_USER_QUERY(state, { userQuery, index }) {
+    SET_USER_QUERY_LIST(state, { userQuery, index }) {
       state.queryList[index].userQuery = userQuery;
+    },
+    SET_USER_QUERY_GENERATED(state, { userQuery, index }) {
+      const selectedDB = state.selectedDB.dbName;
+      state.generated[selectedDB][index].userQuery = userQuery;
     }
   },
   actions: {
@@ -71,6 +101,16 @@ export default {
           `/api/getDBQuestions?dbName=${state.selectedDB.dbName}`
         );
         commit("SET_QUERY_LIST", response.data);
+      } catch (error) {
+        //console.error(error);
+      }
+    },
+    async generateQuery({ commit, state }) {
+      try {
+        const payload = { dbName: state.selectedDB.dbName };
+        const response = await axios.post("/api/generateQuery", payload);
+
+        commit("SET_GENERATED_LIST", response.data);
       } catch (error) {
         //console.error(error);
       }

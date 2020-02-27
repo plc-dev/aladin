@@ -19,7 +19,8 @@ export default {
     token: "",
     loginError: false,
     registerError: false,
-    languageError: false
+    languageError: false,
+    presenterMode: false
   },
   getters: {
     getTexts(state) {
@@ -47,6 +48,9 @@ export default {
     SET_API_ERROR(state, error) {
       const errorType = Object.keys(error)[0];
       state[errorType] = error[errorType];
+    },
+    TOGGLE_PRESENTER_MODE(state) {
+      state.presenterMode = !state.presenterMode;
     }
   },
   actions: {

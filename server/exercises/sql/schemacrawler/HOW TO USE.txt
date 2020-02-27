@@ -1,0 +1,10 @@
+SCHEMASPY
+java -jar schemaspy-6.1.0.jar -vizjs -imageformat svg -db ../database/northwind/northwind.sqlite -cat % -s northwind
+
+SCHEMACRAWLER
+prerequisites: 	- java in PATH-variable
+		- graphviz-java
+			- Start a command shell in the _downloader directory
+			- Run download.cmd graphviz-java (or download.sh graphviz-java on Unix) to install the graphviz-java package
+Execute via:
+./schemacrawler.cmd --database ./database/northwind/northwind.sqlite --command=schema --output-format=png --output-file=graph.png --info-level=maximum --server=sqlite --table-types=TABLE
