@@ -111,6 +111,7 @@ module.exports = (blueprint, db) => {
         }`
     );
     question += ` und sortiere das Ergebnis ${order.join(", ")}`;
+    question = replaceLastComma(question);
   }
 
   question += ".";

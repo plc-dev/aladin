@@ -49,8 +49,37 @@
             >
               <template slot="header">
                 {{ listElement.question }}
-                <div class="accordion__icon">
-                  <b>^</b>
+                <div class="accordion__icons">
+                  <div
+                    class="accordion__icons--showSolution"
+                    :id="`${index}`"
+                    @click="showSolution"
+                    v-tooltip.top="{
+                      delay: {
+                        show: 500,
+                        hide: 100
+                      },
+                      content: 'Lösung anzeigen!'
+                    }"
+                  >
+                    <b :id="`${index}`">?</b>
+                  </div>
+                  <div
+                    class="accordion__icons--propose"
+                    @click="alert"
+                    v-tooltip.top="{
+                      delay: {
+                        show: 500,
+                        hide: 100
+                      },
+                      content: 'Abfrage vorschlagen!'
+                    }"
+                  >
+                    <b>+</b>
+                  </div>
+                  <div class="accordion__icons--open" @click="toggleCollapse">
+                    <b>^</b>
+                  </div>
                 </div>
               </template>
               <template slot="content">
@@ -158,6 +187,29 @@ export default {
     },
     generateQuery() {
       this.$store.dispatch("sql/generateQuery");
+    },
+    toggleCollapse(event) {
+      let clicked =
+        event.target.parentElement.parentElement.parentElement.parentElement;
+      const active = document.querySelector(
+        `.accordion__${this.name}--item.active`
+      );
+      if (!active) {
+        clicked.classList.toggle("active");
+        clicked.scrollIntoView({ behavior: "smooth" });
+      } else if (clicked === active) active.classList.toggle("active");
+      else {
+        active.classList.toggle("active");
+        clicked.classList.toggle("active");
+        clicked.scrollIntoView({ behavior: "smooth" });
+      }
+    },
+    alert() {
+      window.alert("TODO: implement propose functionality");
+    },
+    showSolution(event) {
+      const index = event.target.id;
+      window.alert(this.generatedQueryList[index].query);
     }
   },
   computed: {

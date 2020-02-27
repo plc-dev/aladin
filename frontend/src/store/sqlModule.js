@@ -55,14 +55,14 @@ export default {
       if (!state.generated[selectedDB])
         state.generated[selectedDB] = Vue.set(state.generated, selectedDB, []);
       state.generated[selectedDB] = [
+        ...state.generated[selectedDB],
         {
           query,
           question: question || "test",
           userQuery: "",
           userResult: "",
           result: ""
-        },
-        ...state.generated[selectedDB]
+        }
       ];
     },
     SET_CURRENT_TAB(state, tab) {

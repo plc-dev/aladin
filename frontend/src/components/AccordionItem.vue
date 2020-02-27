@@ -1,6 +1,6 @@
 <template>
   <div :class="`accordion__${name}--item accordion__item`">
-    <div class="accordion__item--header" @click="toggleCollapse">
+    <div class="accordion__item--header" @click.self="toggleCollapse">
       <slot name="header">
         I'm a header!
       </slot>
@@ -56,12 +56,21 @@
   border-radius: 0 0 5px 5px;
 }
 
-.accordion__item--header .accordion__icon {
+.accordion__icons {
+  @apply flex justify-center items-center;
+  z-index: 10;
+}
+
+.accordion__icons > div {
+  @apply px-1;
+}
+
+.accordion__item--header .accordion__icons--open {
   transform: rotate(0deg);
   transition-duration: 0.5s;
 }
 
-.accordion__item.active .accordion__item--header .accordion__icon {
+.accordion__item.active .accordion__item--header .accordion__icons--open {
   transform: rotate(-180deg);
   transition-duration: 0.5s;
 }
@@ -74,7 +83,7 @@ export default {
   },
   methods: {
     toggleCollapse(event) {
-      const clicked = event.target.parentElement;
+      let clicked = event.target.parentElement;
       const active = document.querySelector(
         `.accordion__${this.name}--item.active`
       );

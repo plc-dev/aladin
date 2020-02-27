@@ -12,7 +12,11 @@
       >
         <template #header>
           {{ listElement.dbName }}
-          <div class="accordion__icon"><b>^</b></div>
+          <div class="accordion__icons">
+            <div class="accordion__icons--open" @click="toggleCollapse">
+              <b>^</b>
+            </div>
+          </div>
         </template>
         <template #content>
           <img class="erm__image" :src="listElement.img" alt="" />
@@ -63,6 +67,21 @@ export default {
       this.$emit("change-tab", document.querySelector('[tab="SqlTask"]'));
       const dbName = this.dbList[index].dbName;
       this.$store.commit("sql/SET_DB", { dbName, index });
+    },
+    toggleCollapse(event) {
+      let clicked = event.target.parentElement.parentElement.parentElement;
+      const active = document.querySelector(
+        `.accordion__${this.name}--item.active`
+      );
+      if (!active) {
+        clicked.classList.toggle("active");
+        clicked.scrollIntoView({ behavior: "smooth" });
+      } else if (clicked === active) active.classList.toggle("active");
+      else {
+        active.classList.toggle("active");
+        clicked.classList.toggle("active");
+        clicked.scrollIntoView({ behavior: "smooth" });
+      }
     }
   },
   computed: {

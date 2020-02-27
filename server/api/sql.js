@@ -175,6 +175,13 @@ module.exports = router => {
       const builtQuery = Object.keys(query)
         .map(key => query[key])
         .join("");
+
+      console.log(
+        "Generated Query: \n",
+        builtQuery,
+        "\nGenerated Question: \n",
+        question
+      );
       res.status(201).json({ query: builtQuery, question });
     })
   );
