@@ -16,7 +16,7 @@
       :class="`multiselect__${name}--content multiselect__content`"
     >
       <div v-show="index == selected">
-        <slot :name="selectable.slot">{{ index }} </slot>
+        <slot :name="selectable.slot"> </slot>
       </div>
     </div>
   </div>
