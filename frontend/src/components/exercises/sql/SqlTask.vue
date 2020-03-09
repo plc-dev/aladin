@@ -12,7 +12,7 @@
       <template #body><p v-html="texts.description.body"></p></template>
     </TextBox>
     <div class="sqlTask__type">
-      <MultiSelectBox :name="'test'" :selectables="selectables">
+      <MultiSelectBox :name="'sql'" :selectables="selectables">
         <template #queryList>
           <div v-if="!queryList.length" v-html="texts.emptyQueryList"></div>
           <Accordion v-else class="queryList" :name="'existing'">
@@ -41,7 +41,7 @@
             @click.native="generateQuery"
           >
           </Button>
-          <Accordion class="queryList" :name="'generated'">
+          <Accordion class="queryList" :name="'generated'" :reverse="true">
             <AccordionItem
               v-for="(listElement, index) in generatedQueryList"
               :key="index"
@@ -100,6 +100,11 @@
   @apply flex flex-col items-center justify-start w-full;
 }
 
+.sqlTask__type {
+  @apply w-full m-4;
+  max-width: 90vw;
+}
+
 .description__sql {
   @apply self-center text-center m-2 pb-4;
 }
@@ -114,6 +119,7 @@
   margin-top: 20px;
   width: 50px;
   height: auto;
+  z-index: 1337;
 }
 
 .sql_overlay .overlay__content {

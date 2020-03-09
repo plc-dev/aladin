@@ -58,7 +58,7 @@ export default {
         ...state.generated[selectedDB],
         {
           query,
-          question: question || "test",
+          question: question,
           userQuery: "",
           userResult: "",
           result: ""

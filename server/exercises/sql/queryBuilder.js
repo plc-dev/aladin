@@ -157,7 +157,8 @@ const constructQuery = async (
               if (!(questionBluePrint.columns.column === column.columnName)) {
                 questionBluePrint.columns.push({
                   column: column.columnName,
-                  aggregate: null
+                  aggregate: null,
+                  table
                 });
               }
               col = `${aliasDictionary[table]}.${column.columnName}`;
@@ -504,7 +505,6 @@ const constructQuery = async (
   };
   const randomizeOrder = () => (Math.random() > 0.5 ? "ASC " : "DESC ");
 
-  // TODO: REWRITE QUERY IF RESULT IS EMPTY
   let result = [];
   let columnQuery, fromQuery, whereQuery, groupQuery, havingQuery, orderQuery;
   while (!result.length) {
@@ -548,6 +548,7 @@ const constructQuery = async (
       groupQuery,
       orderQuery
     },
-    questionBluePrint
+    questionBluePrint,
+    aliasDictionary
   };
 };

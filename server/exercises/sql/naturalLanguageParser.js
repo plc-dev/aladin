@@ -13,8 +13,34 @@ module.exports = (blueprint, db) => {
     return question;
   };
 
+  if (blueprint.tables[0].hasOwnProperty("joining")) {
+    const join = blueprint.tables[0];
+    if (join.type === "LEFT OUTER JOIN") {
+      question += `Bilde die Schnittmenge die alle Einträge von ${join.table} und korrespondierende Einträge von ${join.joining} enthält.`;
+    } else if (join.type === "CROSS JOIN") {
+      question += `Bilde das kartesische Produkt der Tabellen ${join.table} und ${join.joining}.`;
+    } else if (join.type === "LEFT JOIN" || join.type === "INNER JOIN") {
+      question += `Bilde die Schnittmenge die korrespondierende Einträge der beiden Tabellen ${join.table} und ${join.joining} enthält.`;
+    }
+  } else {
+    const tables = blueprint.columns.reduce(
+      (tables, column) => [...tables, column.table],
+      []
+    );
+    const distinctTables = [...new Set(tables)];
+    if (distinctTables.length === 1) {
+      question += `Verwende die Tabelle ${distinctTables[0]}.`;
+    } else {
+      question += templateString(
+        "Verwende die Tabellen ${...distinctTables}.",
+        { distinctTables },
+        " und "
+      );
+    }
+  }
+
   if (blueprint.columns.length > 1) {
-    question += "Gib die Spalten: ";
+    question += " Gib die Spalten ";
     const columns = blueprint.columns.map(column => {
       if (column.aggregate) {
         return templateString(operatorDictionary[column.aggregate], {
@@ -27,7 +53,7 @@ module.exports = (blueprint, db) => {
     question += columns.join(", ");
   } else {
     const column = blueprint.columns[0];
-    question += "Gib die Spalte: ";
+    question += " Gib die Spalte ";
     if (column.aggregate) {
       question += templateString(operatorDictionary[column.aggregate], {
         column: column.column
@@ -101,6 +127,9 @@ module.exports = (blueprint, db) => {
     question += ` und gruppiere das Ergebnis nach ${blueprint.groupBy.join(
       ", "
     )}`;
+    if (blueprint.groupBy.length > 1) {
+      question = replaceLastComma(question);
+    }
   }
 
   if (blueprint.orderBy.length) {
@@ -111,21 +140,12 @@ module.exports = (blueprint, db) => {
         }`
     );
     question += ` und sortiere das Ergebnis ${order.join(", ")}`;
-    question = replaceLastComma(question);
+    if (blueprint.orderBy.length > 1) {
+      question = replaceLastComma(question);
+    }
   }
 
   question += ".";
-
-  if (blueprint.tables[0].hasOwnProperty("joining")) {
-    const join = blueprint.tables[0];
-    if (join.type === "LEFT OUTER JOIN") {
-      question += ` Bilde die Schnittmenge die alle Einträge von ${join.table} und korrespondierende Einträge von ${join.joining} enthält.`;
-    } else if (join.type === "CROSS JOIN") {
-      question += ` Bilde das kartesische Produkt der Tabellen ${join.table} und ${join.joining}.`;
-    } else {
-      question += ` Bilde die Schnittmenge die korrespondierende Einträge der beiden Tabellen ${join.table} und ${join.joining} enthält.`;
-    }
-  }
 
   return question;
 };

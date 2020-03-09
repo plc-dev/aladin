@@ -1,11 +1,11 @@
 <template>
   <div class="sql__editor">
-    <textarea
-      class="sql__editor--textfield"
+    <codemirror
       v-model="userQuery"
-      @keydown="handleKeyCombination"
+      :options="cmOptions"
+      @keydown.native="handleKeyCombination"
     >
-    </textarea>
+    </codemirror>
     <div class="sql__editor--controls">
       <Button
         class="sql__button"
@@ -58,15 +58,45 @@
 
 <script>
 import Button from "@/components/Button";
-import { isObjectEqual } from "@/lib/helper";
+import { isObjectFuzzyEqual } from "@/lib/helper";
+import { codemirror } from "vue-codemirror";
+import "codemirror/lib/codemirror.css";
+import "codemirror/theme/base16-light.css";
+import "codemirror/mode/sql/sql.js";
+import "codemirror/addon/hint/sql-hint";
+import "codemirror/addon/hint/anyword-hint";
+import "codemirror/theme/base16-dark.css";
+import "codemirror/addon/hint/show-hint.css";
+import "codemirror/addon/search/searchcursor.js";
+import "codemirror/addon/search/search.js";
 
 export default {
+  data() {
+    return {
+      cmOptions: {
+        tabSize: 4,
+        mode: "text/x-mysql",
+        theme: "base16-light",
+        styleActiveLine: true,
+        lineNumbers: true,
+        line: true,
+        events: ["keydown"],
+        lineWrapping: true,
+        foldGutter: true,
+        matchBrackets: true
+      },
+      index: this.queryIndex,
+      queryElements: [],
+      firstShift: false
+    };
+  },
   props: {
     type: { type: String, required: true },
     queryIndex: { type: Number }
   },
   components: {
-    Button
+    Button,
+    codemirror
   },
   methods: {
     handleKeyCombination: function(event) {
@@ -79,20 +109,19 @@ export default {
       let payload;
       if (this.type === "existing") {
         payload = {
-          userQuery: this.queryList[this.queryIndex].userQuery,
-          query: this.queryList[this.queryIndex].query,
+          userQuery: this.queryList[this.index].userQuery,
+          query: this.queryList[this.index].query,
           dbName: this.selectedDB,
-          index: this.queryIndex,
+          index: this.index,
           type: this.type
         };
       } else if (this.type === "generated") {
         payload = {
           userQuery: this.userQuery,
-          query: this.$store.state.sql.generated[this.selectedDB][
-            this.queryIndex
-          ].query,
+          query: this.$store.state.sql.generated[this.selectedDB][this.index]
+            .query,
           dbName: this.selectedDB,
-          index: this.queryIndex,
+          index: this.index,
           type: this.type
         };
       }
@@ -100,27 +129,24 @@ export default {
       this.$store.dispatch("sql/submitQuery", payload).then(() => {
         document.querySelectorAll(
           `.accordion__${this.type} .sql__editor--result`
-        )[this.queryIndex].innerHTML = this.result;
+        )[this.index].innerHTML = this.result;
         this.validate(this.type);
       });
     },
     validate: function(type) {
-      const query = document.querySelectorAll(`.accordion__${this.type}--item`)[
-        this.queryIndex
-      ];
+      const items = document.querySelectorAll(`.accordion__${this.type}--item`);
+      const index = this.reverse ? items.length - 1 - this.index : this.index;
+      const query = items[index];
       let userResult, result;
       if (type === "generated") {
-        userResult = this.$store.state.sql.generated[this.selectedDB][
-          this.queryIndex
-        ].userResult;
-        result = this.$store.state.sql.generated[this.selectedDB][
-          this.queryIndex
-        ].result;
+        userResult = this.$store.state.sql.generated[this.selectedDB][index]
+          .userResult;
+        result = this.$store.state.sql.generated[this.selectedDB][index].result;
       } else {
-        userResult = this.queryList[this.queryIndex].userResult;
-        result = this.queryList[this.queryIndex].result;
+        userResult = this.queryList[index].userResult;
+        result = this.queryList[index].result;
       }
-      if (isObjectEqual(userResult, result)) {
+      if (isObjectFuzzyEqual(userResult, result, 5)) {
         query.classList.add("success");
         query.classList.remove("error");
       } else {
@@ -139,10 +165,10 @@ export default {
     userQuery: {
       get: function() {
         if (this.type === "existing") {
-          return this.queryList[this.queryIndex].userQuery;
+          return this.queryList[this.index].userQuery;
         } else if (this.type === "generated") {
           const selectedDB = this.$store.state.sql.selectedDB.dbName;
-          return this.$store.state.sql.generated[selectedDB][this.queryIndex]
+          return this.$store.state.sql.generated[selectedDB][this.index]
             .userQuery;
         }
         return [];
@@ -151,22 +177,27 @@ export default {
         if (this.type === "existing") {
           this.$store.commit("sql/SET_USER_QUERY_LIST", {
             userQuery,
-            index: this.queryIndex
+            index: this.index
           });
         } else if (this.type === "generated") {
           this.$store.commit("sql/SET_USER_QUERY_GENERATED", {
             userQuery,
-            index: this.queryIndex
+            index: this.index
           });
         }
       }
     },
     result() {
       return this.$store.getters["sql/getFormatedResult"]({
-        index: this.queryIndex,
+        index: this.index,
         type: this.type
       });
     }
+  },
+  mounted() {
+    this.queryElements = document.querySelectorAll(
+      `.accordion__${this.type}--item`
+    );
   }
 };
 </script>

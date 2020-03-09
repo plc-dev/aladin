@@ -24,19 +24,21 @@
 
 <style lang="postcss">
 .multiselect {
-  @apply flex flex-col pb-5 items-center h-full;
+  @apply flex flex-col pb-5 items-center h-full w-full;
 }
 
 .multiselect__box {
-  @apply flex flex-row justify-center items-center h-12 mb-5;
+  @apply flex flex-row justify-center items-center h-12 mb-5 w-full;
   -webkit-box-shadow: 2px 3px 9px 0px rgba(0, 0, 0, 1);
   -moz-box-shadow: 2px 3px 9px 0px rgba(0, 0, 0, 1);
   box-shadow: 2px 3px 9px 0px rgba(0, 0, 0, 1);
   border-radius: 10px 10px 10px 10px;
+  max-width: 1000px;
 }
 
 .multiselect__title {
-  @apply bg-main p-3 border-r-2 border-background text-textColor cursor-pointer;
+  @apply bg-main text-center p-3 border-r-2 border-background text-textColor cursor-pointer;
+  flex: 1 1 0px;
 }
 
 .multiselect__title:first-child {
@@ -56,6 +58,11 @@
 
 .multiselect__title.active {
   @apply bg-contrast text-highlight cursor-default;
+}
+
+.multiselect__content {
+  @apply w-full;
+  max-width: 98vw;
 }
 </style>
 
