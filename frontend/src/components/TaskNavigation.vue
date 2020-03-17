@@ -1,12 +1,12 @@
 <template>
   <div class="task__navigation">
     <Button
-      :text="'Zurück'"
+      :text="buttons.back"
       v-if="backward"
       @click.native="$emit('click-backward')"
     />
     <Button
-      :text="'Weiter'"
+      :text="buttons.forward"
       v-if="forward"
       @click.native="$emit('click-forward')"
     />
@@ -15,10 +15,9 @@
 
 <style lang="postcss">
 .task__navigation {
-  @apply flex text-center absolute;
+  position: static;
+  @apply flex text-center sticky my-4;
   width: 150px;
-  bottom: 10px;
-  right: 10px;
 }
 
 .task__navigation * {
@@ -35,6 +34,11 @@ export default {
   props: {
     forward: Boolean,
     backward: Boolean
+  },
+  computed: {
+    buttons: function() {
+      return this.$store.state.user.texts.exercises.gozintograph.buttons;
+    }
   }
 };
 </script>

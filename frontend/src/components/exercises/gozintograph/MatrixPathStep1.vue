@@ -1,12 +1,11 @@
 <template>
   <div>
     <TextBox class="solution__matrix--description">
-      <template #header>{{ texts.description.header }}</template>
-      <template #body> <p v-html="texts.description.body"></p> </template>
+      <template #header>{{ description.description.header }}</template>
+      <template #body> <p v-html="description.description.body"></p> </template>
     </TextBox>
 
     <div class="show__graph">
-      Graph anzeigen:
       <img
         src="/img/icons/graph.png"
         alt="graph"
@@ -17,14 +16,14 @@
             show: 500,
             hide: 100
           },
-          content: 'Graph anzeigen'
+          content: tooltip
         }"
       />
     </div>
 
     <div class="matrices">
       <div class="matrices__direct">
-        <p v-html="texts.matrices[0]"></p>
+        <p v-html="description.matrices[0]"></p>
         <Matrix
           type="directMatrix"
           :x-label="true"
@@ -50,7 +49,7 @@
       </div>
 
       <div class="matrices__unit">
-        <p v-html="texts.matrices[1]"></p>
+        <p v-html="description.matrices[1]"></p>
         <Matrix
           type="unitMatrix"
           :matrix="userUnitMatrix"
@@ -74,7 +73,7 @@
       </div>
 
       <div class="matrices__subtracted">
-        <p v-html="texts.matrices[2]"></p>
+        <p v-html="description.matrices[2]"></p>
         <Matrix
           type="subtractedMatrix"
           :x-label="true"
@@ -186,8 +185,13 @@ export default {
   },
   computed: {
     texts: function() {
-      const texts = this.$store.state.user.texts;
-      return texts.exercises.gozintograph.tabs.GozintographMatrixPath.step1;
+      return this.$store.state.user.texts.exercises.gozintograph;
+    },
+    description: function() {
+      return this.texts.tabs.GozintographMatrixPath.step1;
+    },
+    tooltip: function() {
+      return this.texts.tooltips.showGraph;
     },
     ...mapState({
       userUnitMatrix: state => state.userUnitMatrix,

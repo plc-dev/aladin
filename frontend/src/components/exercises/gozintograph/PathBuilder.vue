@@ -55,7 +55,7 @@
                 show: 500,
                 hide: 100
               },
-              content: 'Pfad erweitern'
+              content: tooltips.expandPath
             }"
           >
             &plus;
@@ -76,7 +76,7 @@
                 show: 500,
                 hide: 100
               },
-              content: 'Pfad validieren'
+              content: tooltips.validatePath
             }"
           >
             &quest;
@@ -93,7 +93,7 @@
               show: 500,
               hide: 100
             },
-            content: 'Pfad hinzufügen'
+            content: tooltips.addPath
           }"
         >
           &plus;
@@ -106,7 +106,7 @@
               show: 500,
               hide: 100
             },
-            content: 'Pfade validieren'
+            content: tooltips.validatePaths
           }"
         >
           &quest;
@@ -119,7 +119,7 @@
               show: 500,
               hide: 100
             },
-            content: 'Lösung anzeigen'
+            content: tooltips.showSolution
           }"
         >
           &equals;
@@ -240,6 +240,9 @@ export default {
   computed: {
     paths: function() {
       return this.$store.state.gozintograph.graph.paths;
+    },
+    tooltips: function() {
+      return this.$store.state.user.texts.exercises.gozintograph.tooltips;
     },
     lengthAllowed: function() {
       const userPathLengths = this.userPaths.map(path => path.length);

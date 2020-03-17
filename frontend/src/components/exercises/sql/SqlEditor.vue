@@ -9,7 +9,7 @@
     <div class="sql__editor--controls">
       <Button
         class="sql__button"
-        :text="'Abschicken'"
+        :text="texts.buttons.submitQuery"
         type="submit"
         @click.native="submitQuery"
       />
@@ -107,29 +107,35 @@ export default {
     },
     submitQuery: function() {
       let payload;
-      if (this.type === "existing") {
+      if (this.type === "generated") {
         payload = {
-          userQuery: this.queryList[this.index].userQuery,
-          query: this.queryList[this.index].query,
+          userQuery: this.userQuery,
+          query: this.$store.state.sql[`${this.type}QueryList`][
+            this.selectedDB
+          ][this.index].query,
           dbName: this.selectedDB,
           index: this.index,
           type: this.type
         };
-      } else if (this.type === "generated") {
+      } else {
         payload = {
-          userQuery: this.userQuery,
-          query: this.$store.state.sql.generated[this.selectedDB][this.index]
-            .query,
+          userQuery: this[`${this.type}QueryList`][this.index].userQuery,
+          query: this[`${this.type}QueryList`][this.index].query,
           dbName: this.selectedDB,
           index: this.index,
           type: this.type
         };
       }
 
+      const queryElement = document.querySelectorAll(
+        `.accordion__${this.type} .accordion__${this.type}--item`
+      )[this.index];
+
       this.$store.dispatch("sql/submitQuery", payload).then(() => {
-        document.querySelectorAll(
-          `.accordion__${this.type} .sql__editor--result`
-        )[this.index].innerHTML = this.result;
+        queryElement.querySelector(
+          ".sql__editor--result"
+        ).innerHTML = this.result;
+        queryElement.scrollIntoView({ behavior: "auto" });
         this.validate(this.type);
       });
     },
@@ -139,12 +145,15 @@ export default {
       const query = items[index];
       let userResult, result;
       if (type === "generated") {
-        userResult = this.$store.state.sql.generated[this.selectedDB][index]
-          .userResult;
-        result = this.$store.state.sql.generated[this.selectedDB][index].result;
+        userResult = this.$store.state.sql[`${this.type}QueryList`][
+          this.selectedDB
+        ][index].userResult;
+        result = this.$store.state.sql[`${this.type}QueryList`][
+          this.selectedDB
+        ][index].result;
       } else {
-        userResult = this.queryList[index].userResult;
-        result = this.queryList[index].result;
+        userResult = this[`${this.type}QueryList`][index].userResult;
+        result = this[`${this.type}QueryList`][index].result;
       }
       if (isObjectFuzzyEqual(userResult, result, 5)) {
         query.classList.add("success");
@@ -156,33 +165,43 @@ export default {
     }
   },
   computed: {
-    queryList() {
-      return this.$store.state.sql.queryList;
+    texts() {
+      const texts = this.$store.state.user.texts.exercises.sql.tabs.SqlTask;
+      return {
+        buttons: texts.buttons
+      };
+    },
+    existingQueryList() {
+      return this.$store.state.sql.existingQueryList;
+    },
+    proposedQueryList() {
+      return this.$store.state.sql.proposedQueryList;
     },
     selectedDB() {
       return this.$store.state.sql.selectedDB.dbName;
     },
     userQuery: {
       get: function() {
-        if (this.type === "existing") {
-          return this.queryList[this.index].userQuery;
-        } else if (this.type === "generated") {
+        if (this.type === "generated") {
           const selectedDB = this.$store.state.sql.selectedDB.dbName;
-          return this.$store.state.sql.generated[selectedDB][this.index]
-            .userQuery;
+          return this.$store.state.sql[`${this.type}QueryList`][selectedDB][
+            this.index
+          ].userQuery;
+        } else {
+          return this[`${this.type}QueryList`][this.index].userQuery;
         }
-        return [];
       },
       set: function(userQuery) {
-        if (this.type === "existing") {
-          this.$store.commit("sql/SET_USER_QUERY_LIST", {
-            userQuery,
-            index: this.index
-          });
-        } else if (this.type === "generated") {
+        if (this.type === "generated") {
           this.$store.commit("sql/SET_USER_QUERY_GENERATED", {
             userQuery,
             index: this.index
+          });
+        } else {
+          this.$store.commit("sql/SET_USER_QUERY_LIST", {
+            userQuery,
+            index: this.index,
+            type: this.type
           });
         }
       }

@@ -14,7 +14,7 @@
 }
 
 .accordion.reverse {
-  flex-direction: column-reverse;
+  flex-direction: column-reverse !important;
 }
 
 @media (max-width: 860px) {

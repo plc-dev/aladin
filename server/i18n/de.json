@@ -58,6 +58,15 @@
         },
         "button": "Gozintograph generieren"
       },
+      "tooltips": {
+        "showGraph": "Graph anzeigen",
+        "expandPath": "Pfad erweitern",
+        "validatePath": "Pfad validieren",
+        "addPath": "Pfad hinzufügen",
+        "validatePaths": "Pfade validieren",
+        "showSolution": "Lösung anzeigen"
+      },
+      "buttons": {"solve": "Lösen!", "forward": "Vorwärts", "back": "Zurück"},
       "tabs": {
         "GozintographTask": {
           "tab": "Gozintograph"
@@ -101,14 +110,14 @@
               "header": "Aufgabenbeschreibung",
               "body": "1.) Fülle die Direktbedarfsmatrix (links) mit den Kantengewichten aus dem Gozintographen. (Liegt keine Kante vor, beträgt das entsprechende Kantengewicht 0 Mengeneinheiten.) <br>2.) Fülle anschließend eine entsprechende Einheitsmatrix (Mitte) aus. <br>3.) Subtrahiere sodann die Einheitsmatrix von der Direktbedarfsmatrix und trage die Differenz in die rechte Matrix ein. (Die Matrix liest sich wie folgt: Für eine Mengeneinheit eines Materials aus einer Spalte q werden (p, q) Mengeneinheiten aus der Zeile p benötigt, oder das Material aus der Zeile p geht (p, q) mal direkt in das Material aus der Spalte q ein.)"
             },
-            "matrices": ["Direktbedarfsmatrix <i>D</i>", "Einheitsmatrix <i>E</i>", "<i>E-D</i>"]
+            "matrices": ["<b>Direktbedarfsmatrix <i>D</i></b>", "<b>Einheitsmatrix <i>E</i></b>", "<b><i>E-D</i></b>"]
           },
           "step2": {
             "description": {
               "header": "Aufgabenbeschreibung",
               "body": "Invertiere die Ergebnismatrix aus dem vorherigen Schritt. Verwende hierzu deinen Taschenrechner oder lasse sie automatisch befüllen."
             },
-            "matrices": ["<i>E-D</i>", "<i>E-D</i> invertiert"],
+            "matrices": ["<b><i>E-D</i></b>", "<b><i>E-D</i> invertiert</b>"],
             "button": "Komplettieren"
           },
           "step3": {
@@ -116,21 +125,21 @@
               "header": "Aufgabenbeschreibung",
               "body": "Multipliziere die invertierte Matrix mit dem Primärbedarfsvektor und fülle mit den Ergebnissen den Sekundärbedarfsvektor. <br> Multipliziere hierfür jede Zeile mit dem Primärbedarfsvektor."
             },
-            "matrices": ["Invertierte Matrix"]
+            "matrices": ["<b>Invertierte Matrix</b>"]
           },
           "step4": {
             "description": {
               "header": "Aufgabenbeschreibung",
               "body": "Bilde die Direktbedarfsmatrix aus dem Graph heraus. Die Matrix liest sich von oben nach links: [Spalte] * B0 werden für [Zeile] 1 A0 gebraucht. <br> Bilde in der zweiten Matrix die Einheitsmatrix."
             },
-            "matrices": ["Direktbedarfsmatrix", "Einheitsmatrix"]
+            "matrices": ["<b>Direktbedarfsmatrix</b>", "<b>Einheitsmatrix</b>"]
           },
           "step5": {
             "description": {
               "header": "Aufgabenbeschreibung",
               "body": "Bilde die Matrizen D^1 ... D^n mittels Matrixmultiplikation, wobei n die Anzahl des längsten gerichteten Pfades im Gozintograph ist. <br> Addiere anschließend die Matrizen mit der Einheitsmatrix um die Gesamtbedarfsmatrix zu erhalten."
             },
-            "matrices": ["Direktbedarfsmatrix <i>D^1</i>", "Einheitsmatrix", "Gesamtbedarfsmatrix", "<i>D^${index}</i>"]
+            "matrices": ["<b>Direktbedarfsmatrix <i>D^1</i></b>", "<b>Einheitsmatrix</b>", "<b>Gesamtbedarfsmatrix</b>", "<b><i>D^${index}</i></b>"]
           }
         }
       }
@@ -141,7 +150,21 @@
           "tab": "Editor",
           "description": {
             "header": "SQL-Abfragen",
-            "body": "Such dir eine bestehende Abfrage aus oder lasse dir eine zufällige generieren und versuche sie zu lösen!<br>Generierte Aufgaben die semantisch besonders sinnvoll erscheinen kannst du mit einer besseren Beschreibung versehen und allen Nutzern vorschlagen. <br> Erhält Sie genügend Pluspunkte wird sie in die bestehende Liste übernommen.  <br> Als Hilfestellung kannst du dir jederzeit das ERM zur Datenbank ansehen."
+            "body": "Such dir eine bestehende Abfrage aus oder lasse dir eine zufällige generieren und versuche sie zu lösen!<br>Generierte Aufgaben, welche semantisch besonders sinnvoll erscheinen, kannst du mit einer besseren Beschreibung versehen und allen Nutzern vorschlagen. <br> Erhält Sie genügend Pluspunkte, wird sie in die bestehende Liste übernommen.  <br> Als Hilfestellung kannst du dir jederzeit das ERM zur Datenbank ansehen."
+          },
+          "listType": {
+            "existing": "Bestehende Abfragen",
+            "generated": "Generierte Abfragen",
+            "proposed": "Vorgeschlagene Abfragen"
+          },
+          "buttons": {
+            "generateQuery": "Generieren",
+            "submitQuery": "Abschicken"
+          },
+          "popup": {"placeholder": "Trage eine semantisch passend formulierte Frage zu der generierten SQL-Abfrage ein und wähle einen Schwierigkeitsgrad."},
+          "tooltips": {
+            "showSolution": "Lösung anzeigen!",
+            "proposeQuery": "Abfrage vorschlagen!"
           },
           "emptyQueryList": "Es existieren keine bestehenden Abfragen zu dieser Datenbank. Lass dir eine generieren!"
         },

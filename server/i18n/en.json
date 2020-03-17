@@ -48,8 +48,17 @@
           "min": "Edge Value Min",
           "max": "Edge Value Max"
         },
-        "button": "Generate"
+        "button": "Generate gozintograph"
       },
+      "tooltips": {
+        "showGraph": "Show graph",
+        "expandPath": "Expand path",
+        "validatePath": "Validate path",
+        "addPath": "Add path",
+        "validatePaths": "Validate paths",
+        "showSolution": "Show solution"
+      },
+      "buttons": {"solve": "Solve!", "forward": "Forward", "back": "Back"},
       "tabs": {
         "GozintographTask": {
           "tab": "Gozintograph"
@@ -92,32 +101,70 @@
             "description": {
               "header": "Description",
               "body": "Fill the direct-needs-matrix with the edge values of the graph. The matrix is read from left to top: [Row] * B0 are needed to produce [Column] 1 A0. Then fill in the unit matrix and subtract the direct needs matrix from it. The result needs to be filled in the last matrix."
-            }
+            },
+            "matrices": ["<b>Direct need matrix <i>D</i></b>", "<b>Unity matrix <i>U</i></b>", "<b><i>U-D</i></b>"]
           },
           "step2": {
             "description": {
               "header": "Description",
               "body": "Invert the resulting matrix of the previous step. Use your calculator to solve it, or click to fill it up."
             },
+            "matrices": ["<b><i>U-D</i></b>", "<b><i>U-D</i> inverted</b>"],
             "button": "Complete"
           },
           "step3": {
             "description": {
               "header": "Description",
               "body": "Multiplicate the inverted matrix with the primary needs vector and fill in the results into the secondary needs vector. In order to do that, multiplicate each row with the primary needs vector."
-            }
+            },
+            "matrices": ["<b>Inverted matrix</b>"]
           },
           "step4": {
             "description": {
               "header": "Description",
               "body": "Form the direct-need-matrix with the help of the graph. The matrix is read from top to left: [Column] * B0 are need for [Row] 1 A0. Form the unit matrix in the second matrix."
-            }
+            },
+            "matrices": ["<b>Direct needs matrix</b>", "<b>Unit matrix</b>"]
           },
           "step5": {
             "description": {
               "header": "Description",
               "body": "Form the matrices D^1 ... D^n with matrix multiplication, whereby n is the amount of the longest directed path in the gozintograph. Subsequently add the matrices with the unit matrix to produce the aggregate needs matrix."
-            }
+            },
+            "matrices": ["<b>Direct need matrix <i>D^1</i></b>", "<b>Unit matrix</b>", "<b>Total need matrix</b>", "<b><i>D^${index}</i></b>"]
+          }
+        }
+      }
+    },
+    "sql": {
+      "tabs": {
+        "SqlTask": {
+          "tab": "Editor",
+          "description": {
+            "header": "SQL-Queries",
+            "body": "Pick a existing query or generate a random one and try to solve it!<br>You can propose generated queries, which make sense semantically, to all users, after adding a more natural description of the query. <br> The query will be transfered to the existing list, if the query receives enough points. <br> To help with the query, you can always view the ERD of the database."
+          },
+          "listType": {
+            "existing": "Existing queries",
+            "generated": "Generated queries",
+            "proposed": "Proposed queries"
+          },
+          "buttons": {
+            "generateQuery": "Generate",
+            "submitQuery": "Send"
+          },
+          "popup": {"placeholder": "Enter a semantically fitting question, matching the SQL-query and choose a level of difficulty."},
+          "tooltips": {
+            "showSolution": "Show solution!",
+            "proposeQuery": "Propose query!"
+          },
+          "emptyQueryList": "There are no existing queries to this database. Generate a new one!"
+        },
+        "SqlScope": {
+          "tab": "DB-list",
+          "description": {
+            "header": "SQL-Queries",
+            "body": "Test your SQL-skills with one of the listed databases and try to solve the queries."
           }
         }
       }

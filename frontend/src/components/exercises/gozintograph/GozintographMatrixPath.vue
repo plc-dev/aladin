@@ -1,10 +1,12 @@
 <template>
   <div class="solution__matrix">
-    <component
-      class="solution__matrix--body"
-      @step-direction="stepDirection"
-      :is="currentStep"
-    ></component>
+    <transition name="slide-fade" mode="out-in">
+      <component
+        class="solution__matrix--body"
+        @step-direction="stepDirection"
+        :is="currentStep"
+      ></component>
+    </transition>
   </div>
 </template>
 

@@ -155,7 +155,6 @@ export default {
         const graphs = this.$store.state.gozintograph.presenterGozintographs;
         const index = this.$store.state.gozintograph.presenterGozintographIndex;
         graph = graphs[index];
-        console.warn(graphs, index);
         this.$store.commit("gozintograph/SET_GOZINTOGRAPH_PRESENTER_INDEX");
       } else {
         graph = generateGraph(this.parameters);
@@ -190,11 +189,11 @@ export default {
       }
     }
   },
-  activated() {
-    this.redraw();
+  mounted() {
+    setTimeout(() => this.redraw(), 250);
     window.addEventListener("resize", this.redraw);
   },
-  deactivated() {
+  beforeDestroy() {
     window.removeEventListener("resize", this.redraw);
   }
 };

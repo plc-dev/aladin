@@ -115,5 +115,20 @@ module.exports = {
       }
       return result;
     }, {});
-  }
+  },
+
+  /**
+   *
+   * @param {String} string
+   */
+  toPascalCase: string =>
+    `${string}`
+      .replace(/[-_]+/g, " ")
+      .replace(/[^\w\s]/g, "")
+      .replace(
+        /\s+(.)(\w+)/g,
+        ($1, $2, $3) => `${$2.toUpperCase() + $3.toLowerCase()}`
+      )
+      .replace(/\s/g, "")
+      .replace(/\w/, s => s.toUpperCase())
 };

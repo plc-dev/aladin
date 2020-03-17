@@ -20,6 +20,7 @@
 
 .accordion__item--header {
   @apply flex justify-between w-full bg-contrast text-background cursor-pointer p-3;
+  height: inherit;
   border-bottom: solid 1px white;
 }
 
@@ -57,12 +58,15 @@
 }
 
 .accordion__icons {
-  @apply flex justify-center items-center;
+  @apply flex justify-center items-center pl-2;
+  height: inherit;
   z-index: 10;
+  border-left: 1px solid white;
 }
 
 .accordion__icons > div {
   @apply px-1;
+  height: inherit;
 }
 
 .accordion__item--header .accordion__icons--open {

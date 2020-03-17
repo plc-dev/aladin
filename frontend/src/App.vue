@@ -60,6 +60,42 @@ input[type="number"] {
   height: 100%;
   width: 100%;
 }
+
+.tooltip .tooltip-inner {
+  @apply text-background bg-contrast !important;
+  border: 1px solid grey;
+}
+
+.tooltip .tooltip-arrow {
+  @apply border-contrast !important;
+  border: 1px solid grey;
+}
+
+.slide-fade-enter-active {
+  transition: all 0.2s ease;
+}
+.slide-fade-leave-active {
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter,
+.slide-fade-leave-to {
+  transform: translateX(10px);
+  opacity: 0;
+}
+
+.list-item {
+  display: inline-block;
+  margin-right: 10px;
+}
+.list-enter-active,
+.list-leave-active {
+  transition: all 1s;
+}
+.list-enter,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
 </style>
 
 <script>

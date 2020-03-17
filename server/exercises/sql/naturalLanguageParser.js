@@ -16,11 +16,11 @@ module.exports = (blueprint, db) => {
   if (blueprint.tables[0].hasOwnProperty("joining")) {
     const join = blueprint.tables[0];
     if (join.type === "LEFT OUTER JOIN") {
-      question += `Bilde die Schnittmenge die alle Einträge von ${join.table} und korrespondierende Einträge von ${join.joining} enthält.`;
+      question += `Bilde die Schnittmenge, welche alle Einträge von ${join.table} und die korrespondierenden Einträge von ${join.joining} enthält.`;
     } else if (join.type === "CROSS JOIN") {
       question += `Bilde das kartesische Produkt der Tabellen ${join.table} und ${join.joining}.`;
     } else if (join.type === "LEFT JOIN" || join.type === "INNER JOIN") {
-      question += `Bilde die Schnittmenge die korrespondierende Einträge der beiden Tabellen ${join.table} und ${join.joining} enthält.`;
+      question += `Bilde die Schnittmenge, welche die korrespondierenden Einträge der beiden Tabellen ${join.table} und ${join.joining} enthält.`;
     }
   } else {
     const tables = blueprint.columns.reduce(
@@ -51,6 +51,7 @@ module.exports = (blueprint, db) => {
       }
     });
     question += columns.join(", ");
+    question = replaceLastComma(question);
   } else {
     const column = blueprint.columns[0];
     question += " Gib die Spalte ";
@@ -62,7 +63,6 @@ module.exports = (blueprint, db) => {
       question += column.column;
     }
   }
-  question = replaceLastComma(question);
   question += " aus";
 
   if (blueprint.where.length) {

@@ -5,7 +5,7 @@
       <template #body>
         <p v-html="texts.task.description.body"></p>
         <Button
-          :text="'Lösen!'"
+          :text="texts.button"
           :type="'submit'"
           @click.native="showSolution"
         ></Button>
@@ -22,7 +22,7 @@
             show: 500,
             hide: 100
           },
-          content: 'Graph anzeigen'
+          content: texts.tooltip
         }"
         @click="showOverlay"
       />
@@ -110,7 +110,9 @@ export default {
           secondary:
             texts.exercises.gozintograph.tabs.GozintographScope.description
               .secondary
-        }
+        },
+        button: texts.exercises.gozintograph.buttons.solve,
+        tooltip: texts.exercises.gozintograph.tooltips.showGraph
       };
     },
     success: function() {
