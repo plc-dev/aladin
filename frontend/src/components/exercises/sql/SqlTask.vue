@@ -14,17 +14,36 @@
     <div class="sqlTask__type">
       <MultiSelectBox :name="'sql'" :selectables="selectables">
         <template #queryList>
-          <div v-if="!queryList.length" v-html="texts.emptyQueryList"></div>
+          <div
+            v-if="!existingQueryList.length"
+            v-html="texts.emptyQueryList"
+          ></div>
           <Accordion v-else class="queryList" :name="'existing'">
             <AccordionItem
-              v-for="(listElement, index) in queryList"
+              v-for="(listElement, index) in existingQueryList"
               :key="index"
               :name="'existing'"
             >
               <template slot="header">
                 {{ listElement.question }}
-                <div class="accordion__icon">
-                  <b>^</b>
+                <div class="accordion__icons">
+                  <div
+                    class="accordion__icons--showSolution"
+                    :id="`existing_${index}`"
+                    @click="showSolution"
+                    v-tooltip.top="{
+                      delay: {
+                        show: 500,
+                        hide: 100
+                      },
+                      content: texts.tooltips.showSolution
+                    }"
+                  >
+                    <b :id="`existing_${index}`">?</b>
+                  </div>
+                  <div class="accordion__icons--open" @click="toggleCollapse">
+                    <b>^</b>
+                  </div>
                 </div>
               </template>
               <template slot="content">
@@ -37,14 +56,14 @@
           <Button
             class="sqlTask__generate--button"
             :type="'submit'"
-            :text="'Generieren'"
+            :text="texts.buttons.generateQuery"
             @click.native="generateQuery"
           >
           </Button>
           <Accordion class="queryList" :name="'generated'" :reverse="true">
             <AccordionItem
               v-for="(listElement, index) in generatedQueryList"
-              :key="index"
+              :key="`generated_${index}`"
               :name="'generated'"
             >
               <template slot="header">
@@ -52,30 +71,31 @@
                 <div class="accordion__icons">
                   <div
                     class="accordion__icons--showSolution"
-                    :id="`${index}`"
+                    :id="`generated_${index}`"
                     @click="showSolution"
                     v-tooltip.top="{
                       delay: {
                         show: 500,
                         hide: 100
                       },
-                      content: 'Lösung anzeigen!'
+                      content: texts.tooltips.showSolution
                     }"
                   >
-                    <b :id="`${index}`">?</b>
+                    <b :id="`generated_${index}`">?</b>
                   </div>
                   <div
                     class="accordion__icons--propose"
-                    @click="alert"
+                    :id="`generated_${index}`"
+                    @click="proposeQuery"
                     v-tooltip.top="{
                       delay: {
                         show: 500,
                         hide: 100
                       },
-                      content: 'Abfrage vorschlagen!'
+                      content: texts.tooltips.proposeQuery
                     }"
                   >
-                    <b>+</b>
+                    <b :id="`generated_${index}`">+</b>
                   </div>
                   <div class="accordion__icons--open" @click="toggleCollapse">
                     <b>^</b>
@@ -84,6 +104,45 @@
               </template>
               <template slot="content">
                 <SqlEditor :queryIndex="index" :type="'generated'" />
+              </template>
+            </AccordionItem>
+          </Accordion>
+        </template>
+        <template #propose>
+          <div
+            v-if="!proposedQueryList.length"
+            v-html="texts.emptyQueryList"
+          ></div>
+          <Accordion v-else class="queryList" :name="'proposed'">
+            <AccordionItem
+              v-for="(listElement, index) in proposedQueryList"
+              :key="index"
+              :name="'proposed'"
+            >
+              <template slot="header">
+                {{ listElement.question }}
+                <div class="accordion__icons">
+                  <div
+                    class="accordion__icons--showSolution"
+                    :id="`proposed_${index}`"
+                    @click="showSolution"
+                    v-tooltip.top="{
+                      delay: {
+                        show: 500,
+                        hide: 100
+                      },
+                      content: texts.tooltips.showSolution
+                    }"
+                  >
+                    <b :id="`proposed_${index}`">?</b>
+                  </div>
+                  <div class="accordion__icons--open" @click="toggleCollapse">
+                    <b>^</b>
+                  </div>
+                </div>
+              </template>
+              <template slot="content">
+                <SqlEditor :queryIndex="index" :type="'proposed'" />
               </template>
             </AccordionItem>
           </Accordion>
@@ -141,6 +200,46 @@
   width: 50vw;
 }
 
+.popup__propose {
+  @apply flex;
+}
+
+.popup__propose--text {
+  @apply bg-background p-1;
+  border-radius: 5px;
+  min-width: 300px;
+  min-height: 100px;
+  box-shadow: 4px 4px 4px 0px rgba(0, 0, 0, 0.34);
+}
+
+.popup__propose--difficulty {
+  @apply flex flex-col ml-5;
+}
+
+.popup__propose--difficulty > div {
+  height: 50px;
+  width: 100px;
+  box-shadow: 4px 4px 4px 0px rgba(0, 0, 0, 0.34);
+}
+
+.popup__propose--difficulty > .easy {
+  @apply bg-success;
+  border-radius: 5px 5px 0 0;
+}
+
+.popup__propose--difficulty > .medium {
+  @apply bg-highlight;
+}
+
+.popup__propose--difficulty > .hard {
+  @apply bg-alabama_crimson;
+  border-radius: 0 0 5px 5px;
+}
+
+.popup__propose--difficulty .chosen {
+  border: 2px solid rgb(99, 96, 96);
+}
+
 @media (max-width: 860px) {
   .queryList {
     width: 100%;
@@ -170,18 +269,9 @@ export default {
     Accordion,
     AccordionItem
   },
-  data: function() {
-    return {
-      selectables: [
-        { title: "Bestehende Abfragen", slot: "queryList" },
-        { title: "Generierte Abfragen", slot: "generate" },
-        { title: "Vorgeschlagene Abfragen", slot: "propose" }
-      ]
-    };
-  },
   methods: {
-    getQueryList() {
-      this.$store.dispatch("sql/getQueryList");
+    getQueryLists() {
+      this.$store.dispatch("sql/getQueryLists");
     },
     showOverlay() {
       document.querySelector(".overlay").style.height = "100vh";
@@ -210,21 +300,139 @@ export default {
         clicked.scrollIntoView({ behavior: "smooth" });
       }
     },
-    alert() {
-      window.alert("TODO: implement propose functionality");
+    proposeQuery(event) {
+      const difficultyListener = event => {
+        const current = document.querySelector(
+          ".popup__propose--difficulty .chosen"
+        );
+        if (current) current.classList.remove("chosen");
+        event.target.classList.add("chosen");
+        toggleDisable();
+      };
+      const proposedQueryListener = () => toggleDisable();
+      this.$alertify
+        .confirm(
+          "<div class='popup__propose'> " +
+            `<textarea class='popup__propose--text' placeholder='${this.texts.popup.placeholder}'></textarea>` +
+            "<div class='popup__propose--difficulty'> <div class='easy'></div> <div class='medium'></div> <div class='hard'></div> </div>" +
+            "</div>",
+          () => {
+            const [, index] = event.target.id.match(/_([0-9]+)/);
+
+            const semanticQuery = document.querySelector(
+              ".popup__propose--text"
+            ).value;
+
+            const chosenDifficulty = document.querySelector(
+              ".popup__propose--difficulty .chosen"
+            ).classList[0];
+
+            this.$store.dispatch("sql/proposeQuery", {
+              query: this.generatedQueryList[index].query,
+              question: semanticQuery,
+              difficulty: chosenDifficulty
+            });
+            document.querySelector(".popup__propose--text").value = "";
+            document
+              .querySelector(".popup__propose--difficulty .chosen")
+              .classList.remove("chosen");
+            document
+              .querySelector(".popup__propose--text")
+              .removeEventListener("click", proposedQueryListener);
+            Array.from(
+              document.querySelectorAll(".popup__propose--difficulty > div")
+            ).forEach(node =>
+              node.removeEventListener("click", difficultyListener)
+            );
+            const layer = document.querySelector(".alertify");
+            layer.parentNode.removeChild(layer);
+          },
+          () => {
+            document
+              .querySelector(".popup__propose--text")
+              .removeEventListener("click", proposedQueryListener);
+
+            Array.from(
+              document.querySelectorAll(".popup__propose--difficulty > div")
+            ).forEach(node =>
+              node.removeEventListener("click", difficultyListener)
+            );
+
+            const layer = document.querySelector(".alertify");
+            layer.parentNode.removeChild(layer);
+          }
+        )
+        .set({ title: "Schlage diese Abfrage anderen vor!" })
+        .set({
+          labels: {
+            ok: "Vorschlagen",
+            cancel: "Abbrechen"
+          }
+        });
+      const difficulties = Array.from(
+        document.querySelectorAll(".popup__propose--difficulty > div")
+      );
+      difficulties.forEach(node =>
+        node.addEventListener("click", difficultyListener)
+      );
+      const proposedQuery = document.querySelector(".popup__propose--text");
+      proposedQuery.addEventListener("keydown", proposedQueryListener);
+
+      const toggleDisable = () => {
+        const semanticQuery = document.querySelector(".popup__propose--text")
+          .value;
+        const chosenDifficulty = document.querySelectorAll(
+          ".popup__propose--difficulty .chosen"
+        ).length
+          ? document.querySelector(".popup__propose--difficulty .chosen")
+              .classList[0]
+          : false;
+        const confirmButton = document.querySelector(".ajs-button.ajs-ok");
+        if (!semanticQuery | !chosenDifficulty)
+          confirmButton.setAttribute("disabled", true);
+        else confirmButton.removeAttribute("disabled");
+      };
+      toggleDisable();
     },
     showSolution(event) {
-      const index = event.target.id;
-      window.alert(this.generatedQueryList[index].query);
+      console.warn(event.target.id);
+      const [, type, index] = event.target.id.match(/(\w+)_([0-9]+)/);
+      this[`${type}QueryList`][index].userQuery = this[`${type}QueryList`][
+        index
+      ].query
+        .split(/(FROM|GROUP BY|ORDER BY|WHERE)/gi)
+        .join("\n")
+        .replace(/(FROM|GROUP BY|ORDER BY|WHERE)\n/gi, "$1");
+      const queryHeader = document.getElementById(`${type}_${index}`)
+        .parentElement.parentElement;
+      if (!queryHeader.parentElement.classList.contains("active")) {
+        queryHeader.click();
+      }
+
+      queryHeader.nextSibling.querySelector(".CodeMirror-scroll").focus();
+      queryHeader.scrollIntoView({ behavior: "smooth" });
     }
   },
   computed: {
     texts: function() {
-      const texts = this.$store.state.user.texts;
-      return texts.exercises.sql.tabs.SqlTask;
+      const texts = this.$store.state.user.texts.exercises.sql.tabs.SqlTask;
+      return {
+        description: texts.description,
+        listType: texts.listType,
+        tooltips: texts.tooltips,
+        buttons: texts.buttons,
+        popup: texts.popup
+      };
     },
-    queryList: function() {
-      return this.$store.state.sql.queryList;
+    selectables: function() {
+      return [
+        { title: this.texts.listType.existing, slot: "queryList" },
+        { title: this.texts.listType.generated, slot: "generate" },
+        { title: this.texts.listType.proposed, slot: "propose" }
+      ];
+    },
+    existingQueryList: function() {
+      return this.$store.state.sql.existingQueryList;
     },
     dbList: function() {
       return this.$store.state.sql.dbList;
@@ -233,13 +441,16 @@ export default {
       return this.$store.state.sql.selectedDB.dbName;
     },
     generatedQueryList: function() {
-      return this.$store.state.sql.generated[this.selectedDB];
+      return this.$store.state.sql.generatedQueryList[this.selectedDB];
+    },
+    proposedQueryList: function() {
+      return this.$store.state.sql.proposedQueryList;
     }
   },
   watch: {
     selectedDB(newDB, oldDB) {
       if (newDB !== oldDB) {
-        this.getQueryList();
+        this.getQueryLists();
         Array.from(
           document.querySelectorAll(".accordion__item")
         ).forEach(listElement =>
@@ -255,7 +466,7 @@ export default {
     }
   },
   mounted() {
-    this.getQueryList();
+    this.getQueryLists();
   }
 };
 </script>

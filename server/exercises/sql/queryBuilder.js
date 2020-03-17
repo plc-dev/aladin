@@ -1,4 +1,4 @@
-const { getRandomInt, replaceAt } = require("../../helper");
+const { getRandomInt, replaceAt, toPascalCase } = require("../../helper");
 
 module.exports = async (db, options) => {
   const reflectDB =
@@ -15,7 +15,9 @@ module.exports = async (db, options) => {
   let aliasDictionary = parsedDB.tables
     .map(table => table.tableName)
     .reduce((aliasDictionary, name) => {
-      aliasDictionary[name] = name.match(/[A-Z]/g).join("");
+      aliasDictionary[name] = toPascalCase(name)
+        .match(/[A-Z]/g)
+        .join("");
       return aliasDictionary;
     }, {});
   const findDuplicates = aliasDictionary =>
@@ -190,17 +192,17 @@ const constructQuery = async (
     return `${aggregateFunction}(${aliasDictionary[table]}.${column.columnName})`;
   };
 
-  const constructFrom = (tables, edges) => {
+  const constructFrom = (tables, edges, db) => {
     let fromStatement = ` FROM "${tables[0]}" as ${aliasDictionary[tables[0]]}`;
     if (tables.length > 1) {
-      fromStatement += constructJoin(edges, tables);
+      fromStatement += constructJoin(edges, tables, db);
     } else {
       questionBluePrint.tables.push({ table: tables[0] });
     }
     return fromStatement;
   };
 
-  const constructJoin = (edges, tables) => {
+  const constructJoin = (edges, tables, db) => {
     let selectedEdges = edges.reduce((edges, edge) => {
       // remove already joined tables or keep possible false positives for another check
       let check = [...tables].filter((table, index) => {
@@ -237,12 +239,7 @@ const constructQuery = async (
         alias1 = alias1 + "1";
       }
       // TODO: MAKE AGNOSTIC; PUT IN ADAPTER;
-      const joinTypes = [
-        "LEFT JOIN",
-        "LEFT OUTER JOIN",
-        "CROSS JOIN",
-        "INNER JOIN"
-      ];
+      const joinTypes = db.adapter.joinTypes;
 
       const joinType = randomOperator(joinTypes);
       let join;
@@ -470,8 +467,13 @@ const constructQuery = async (
       []
     );
 
-    groupBy = true;
-    return " GROUP BY " + groups.join(", ");
+    if (groups.length) {
+      groupBy = true;
+      return " GROUP BY " + groups.join(", ");
+    } else {
+      groupBy = false;
+      return "";
+    }
   };
 
   const constructHaving = () => {
@@ -509,7 +511,7 @@ const constructQuery = async (
   let columnQuery, fromQuery, whereQuery, groupQuery, havingQuery, orderQuery;
   while (!result.length) {
     columnQuery = constructColumn(columns);
-    fromQuery = constructFrom(tables, parsedDB.edges);
+    fromQuery = constructFrom(tables, parsedDB.edges, db);
     whereQuery = await constructWhere(tables, parsedDB.tables, db);
     groupQuery = constructGroupBy(tables, parsedDB.tables);
     orderQuery = constructOrderBy(columns);
@@ -526,8 +528,10 @@ const constructQuery = async (
       result = await db.adapter.queryDB(db, query);
     } catch (e) {
       result = [];
+      console.log(query + "\n" + e + "\n");
     }
     if (!result.length) {
+      console.log(query, " failed");
       questionBluePrint = {
         columns: [],
         tables: [],
@@ -536,6 +540,8 @@ const constructQuery = async (
         groupBy: [],
         orderBy: []
       };
+    } else {
+      console.log("done");
     }
   }
 

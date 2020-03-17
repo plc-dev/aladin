@@ -31,10 +31,10 @@ module.exports = async sourceCode => {
 const parse = statement =>
   statement.split("\n").reduce(
     (table, line) => {
-      const tableNameRegex = /CREATE TABLE ["\[]?([\w\s]{1,200})["\] ]/i;
-      const columnRegex1 = /["'\[\s]((?!NOT|NULL|DELETE)\w{1,200})["\] ]\s?(\w{1,200})\s?(PRIMARY KEY)?/i;
-      const columnRegex2 = /^["\[ ]?((?!NOT|NULL|DELETE)\w{1,200})["\] ]\s?(\w{1,200})\s?(PRIMARY KEY)?/gim;
-      const foreignKeyRegex = /["\[]?([\w, ]*)["\]]?\) REFERENCES ["\`[]?(\w*)["`\]]?\s?\(["\[]?([\w, ]*)["\]]?/i;
+      const tableNameRegex = /CREATE TABLE ["'`\s\[]*([\w\s]{1,200})["`'\]\s]*/i;
+      const columnRegex1 = /["'`\[\s]((?!NOT|NULL|DELETE)\w{1,200})["'`\]\s]\s?(\w{1,200})\s?(PRIMARY KEY)?/i;
+      const columnRegex2 = /^["`'\[\s]*(\w{1,200})["`'\]\s]\s?(\w{1,200})\s?(PRIMARY KEY)?/gim;
+      const foreignKeyRegex = /["'`\[\s]*([\w]+)["'`\]\s]*\) REFERENCES ["\`[]?(\w*)["`\]]?\s?\(["'`\[]?([\w, ]*)["'`\]]?/i;
       const primaryKeyRegex = /\(["\[]?([\w, ]*)["\]]?/g;
 
       const multipleKeys = string =>
@@ -42,7 +42,7 @@ const parse = statement =>
 
       // table name
       if (tableNameRegex.test(line))
-        table.tableName = line.match(tableNameRegex)[1];
+        table.tableName = line.match(tableNameRegex)[1].trim();
       // primary key
       else if (
         /(PRIMARY KEY)\s?\(.*\)/i.test(line) &&
@@ -65,18 +65,21 @@ const parse = statement =>
         });
         // column name
       } else if (
-        (!/foreign key/i.test(line) &&
-          !/(ON DELETE|ON UPDATE)/i.test(line) &&
-          columnRegex1.test(line)) ||
-        columnRegex2.test(line)
+        !/foreign key/i.test(line) &&
+        !/(CREATE TABLE|ON DELETE|ON UPDATE)/i.test(line) &&
+        (columnRegex1.test(line) || columnRegex2.test(line))
       ) {
         let complete, columnName, type, isPrimary;
         if (columnRegex1.test(line)) {
-          [complete, columnName, type, isPrimary] = line.match(columnRegex1);
+          [complete, columnName, type, isPrimary] = line
+            .replace(/\s+(?= )/g, "")
+            .match(columnRegex1);
         }
         if (!type || type === "NOT") {
-          [complete, columnName, type, isPrimary] = line.match(columnRegex2);
-          [columnName, type] = complete.split(" ");
+          [complete, columnName, type, isPrimary] = line
+            .replace(/\s+(?= )/g, "")
+            .match(columnRegex2);
+          [columnName, type] = complete.replace(/[`'"]/gm, "").split(" ");
         }
         table.columns.push({ columnName, type });
 

@@ -54,6 +54,7 @@ const adapter = {
       autoIncrement: "",
       date: "TEXT"
     },
+    joinTypes: ["LEFT JOIN", "LEFT OUTER JOIN", "CROSS JOIN", "INNER JOIN"],
     createForeignKey:
       "FOREIGN KEY (${foreignKey}) REFERENCES ${providingTable} (${originalColumn})",
     createPrimaryKey: "PRIMARY KEY(${...primary})"

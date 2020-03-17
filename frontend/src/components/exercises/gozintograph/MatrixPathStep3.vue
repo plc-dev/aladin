@@ -5,7 +5,7 @@
       <template #body>
         <p v-html="texts.description.body"></p>
         <Button
-          :text="'Lösen!'"
+          :text="button"
           :type="'submit'"
           @click.native="showSolution"
         ></Button>
@@ -117,6 +117,9 @@ export default {
     texts: function() {
       const texts = this.$store.state.user.texts;
       return texts.exercises.gozintograph.tabs.GozintographMatrixPath.step3;
+    },
+    button: function() {
+      return this.$store.state.user.texts.exercises.gozintograph.buttons.solve;
     },
     ...mapState(["userInvertedMatrix"]),
     ...mapGetters({

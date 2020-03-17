@@ -13,11 +13,13 @@
         </li>
       </ul>
       <keep-alive>
-        <component
-          class="exercise__scope--body"
-          :is="currentTabComponent"
-          @change-tab="changeTab"
-        ></component>
+        <transition name="slide-fade" mode="out-in">
+          <component
+            class="exercise__scope--body"
+            :is="currentTabComponent"
+            @change-tab="changeTab"
+          ></component>
+        </transition>
       </keep-alive>
     </div>
   </div>
@@ -89,6 +91,14 @@ export default {
       const tab = target.getAttribute("tab");
       this.currentTabComponent = tab;
       this.$store.commit(`${this.exercise}/SET_CURRENT_TAB`, tab);
+      // TODO: Extract behaviour to corresponding component if possible
+      // removes graph before starting the slide animation to avoid clipping due to elements with an absolute positioning
+      if (document.querySelectorAll(".graph").length) {
+        const node = document.querySelector(".graph");
+        while (node.firstChild) {
+          node.removeChild(node.lastChild);
+        }
+      }
     }
   },
   computed: {

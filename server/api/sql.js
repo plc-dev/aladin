@@ -41,30 +41,45 @@ module.exports = router => {
   router.get(
     "/getDBQuestions",
     asyncErrorWrapper(async (req, res) => {
-      const { dbName } = req.query;
-      const questionPath = path.resolve(
-        require.main.filename,
-        `../exercises/sql/sortedQueries.json`
-      );
-      const sortedQuestions = await new Promise((resolve, reject) => {
-        return fs.readFile(questionPath, "utf8", (err, file) => {
-          if (err) reject(err);
-          resolve(JSON.parse(file));
+      const asyncRead = async path =>
+        await new Promise((resolve, reject) => {
+          return fs.readFile(path, "utf8", (err, file) => {
+            if (err) reject(err);
+            resolve(JSON.parse(file));
+          });
         });
-      });
+      const buildListObject = async queryLists => {
+        return Object.keys(queryLists).reduce((listObject, key) => {
+          if (!queryLists[key][dbName]) listObject[key] = [];
+          else
+            listObject[key] = queryLists[key][dbName].map(question => ({
+              question: question.question,
+              id: question.id,
+              query: question.query,
+              userQuery: "",
+              result: "",
+              userResult: ""
+            }));
+          return listObject;
+        }, {});
+      };
 
-      if (!sortedQuestions[dbName]) res.status(200).json([]);
-      else
-        res.status(201).json(
-          sortedQuestions[dbName].map(question => ({
-            question: question.question,
-            id: question.id,
-            query: question.query,
-            userQuery: "",
-            result: "",
-            userResult: ""
-          }))
-        );
+      const { dbName } = req.query;
+      const queryLists = {
+        existing: path.resolve(
+          require.main.filename,
+          `../exercises/sql/sortedQueries.json`
+        ),
+        proposed: path.resolve(
+          require.main.filename,
+          `../exercises/sql/proposedQueries.json`
+        )
+      };
+      const [existing, proposed] = await Promise.all([
+        asyncRead(queryLists.existing),
+        asyncRead(queryLists.proposed)
+      ]);
+      res.status(201).json(await buildListObject({ existing, proposed }));
     })
   );
 
@@ -151,15 +166,6 @@ module.exports = router => {
       };
       const sqlDB = await require("../exercises/sql/sqlDAO")(sqlConfig);
 
-      const reflectTables =
-        "SELECT sql FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%';";
-
-      const rawTables = await sqlDB.adapter.queryDB(sqlDB, reflectTables);
-      const parsedTables = await require("../exercises/sql/parser/sqlParser")({
-        sourceCode: rawTables,
-        sourceFlavour: "json",
-        sqlDB
-      });
       const {
         query,
         questionBluePrint
@@ -183,6 +189,42 @@ module.exports = router => {
         question
       );
       res.status(201).json({ query: builtQuery, question });
+    })
+  );
+
+  router.post(
+    "/proposeQuery",
+    asyncErrorWrapper(async (req, res) => {
+      const { query, question, difficulty, id } = req.body;
+      const questionPath = path.resolve(
+        require.main.filename,
+        `../exercises/sql/proposedQueries.json`
+      );
+      const proposedQueries = await new Promise((resolve, reject) => {
+        return fs.readFile(questionPath, "utf8", (err, file) => {
+          if (err) reject(err);
+          resolve(JSON.parse(file));
+        });
+      });
+
+      if (!proposedQueries[id]) proposedQueries[id] = [];
+      proposedQueries[id].push({
+        query,
+        question,
+        difficulty,
+        id
+      });
+      await new Promise((resolve, reject) => {
+        return fs.writeFile(
+          questionPath,
+          JSON.stringify(proposedQueries, null, 4),
+          err => {
+            if (err) reject(err);
+            resolve();
+          }
+        );
+      });
+      res.status(201).json();
     })
   );
 

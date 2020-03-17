@@ -1,0 +1,18 @@
+{
+    "architecture": [
+        {
+            "query": "SELECT A.id FROM \"architect\" as A GROUP BY A.id, A.gender ORDER BY A.id ASC ",
+            "question": "This is a test",
+            "difficulty": "medium",
+            "id": "architecture"
+        }
+    ],
+    "activity_1": [
+        {
+            "query": "SELECT F.Rank, F.Building FROM \"Faculty_Participates_in\" as FPI CROSS JOIN \"Faculty\" as F ON FPI.FacID = F.FacID  WHERE FPI.FacID >= '2192' OR F.Fname LIKE 'C%' GROUP BY F.Room, F.Building",
+            "question": "This is a test",
+            "difficulty": "easy",
+            "id": "activity_1"
+        }
+    ]
+}

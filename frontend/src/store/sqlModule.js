@@ -10,16 +10,17 @@ export default {
       dbName: "",
       index: null
     },
-    queryList: [],
+    existingQueryList: [],
+    proposedQueryList: [],
     currentTab: "",
-    generated: {}
+    generatedQueryList: {}
   },
   getters: {
     getFormatedResult: state => ({ index, type }) => {
       const userResult =
-        type === "existing"
-          ? state.queryList[index].userResult
-          : state.generated[state.selectedDB.dbName][index].userResult;
+        type === "generated"
+          ? state[`${type}QueryList`][state.selectedDB.dbName][index].userResult
+          : state[`${type}QueryList`][index].userResult;
       if (typeof userResult !== "object") return userResult;
       return userResult
         .reduce((table, dataRow, index) => {
@@ -47,15 +48,21 @@ export default {
     SET_DB(state, db) {
       state.selectedDB = db;
     },
-    SET_QUERY_LIST(state, queries) {
-      state.queryList = queries;
+    SET_QUERY_LISTS(state, queryLists) {
+      Object.keys(queryLists).forEach(
+        type => (state[`${type}QueryList`] = queryLists[type])
+      );
     },
     SET_GENERATED_LIST(state, { query, question }) {
       const selectedDB = state.selectedDB.dbName;
-      if (!state.generated[selectedDB])
-        state.generated[selectedDB] = Vue.set(state.generated, selectedDB, []);
-      state.generated[selectedDB] = [
-        ...state.generated[selectedDB],
+      if (!state.generatedQueryList[selectedDB])
+        state.generatedQueryList[selectedDB] = Vue.set(
+          state.generatedQueryList,
+          selectedDB,
+          []
+        );
+      state.generatedQueryList[selectedDB] = [
+        ...state.generatedQueryList[selectedDB],
         {
           query,
           question: question,
@@ -69,21 +76,20 @@ export default {
       state.currentTab = tab;
     },
     SET_QUERY_RESULT(state, { index, userResult, result, type }) {
-      if (type === "generated") {
-        const selectedDB = state.selectedDB.dbName;
-        state.generated[selectedDB][index].userResult = userResult;
-        state.generated[selectedDB][index].result = result;
-      } else {
-        state.queryList[index].userResult = userResult;
-        state.queryList[index].result = result;
-      }
+      const selectedDB = state.selectedDB.dbName;
+      state[`${type}QueryList`][selectedDB][index].userResult = userResult;
+      state[`${type}QueryList`][selectedDB][index].result = result;
     },
-    SET_USER_QUERY_LIST(state, { userQuery, index }) {
-      state.queryList[index].userQuery = userQuery;
+    SET_USER_QUERY_LIST(state, { userQuery, index, type }) {
+      state[`${type}QueryList`][index].userQuery = userQuery;
     },
     SET_USER_QUERY_GENERATED(state, { userQuery, index }) {
       const selectedDB = state.selectedDB.dbName;
-      state.generated[selectedDB][index].userQuery = userQuery;
+      state.generatedQueryList[selectedDB][index].userQuery = userQuery;
+    },
+    SET_PROPOSED_LIST(state, queryObject) {
+      const selectedDB = state.selectedDB.dbName;
+      state.proposed[selectedDB] = [...state.proposed[selectedDB], queryObject];
     }
   },
   actions: {
@@ -95,12 +101,12 @@ export default {
         //console.error(error);
       }
     },
-    async getQueryList({ commit, state }) {
+    async getQueryLists({ commit, state }) {
       try {
         const response = await axios.get(
           `/api/getDBQuestions?dbName=${state.selectedDB.dbName}`
         );
-        commit("SET_QUERY_LIST", response.data);
+        commit("SET_QUERY_LISTS", response.data);
       } catch (error) {
         //console.error(error);
       }
@@ -121,6 +127,17 @@ export default {
         commit("SET_QUERY_RESULT", response.data);
       } catch (error) {
         //console.error(error);
+      }
+    },
+    async proposeQuery({ state, commit }, payload) {
+      try {
+        const selectedDB = state.selectedDB.dbName;
+
+        payload = { ...payload, id: selectedDB };
+        const response = await axios.post("/api/proposeQuery", payload);
+        commit("SET_PROPOSED_LIST", response.data);
+      } catch (error) {
+        // console.error(error);
       }
     }
   }

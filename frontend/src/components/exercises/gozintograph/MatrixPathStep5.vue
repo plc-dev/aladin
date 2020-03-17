@@ -4,7 +4,7 @@
       <template #header>{{ texts.description.header }}</template>
       <template #body>
         <p v-html="texts.description.body"></p>
-        <Button :text="'Lösen!'" :type="'submit'" @click.native="showSolution">
+        <Button :text="button" :type="'submit'" @click.native="showSolution">
         </Button>
       </template>
     </TextBox>
@@ -180,6 +180,9 @@ export default {
     texts: function() {
       const texts = this.$store.state.user.texts;
       return texts.exercises.gozintograph.tabs.GozintographMatrixPath.step5;
+    },
+    button: function() {
+      return this.$store.state.user.texts.exercises.gozintograph.buttons.solve;
     },
     dummyMatrix: function() {
       const graph = this.$store.state.gozintograph.graph;

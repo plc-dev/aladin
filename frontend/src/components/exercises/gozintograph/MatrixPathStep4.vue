@@ -1,25 +1,31 @@
 <template>
   <div class="matrices__selection">
     <TextBox class="matrices__selection--description">
-      <template #header>{{ texts.description.header }}</template>
+      <template #header>{{ description.description.header }}</template>
       <template #body>
-        <p v-html="texts.description.body"></p>
+        <p v-html="description.description.body"></p>
       </template>
     </TextBox>
 
     <div class="show__graph">
-      Graph anzeigen:
       <img
         src="/img/icons/graph.png"
         alt="graph"
         class="show__graph--img"
         @click="showOverlay"
+        v-tooltip.right="{
+          delay: {
+            show: 500,
+            hide: 100
+          },
+          content: tooltip
+        }"
       />
     </div>
 
     <div class="matrices">
       <div class="matrices__direct">
-        <p v-html="texts.matrices[0]"></p>
+        <p v-html="description.matrices[0]"></p>
         <Matrix
           type="directMatrix"
           :x-label="true"
@@ -45,7 +51,7 @@
       </div>
 
       <div class="matrices__unit">
-        <p v-html="texts.matrices[1]"></p>
+        <p v-html="description.matrices[1]"></p>
         <Matrix
           type="unitMatrix"
           :matrix="userUnitMatrix"
@@ -155,8 +161,13 @@ export default {
   },
   computed: {
     texts: function() {
-      const texts = this.$store.state.user.texts;
-      return texts.exercises.gozintograph.tabs.GozintographMatrixPath.step4;
+      return this.$store.state.user.texts.exercises.gozintograph;
+    },
+    description: function() {
+      return this.texts.tabs.GozintographMatrixPath.step4;
+    },
+    tooltip: function() {
+      return this.texts.tooltips.showGraph;
     },
     ...mapState({
       userUnitMatrix: state => state.userUnitMatrix,
