@@ -294,13 +294,15 @@ export default {
     addPath() {
       this.userPaths.push([{ child: "", parent: "", value: "" }]);
       // add scrolling to parent container
-      window.scrollTo({ bottom: 0, behavior: "smooth" });
+      setTimeout(() => {
+        document.querySelector(".exercise__scope--body").scrollTo(0, 100000);
+      }, 20);
     },
     // removes path from userPaths and reevaluates checked paths
     removePath(pathIndex) {
       this.userPaths.splice(pathIndex, 1);
       this.markedPaths = [];
-      this.userPaths.forEach((path, index) => this.validatePath(index));
+      // this.userPaths.forEach((path, index) => this.validatePath(index));
     },
     updateValues(value, pathIndex, connectionIndex) {
       const path = this.userPaths[pathIndex];

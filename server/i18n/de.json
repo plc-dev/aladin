@@ -85,7 +85,7 @@
           "step1": {
             "description": {
               "header": "Aufgabenbeschreibung",
-              "body": "Gib nachstehend alle Pfade des Gozintographen an und multipliziere die Kantengewichte pro Pfad."
+              "body": "Gib nachstehend alle Pfade des Gozintographen an und multipliziere die Kantengewichte entlang der Pfade mit dem enstprechenden Primärbedarf um den Sekundärbedarfsvektor zu füllen."
             }
           }
         },

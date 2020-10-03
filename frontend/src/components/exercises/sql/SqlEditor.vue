@@ -107,36 +107,36 @@ export default {
     },
     submitQuery: function() {
       let payload;
-      if (this.type === "generated") {
+      const queryType = `${this.type}QueryList`;
+      const { type, userQuery, selectedDB, index } = this;
+      if (type === "generated") {
         payload = {
-          userQuery: this.userQuery,
-          query: this.$store.state.sql[`${this.type}QueryList`][
-            this.selectedDB
-          ][this.index].query,
-          dbName: this.selectedDB,
-          index: this.index,
-          type: this.type
+          userQuery,
+          query: this.$store.state.sql[queryType][selectedDB][index].query,
+          dbName: selectedDB,
+          index,
+          type
         };
       } else {
         payload = {
-          userQuery: this[`${this.type}QueryList`][this.index].userQuery,
-          query: this[`${this.type}QueryList`][this.index].query,
-          dbName: this.selectedDB,
-          index: this.index,
-          type: this.type
+          userQuery: this[queryType][index].userQuery,
+          query: this[queryType][index].query,
+          dbName: selectedDB,
+          index,
+          type
         };
       }
 
       const queryElement = document.querySelectorAll(
-        `.accordion__${this.type} .accordion__${this.type}--item`
-      )[this.index];
+        `.accordion__${type} .accordion__${type}--item`
+      )[index];
 
       this.$store.dispatch("sql/submitQuery", payload).then(() => {
         queryElement.querySelector(
           ".sql__editor--result"
         ).innerHTML = this.result;
         queryElement.scrollIntoView({ behavior: "auto" });
-        this.validate(this.type);
+        this.validate(type);
       });
     },
     validate: function(type) {

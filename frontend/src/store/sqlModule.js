@@ -49,9 +49,10 @@ export default {
       state.selectedDB = db;
     },
     SET_QUERY_LISTS(state, queryLists) {
-      Object.keys(queryLists).forEach(
-        type => (state[`${type}QueryList`] = queryLists[type])
-      );
+      Object.keys(queryLists).forEach(type => {
+        Vue.set(state, `${type}QueryList`, queryLists[type]);
+        // state[`${type}QueryList`] = queryLists[type];
+      });
     },
     SET_GENERATED_LIST(state, { query, question }) {
       const selectedDB = state.selectedDB.dbName;
@@ -77,8 +78,19 @@ export default {
     },
     SET_QUERY_RESULT(state, { index, userResult, result, type }) {
       const selectedDB = state.selectedDB.dbName;
-      state[`${type}QueryList`][selectedDB][index].userResult = userResult;
-      state[`${type}QueryList`][selectedDB][index].result = result;
+      if (type !== "generated") {
+        Vue.set(state[`${type}QueryList`], index, {
+          ...state[`${type}QueryList`][index],
+          userResult,
+          result
+        });
+      } else {
+        Vue.set(state[`${type}QueryList`][selectedDB], index, {
+          ...state[`${type}QueryList`][selectedDB][index],
+          userResult,
+          result
+        });
+      }
     },
     SET_USER_QUERY_LIST(state, { userQuery, index, type }) {
       state[`${type}QueryList`][index].userQuery = userQuery;

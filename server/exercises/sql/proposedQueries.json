@@ -13,6 +13,62 @@
             "question": "This is a test",
             "difficulty": "easy",
             "id": "activity_1"
+        },
+        {
+            "query": "SELECT A.actid FROM \"Activity\" as A",
+            "question": "Test",
+            "difficulty": "hard",
+            "id": "activity_1"
+        }
+    ],
+    "assets_maintenance": [
+        {
+            "query": "SELECT COUNT(TPC.company_id), ME.last_name FROM \"Third_Party_Companies\" as TPC LEFT JOIN \"Maintenance_Engineers\" as ME ON TPC.company_id = ME.company_id  WHERE TPC.company_type LIKE '%%' GROUP BY TPC.company_id, TPC.company_address, ME.first_name ORDER BY TPC.company_id ASC ",
+            "question": "Das ist ein Test",
+            "difficulty": "medium",
+            "id": "assets_maintenance"
+        },
+        {
+            "query": "SELECT ME.first_name FROM \"Maintenance_Engineers\" as ME LEFT OUTER JOIN \"Third_Party_Companies\" as TPC ON ME.company_id = TPC.company_id  WHERE TPC.company_id > '2' GROUP BY ME.company_id, ME.last_name, TPC.company_address",
+            "question": "Gebe alle Wartungsmechaniker aus, die von externen Firmen stammen und noch nicht in die Muttergesellschaft (company_id - 1) übernommen wurden. Gruppiere nach Firmen-ID, Nachname und Firmenaddresse.",
+            "difficulty": "medium",
+            "id": "assets_maintenance"
+        },
+        {
+            "query": "SELECT ES.engineer_id, ME.engineer_id FROM \"Engineer_Skills\" as ES INNER JOIN \"Maintenance_Engineers\" as ME ON ES.engineer_id = ME.engineer_id  GROUP BY ES.engineer_id ORDER BY ES.engineer_id ASC ",
+            "question": "Finde die IDs aller Wartungsingenieure, deren Fähigkeiten in der Engineer_Skills Tabelle verzeichnet sind. \nGruppiere dabei nach der ID und sortiere aufsteigend.",
+            "difficulty": "easy",
+            "id": "assets_maintenance"
+        },
+        {
+            "query": "SELECT MC.maintenance_contract_id FROM \"Maintenance_Contracts\" as MC WHERE MC.maintenance_contract_id >= '12' ORDER BY MC.maintenance_contract_id ASC ",
+            "question": "Das müsst ihr sehen!",
+            "difficulty": "hard",
+            "id": "assets_maintenance"
+        },
+        {
+            "query": "SELECT FL.fault_log_entry_id FROM \"Fault_Log\" as FL GROUP BY FL.recorded_by_staff_id, FL.other_fault_details",
+            "question": "Das müsst ihr sehen!",
+            "difficulty": "hard",
+            "id": "assets_maintenance"
+        },
+        {
+            "query": "SELECT FL.fault_log_entry_id FROM \"Fault_Log\" as FL GROUP BY FL.fault_log_entry_datetime ORDER BY FL.fault_log_entry_id DESC ",
+            "question": "Das ist ein Test",
+            "difficulty": "hard",
+            "id": "assets_maintenance"
+        },
+        {
+            "query": "SELECT TPC.company_id FROM \"Third_Party_Companies\" as TPC GROUP BY TPC.company_address, TPC.other_company_details",
+            "question": "Das ist ein Test",
+            "difficulty": "medium",
+            "id": "assets_maintenance"
+        },
+        {
+            "query": "SELECT ME.engineer_id, ME.company_id FROM \"Maintenance_Engineers\" as ME GROUP BY ME.engineer_id",
+            "question": "Das ist ein Test",
+            "difficulty": "medium",
+            "id": "assets_maintenance"
         }
     ]
 }

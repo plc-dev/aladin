@@ -135,9 +135,9 @@ module.exports = (blueprint, db) => {
   if (blueprint.orderBy.length) {
     const order = blueprint.orderBy.map(
       column =>
-        `${column.direction === "ASC" ? "aufsteigend" : "absteigend"} nach ${
-          column.column
-        }`
+        `${
+          column.direction.trim() === "ASC" ? "aufsteigend" : "absteigend"
+        } nach ${column.column}`
     );
     question += ` und sortiere das Ergebnis ${order.join(", ")}`;
     if (blueprint.orderBy.length > 1) {

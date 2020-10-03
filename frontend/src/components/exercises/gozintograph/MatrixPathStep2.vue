@@ -60,6 +60,11 @@
   @apply flex flex-wrap w-full justify-around items-center mb-12;
 }
 
+.matrices__bottom,
+.matrices__top {
+  @apply ml-8;
+}
+
 .matrices__inverted,
 .matrices__subtracted {
   @apply flex flex-col items-center;

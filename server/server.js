@@ -33,7 +33,9 @@ const app = express();
   );
 
   // Set up mongoDB
-  const mdb = await require("./database/mongooseDAO")();
+  // const mdb = await require("./database/mongooseDAO")();
+  const User = "test";
+  const mdb = { models: User };
 
   // setup swagger documentation
   const { serve, docs } = require("./swagger");
