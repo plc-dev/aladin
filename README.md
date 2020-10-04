@@ -31,16 +31,16 @@ The swagger api documentation can be found [here](https://aladin-htw.herokuapp.c
 
 - The *ESLint* and *Prettier - Code Formatter* Plugins which are available for most common IDEs and editors.
 
-# Installing/Setup
-
+# Install/Setup
+## on local machine (requires a linux environment for the full featureset)
 After installing all the prerequisites clone the repository into a local folder of your choice.
 
 To install the dependencies for the backend and the frontend run the command
 ```npm install --save```
-in the root folder of the app and the frontend folder.
+in the server and the frontend directory.
 
 The server references a couple environment-variables that need to be setup as well.
-In order to do so, a .env-File has to be created in the root folder of the repository.
+In order to do so, a .env-File has to be created in the server folder of the repository.
 
 - Example .env-File: 
 ``` 
@@ -72,13 +72,21 @@ Unpack the zip-archive into ```./server/exercises/sql/database``` to provide dat
 If you would rather use another SQL-dialect/database you would need to expand the SQL-Adapter with an object providing the necessary functions and information, install the driver-package for node.js, as well as changing the sqlFlavour in the .env-File to the corresponding key you used.
 It would also be a good idea to extend the .env-File with a field for your SQL-connection-string and your password-string, which you can then access in your provided connection function.
 
+## via docker/docker-compose
+This is the recommended way, since it eliminates unexpected behaviour due to different environments and OS. As of right now only the mongodb and the webserver are containerized, as the frontend is not susceptible to differing environments and comes already shipped with a development server due to being a vue application.
+To spin up the mongodb and webserver simply run ```docker-compose up``` in the root directory of the repository. The vue development server can be started by executing ```npm run serve``` in the frontend directory. <br/>
+Injecting the environment variables still works via the .env file in the server directory. If the mongodb docker container is used the name of the container functions as the hostname that has to be used in the connection string. <br/>
+E.g. *mongodb://mongo_container*
+
 # Running the app for development
 In order to run the app for development purposes you would need two command line instances.
 
 **Backend**
 
-To run the server enter the root of the repository and execute ```npm run dev```. This also hot-reloads the server on change.
+To run the server enter the server directory and execute ```npm run dev```. This also hot-reloads the server on change.
 You could also run ```npm run start``` if you would like to disable this option or run the server.js in debug mode in the IDE of your choice.
+When using the docker option you can either use docker-compose or docker to build and start the backend container. <br/>
+E.g. ```docker-compose up``` or ```docker run -p 3000:3000 server```.
 
 **Frontend**
 
