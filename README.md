@@ -25,6 +25,8 @@ The swagger api documentation can be found [here](https://aladin-htw.herokuapp.c
     - Free cloud based option: https://www.mongodb.com/download-center
     
 **(optional but recommended)**
+- Docker https://www.docker.com/
+
 - Vue DevTools for 
     - Chrome https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd or
     - Firefox https://addons.mozilla.org/de/firefox/addon/vue-js-devtools/ 
