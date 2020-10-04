@@ -1,20 +1,20 @@
 const { getRandomInt } = require("../../helper");
 
 /**
- * Returns a object containing nodes, edges and paths
+ * Returns a graph-object containing nodes, edges and paths
  * @param {number} depth
  * @param {object} rangeAmount
  * @param {object} rangeWidth
  * @param {object} rangeValue
  * @param {number} connectionThreshold
  */
-export function generateGraph(
+export function generateGraph({
   depth,
   rangeAmount,
   rangeWidth,
   rangeValue,
   connectionThreshold
-) {
+}) {
   const graph = {
     level: [],
     connections: [],
@@ -22,34 +22,8 @@ export function generateGraph(
     depth
   };
   let width, currentLevel, node;
-  const letters = [
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-    "N",
-    "O",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "U",
-    "V",
-    "W",
-    "X",
-    "Y",
-    "Z"
-  ];
+  const labels = ["P", "B", ["K", "R"]];
+  let bCount = 0;
 
   // generate levels for specified depth
   for (let i = 0; i < depth; i++) {
@@ -58,10 +32,23 @@ export function generateGraph(
     currentLevel = graph.level[i];
     // generate nodes per level
     for (let j = 0; j < width; j++) {
+      const name = () => {
+        if (!i) return `${labels[i]}${j}`;
+        if (i < depth - 1) {
+          const label = `${labels[1]}${bCount}`;
+          bCount++;
+          return label;
+        } else {
+          const randomLabel = Math.round(Math.random());
+          return `${labels[2][randomLabel]}${j}`;
+        }
+      };
       node = {
-        id: `${letters[i]}${j}`,
-        amount: i === 0 ? getRandomInt(rangeAmount.min, rangeAmount.max) : 0,
-        isLeaf: true
+        id: name(),
+        amount: !i ? getRandomInt(rangeAmount.min, rangeAmount.max) : 0,
+        need: i ? getRandomInt(rangeAmount.min, rangeAmount.max) : 0,
+        isLeaf: true,
+        needAdded: false
       };
       currentLevel.push(node);
       // skip root level, since it has no parents to have connections with (⌣̩̩́_⌣̩̩̀)
@@ -91,16 +78,68 @@ export function generateGraph(
       }
     }
   }
-  //get all leaf-nodes
-  const leafs = graph.level.flatMap(nodes =>
-    nodes.filter(node => node.isLeaf).map(node => node.id)
+  let resourceIndex = 0;
+  let purchasedIndex = 0;
+  // function to rename the leaf nodes semantically correct
+  const renameLeaf = node => {
+    if (/B/.test(node.id)) {
+      const randomLabel = Math.round(Math.random());
+      if (randomLabel) {
+        const id = `${labels[2][randomLabel]}${purchasedIndex}`;
+        purchasedIndex++;
+        return id;
+      } else {
+        const id = `${labels[2][randomLabel]}${resourceIndex}`;
+        resourceIndex++;
+        return id;
+      }
+    } else if (/K/.test(node.id)) {
+      const id = `${labels[2][0]}${resourceIndex}`;
+      resourceIndex++;
+      return id;
+    } else if (/R/.test(node.id)) {
+      const id = `${labels[2][1]}${purchasedIndex}`;
+      purchasedIndex++;
+      return id;
+    }
+    return node.id;
+  };
+
+  const renamed = [];
+  //get all leaf-nodes and rename semantically
+  const leafs = graph.level.flatMap(level =>
+    level
+      .filter(node => node.isLeaf)
+      .map(node => {
+        const id = renameLeaf(node);
+        renamed.push({ previous: node.id, now: id });
+        node.id = id;
+        return node.id;
+      })
   );
+
+  // rename node.ids in connections
+  graph.connections.forEach(connection => {
+    let childRenamed = 1;
+    let parentRenamed = 1;
+    renamed.forEach(id => {
+      if (id.previous == connection.child && childRenamed) {
+        connection.child = id.now;
+        childRenamed = 0;
+      }
+      if (id.previous == connection.parent && parentRenamed) {
+        connection.parent = id.now;
+        parentRenamed = 0;
+      }
+    });
+  });
+  graph.level[0].forEach(node => (node.need = node.amount));
+  //accumulate paths
   graph.paths = [];
   leafs.forEach(leaf => {
     const paths = [];
     const path = [];
     findPath(leaf, graph.connections, paths, path, -1);
-
     if (paths.length) {
       graph.paths.push(...paths);
     }
@@ -163,6 +202,10 @@ function generateConnections(
         parent.isLeaf = false;
         // calculate secondary needs vector
         node.amount += parent.amount * newConnection.value;
+        if (!node.needAdded) {
+          node.needAdded = true;
+          node.amount += node.need;
+        }
         result.push(newConnection);
       }
       return result;

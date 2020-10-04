@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+    mongodb:
+        container_name: mongodb
+        image: "mongo"
+        ports: 
+            - '27017:27017'
+        volumes:
+            - 'mongodb_data:/bitnami/mongodb'
+        restart: unless-stopped
+
+    server:
+        container_name: dev_webserver
+        build:
+            context: ./server
+            dockerfile: dev.Dockerfile
+        env_file:
+            - ./server/.env
+        volumes:
+            - './server/:/server'
+        ports:
+            - '3000:3000'
+        depends_on:
+            - mongodb
+        command: /server/entrypoint.sh
+
+volumes:
+    mongodb_data:
