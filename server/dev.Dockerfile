@@ -11,5 +11,10 @@ RUN npm install
 RUN npm i sqlite
 # RUN npm audit fix
 
+WORKDIR /
 RUN mkdir /server
+RUN mv /cache/node_modules /server
 WORKDIR /server
+
+#RUN ls 
+#RUN chmod 777 entrypoint.sh

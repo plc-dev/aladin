@@ -20,7 +20,15 @@
         "header": "Gozintograph",
         "body": "Generate a random gozintograph with an individually configurable difficulty and solve it under guidance with matrices or edge-multiplication!",
         "img": "/img/exercises/gozintograph.jpg",
-        "alt": "gozintograph"
+        "alt": "gozintograph",
+        "route": "gozintograph"
+      },
+      "sql": {
+        "header": "SQL-Abfragen",
+        "body": "Teste deine SQL-Kenntnisse mit einer Vielzahl an Abfragen über verschiedene Datenbanken oder erstelle eigene Abfragen indem du deine Datenbank in das System überträgst.",
+        "img": "/img/exercises/sql.jpg",
+        "alt": "SQL-Abfragen",
+        "route": "sql"
       }
     },
     "gozintograph": {

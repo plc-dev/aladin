@@ -7,7 +7,7 @@ module.exports = async () => {
     mongoose.set("useFindAndModify", false);
 
     // Setup Connection
-    await mongoose.connect(process.env.mongooseConnection, {
+    await mongoose.connect("mongodb://mongodb:27017/aladin", {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });

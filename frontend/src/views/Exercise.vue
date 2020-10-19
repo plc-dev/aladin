@@ -108,8 +108,9 @@ export default {
       return exercise.currentTab;
     },
     tabComponents: function() {
+      console.warn(this.excercise)
       const regex = new RegExp(
-        `(^${this.exercisse}$|${this.exercise}.*(task|scope|path))`,
+        `(^${this.exercise}$|${this.exercise}.*(task|scope|path))`,
         "i"
       );
       return Object.keys(Exercises)
@@ -132,6 +133,7 @@ export default {
     }
   },
   mounted() {
+    this.exercise=this.$store.params.exerciseName
     // remember currentTab
     if (this.currentTab) {
       document
