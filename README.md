@@ -50,7 +50,7 @@ mongooseConnection=mongodb://<USER>:<PASSWORD>@<LOCATION>
 sqlFlavour=sqlite
 publicVapidKey=<PUBLIC_KEY>
 privateVapidKey=<PRIVATE_KEY>
-NODE_ENV=production
+NODE_ENV=development
 jwtSecret=<RANDOM_LONG_PASSWORD>
  ```
 

@@ -109,7 +109,7 @@ export default {
     },
     tabComponents: function() {
       const regex = new RegExp(
-        `(^${this.exercisse}$|${this.exercise}.*(task|scope|path))`,
+        `(^${this.exercises}$|${this.exercise}.*(task|scope|path))`,
         "i"
       );
       return Object.keys(Exercises)
