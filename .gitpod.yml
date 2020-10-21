@@ -6,11 +6,12 @@ tasks:
   - init: mkdir -p /workspace/data 
     command: mongod --dbpath /workspace/data
   # setup server
-  - before: gdown --id 1IyIT2hAYcTlayuqc2l4Xd-4fDs2UxKpI && unzip database.zip -d server/exercises/sql/ && rm -rf database.zip
-    init: cd server && npm i
+  - before: gdown --id 1IyIT2hAYcTlayuqc2l4Xd-4fDs2UxKpI && unzip database.zip -d server/exercises/sql/ && rm -rf database.zip && cd server
+    init: npm i
     command: npm run dev
   # setup frontend dev server
-  - init: cd frontend && npm i
+  - before: cd frontend
+    init: npm i
     command: npm run serve
   
 ports:
