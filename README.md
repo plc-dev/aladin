@@ -108,3 +108,6 @@ There also is a semi-automatic deployment-process, which is triggered by pushing
 
 # Online Editor (for Code Reviews/Pair Programming)
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/plc-dev/aladin)
+
+Requires a free [gitpod account](https://www.gitpod.io/) and the setup of user-specific env variables to build and run the repository.
+See [env-variables configuration](https://www.gitpod.io/docs/environment-variables/) on how to achieve that. The required variables are identical to the example in the readme.
