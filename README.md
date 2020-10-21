@@ -105,3 +105,6 @@ Since the current version is hosted on Heroku, which automatically serves a secu
 To provide a secure connection refer to this tutorial: https://flaviocopes.com/express-https-self-signed-certificate/
 
 There also is a semi-automatic deployment-process, which is triggered by pushing changes to the **deploy-branch** of this repository.
+
+# Online Editor (for Code Reviews/Pair Programming)
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/plc-dev/aladin)
