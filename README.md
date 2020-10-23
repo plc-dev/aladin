@@ -50,7 +50,7 @@ mongooseConnection=mongodb://<USER>:<PASSWORD>@<LOCATION>
 sqlFlavour=sqlite
 publicVapidKey=<PUBLIC_KEY>
 privateVapidKey=<PRIVATE_KEY>
-NODE_ENV=production
+NODE_ENV=development
 jwtSecret=<RANDOM_LONG_PASSWORD>
  ```
 
@@ -105,3 +105,9 @@ Since the current version is hosted on Heroku, which automatically serves a secu
 To provide a secure connection refer to this tutorial: https://flaviocopes.com/express-https-self-signed-certificate/
 
 There also is a semi-automatic deployment-process, which is triggered by pushing changes to the **deploy-branch** of this repository.
+
+# Online Editor (for Code Reviews/Pair Programming)
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/plc-dev/aladin)
+
+Requires a free [gitpod account](https://www.gitpod.io/) and the setup of user-specific env variables to build and run the repository.
+See [env-variables configuration](https://www.gitpod.io/docs/environment-variables/) on how to achieve that. The required variables are identical to the example in the readme.

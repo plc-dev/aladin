@@ -110,7 +110,11 @@ export default {
     tabComponents: function() {
       console.warn(this.excercise)
       const regex = new RegExp(
+<<<<<<< HEAD
         `(^${this.exercise}$|${this.exercise}.*(task|scope|path))`,
+=======
+        `(^${this.exercises}$|${this.exercise}.*(task|scope|path))`,
+>>>>>>> master
         "i"
       );
       return Object.keys(Exercises)

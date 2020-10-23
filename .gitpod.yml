@@ -1,0 +1,19 @@
+image:
+  file: .gitpod.Dockerfile
+
+tasks:
+  # setup mongodb
+  - init: mkdir -p /workspace/data 
+    command: mongod --dbpath /workspace/data
+  # setup server
+  - before: cd server
+    init: gdown --id 1IyIT2hAYcTlayuqc2l4Xd-4fDs2UxKpI && unzip database.zip -d exercises/sql/ && rm -rf database.zip && npm i
+    command: npm run dev
+  # setup frontend dev server
+  - before: cd frontend
+    init: npm i
+    command: npm run serve
+  
+ports:
+  - port: 8080
+    onOpen: open-browser
