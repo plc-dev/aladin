@@ -26,13 +26,12 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.10.7",
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.6",
+    "nodemon": "^2.0.4",
     "prettier": "^1.19.1",
     "sqlite": "^3.0.6",
     "sqlite3": "^5.0.0",
     "swagger-jsdoc": "^3.7.0",
     "swagger-ui-express": "^4.1.4",
-    "web-push": "^3.4.4",
-    "nodemon": "^2.0.4"
+    "web-push": "^3.4.4"
   }
 }
