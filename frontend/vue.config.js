@@ -2,11 +2,13 @@ const path = require("path");
 
 module.exports = {
   devServer: {
-    host: '0.0.0.0',
-    allowedHosts: ["localhost", ".gitpod.io"],
+    //host: '0.0.0.0',
+    //allowedHosts: ["localhost", ".gitpod.io", "server"],
     proxy: {
       "/api": {
-        target: "http://localhost:3000"
+        target: "http://localhost:3000",
+        ws: true,
+        changeOrigin: true
       }
     }
   },

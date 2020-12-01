@@ -63,7 +63,7 @@ const scaleWeight = (weight, scale, userScale) => {
     return (((weight - weightMin) * range) / weightRange) + min;
 }
 
-const generateVertice = (unmeasuredNode, measuredNode, scale, userScale) => {
+const generateEdge = (unmeasuredNode, measuredNode, scale, userScale) => {
     const weight = generateWeight(...userScale);
     return {
         from: unmeasuredNode.id,
@@ -73,25 +73,30 @@ const generateVertice = (unmeasuredNode, measuredNode, scale, userScale) => {
     };
 };
 
+// nodeAmount: int, attribute: string<celsius, height>, userScale: Array<min,max>
 const generateTree = (nodeAmount, attribute, userScale) => {
-    const idGenerator = createIdGenerator();
-    const scale = [0,100];
+   const idGenerator = createIdGenerator();
+   const scale = [0, 100];
 
-    const nodes = [];
-    const vertices = [];
-    for (let i = 0; i < nodeAmount; i++) {
-        let node
-        if (i == 0) {
-            node = generateNode(attribute, idGenerator, false, scale, userScale);
-        } else {
-            node = generateNode(attribute, idGenerator, true, scale, userScale);
-            vertices.push(generateVertice(nodes[0], node, scale, userScale));
-        }
-        nodes.push(node);
-    }
+   const nodes = [];
+   const edges = [];
+   for (let i = 0; i < nodeAmount; i++) {
+     let node;
+     if (i == 0) {
+       node = generateNode(attribute, idGenerator, false, scale, userScale);
+     } else {
+       node = generateNode(attribute, idGenerator, true, scale, userScale);
+       edges.push(generateEdge(nodes[0], node, scale, userScale));
+     }
+     nodes.push(node);
+   }
 
-    return {
-        nodes, 
-        vertices
-    };
-};
+   return {
+     nodes,
+     edges,
+   };
+ };
+
+module.exports = {
+    generateTree
+}
