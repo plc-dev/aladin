@@ -1,0 +1,14 @@
+*/node_modules
+*/.DS_Store
+*/.env
+databases
+backend/services/minio/*
+!backend/services/minio/minio.Dockerfile
+backend/services/mongodb/*
+!backend/services/mongodb/mongodb.Dockerfile
+backend/services/nginx/*
+!backend/services/nginx/nginx.Dockerfile
+backend/services/postgres/*
+!backend/services/postgres/postgres.Dockerfile
+backend/services/rabbitmq/*
+!backend/services/rabbitmq/rabbitmq.Dockerfile
