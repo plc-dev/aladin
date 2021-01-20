@@ -11,15 +11,15 @@ const state: IState = {
   taskData: reactive({}),
   rootNode: 0,
   previousNode: ref(0),
-  topology: new Matrix([0, null, null], [1, null, null], [2, 3, null], [5, 6, 4], [7, 8, null], [9, null, null]),
+  topology: new Matrix([0, null, null], [1, 2, null], [3, 4, null], [5, 6, null], [7, 8, null], [9, null, null]),
   edges: reactive({
-    0: [1],
-    1: [2, 3, 4],
-    2: [5],
+    0: [1, 1],
+    1: [2],
+    2: [3, 4, 5],
     3: [6],
     4: [9],
     5: [7, 8],
-    6: [8],
+    6: [9],
     7: [9],
     8: [9],
     9: [],
@@ -27,6 +27,20 @@ const state: IState = {
   currentNode: 0,
   nodes: reactive({
     0: {
+      pathDescriptions: {
+        1: {
+          title: "Vorwärts",
+          image: "/img/tasks/gozintograph/Basch_Gozmatr2.png",
+          description: "Generiere einen Gozintographen und führe eine Stücklistenauflösung anhand verschiedener Algorithmen durch.",
+        },
+        2: {
+          title: "Rückwärts",
+          image: "/img/tasks/gozintograph/Basch_Gozmatr2.png",
+          description: "Generiere einen Primärbedarfsvektor und rechne zurück.",
+        },
+      },
+    },
+    1: {
       layouts: {
         sm: [
           { x: 12, y: 5, w: 3, h: 4, i: 0, static: false },
@@ -124,8 +138,8 @@ const state: IState = {
                 min: 0,
                 max: 1,
                 initial: {
-                  lowerValue: 0.5,
-                  upperValue: 0.5,
+                  lowerValue: 0.2,
+                  upperValue: 0.2,
                 },
                 presets: {
                   easy: 2,
@@ -138,14 +152,14 @@ const state: IState = {
         },
       },
     },
-    1: {
+    2: {
       pathDescriptions: {
-        2: { title: "Vazsonyi-Verfahren", image: "/img/tasks/gozintograph/Basch_Gozmatr2.png", description: "Hier sehen Sie was" },
-        3: { title: "Vazsonyi", image: "/img/tasks/gozintograph/Basch_Gozmatr2.png", description: "Hier sehen Sie nichts" },
-        4: { title: "Vazsonyi", image: "/img/tasks/gozintograph/Basch_Gozmatr2.png", description: "Überraschung" },
+        3: { title: "Vazsonyi-Verfahren", image: "/img/tasks/gozintograph/Basch_Gozmatr2.png", description: "Hier sehen Sie was" },
+        4: { title: "Vazsonyi", image: "/img/tasks/gozintograph/Basch_Gozmatr2.png", description: "Hier sehen Sie nichts" },
+        5: { title: "Vazsonyi", image: "/img/tasks/gozintograph/Basch_Gozmatr2.png", description: "Überraschung" },
       },
     },
-    2: {
+    3: {
       layouts: {
         sm: [{ x: 12, y: 5, w: 2, h: 5, i: 2, static: false }],
         md: [{ x: 0, y: 10, w: 2, h: 5, i: 2, static: false }],
@@ -161,6 +175,97 @@ const state: IState = {
           dimensions: { width: 200, height: 200 },
           isValid: false,
           dependency: "taskData__adjacencyMatrix",
+          methods: { fillZeros: "Ergänze Nullen", showSolution: "Zeige Lösung", copyToClipboard: "Kopieren" },
+          component: {
+            initialize: {
+              validation: {
+                operations: [],
+                matrix1Path: "taskData__adjacencyMatrix",
+              },
+              user: {
+                operations: [{ name: "getValueInitializedMatrix", args: [null] }],
+                matrix1Path: "taskData__adjacencyMatrix",
+              },
+            },
+            userData: null,
+            validationData: null,
+            readOnly: false,
+            rowLabel: "taskData__labelVector",
+            columnLabel: "taskData__labelVector",
+          },
+        },
+        3: {
+          type: "DOTGraph",
+          name: "Gozintograph",
+          dimensions: { width: 500, height: 500 },
+          isValid: true,
+          dependency: "taskData__dotDescription",
+          component: {},
+        },
+      },
+    },
+    4: {
+      layouts: {
+        sm: [{ x: 12, y: 5, w: 2, h: 5, i: 2, static: false }],
+        md: [{ x: 0, y: 10, w: 2, h: 5, i: 2, static: false }],
+        lg: [
+          { x: 18, y: 15, w: 2, h: 2, i: 2, static: false },
+          { x: 20, y: 15, w: 2, h: 2, i: 3, static: false },
+        ],
+      },
+      components: {
+        2: {
+          name: "Direktbedarfsmatrix",
+          type: "MatrixComponent",
+          dimensions: { width: 200, height: 200 },
+          isValid: false,
+          dependency: "taskData__adjacencyMatrix",
+          methods: { fillZeros: "Ergänze Nullen", showSolution: "Zeige Lösung", copyToClipboard: "Kopieren" },
+          component: {
+            initialize: {
+              validation: {
+                operations: [],
+                matrix1Path: "taskData__adjacencyMatrix",
+              },
+              user: {
+                operations: [{ name: "getValueInitializedMatrix", args: [null] }],
+                matrix1Path: "taskData__adjacencyMatrix",
+              },
+            },
+            userData: null,
+            validationData: null,
+            readOnly: false,
+            rowLabel: "taskData__labelVector",
+            columnLabel: "taskData__labelVector",
+          },
+        },
+        3: {
+          type: "DOTGraph",
+          name: "Gozintograph",
+          dimensions: { width: 500, height: 500 },
+          isValid: true,
+          dependency: "taskData__dotDescription",
+          component: {},
+        },
+      },
+    },
+    5: {
+      layouts: {
+        sm: [{ x: 12, y: 5, w: 2, h: 5, i: 2, static: false }],
+        md: [{ x: 0, y: 10, w: 2, h: 5, i: 2, static: false }],
+        lg: [
+          { x: 18, y: 15, w: 2, h: 2, i: 2, static: false },
+          { x: 20, y: 15, w: 2, h: 2, i: 3, static: false },
+        ],
+      },
+      components: {
+        2: {
+          name: "Direktbedarfsmatrix",
+          type: "MatrixComponent",
+          dimensions: { width: 200, height: 200 },
+          isValid: false,
+          dependency: "taskData__adjacencyMatrix",
+          methods: { fillZeros: "Ergänze Nullen", showSolution: "Zeige Lösung", copyToClipboard: "Kopieren" },
           component: {
             initialize: {
               validation: {

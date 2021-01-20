@@ -1,20 +1,22 @@
 <template>
-  <table :id="`matrix_${id}`" class="matrix">
-    <tr v-if="columnLabel.length">
-      <p class="placeholder">&nbsp;</p>
-      <th v-for="(label, i) in columnLabel" :key="i">
-        <p class="matrix_label">{{ label }}</p>
-      </th>
-    </tr>
-    <tr v-for="(row, i) in userData" :key="i">
-      <th v-if="rowLabel.length">
-        <p class="matrix_label">{{ rowLabel[i] }}</p>
-      </th>
-      <td class="matrix_element" v-for="(element, j) in userData[i]" :key="j">
-        <input :class="`i__${i}__${j}`" :data-index="[i, j]" :readonly="isReadOnly" @keyup="updateField" type="number" :value="element" />
-      </td>
-    </tr>
-  </table>
+  <ContextMenu :componentId="id" :methods="selectedMethods">
+    <table :id="`matrix_${id}`" class="matrix">
+      <tr v-if="columnLabel.length">
+        <p class="placeholder">&nbsp;</p>
+        <th v-for="(label, i) in columnLabel" :key="i">
+          <p class="matrix_label">{{ label }}</p>
+        </th>
+      </tr>
+      <tr v-for="(row, i) in userData" :key="i">
+        <th v-if="rowLabel.length">
+          <p class="matrix_label">{{ rowLabel[i] }}</p>
+        </th>
+        <td class="matrix_element" v-for="(element, j) in userData[i]" :key="j">
+          <input :class="`i__${i}__${j}`" :data-index="[i, j]" :readonly="isReadOnly" @keyup="updateField" type="number" :value="element" />
+        </td>
+      </tr>
+    </table>
+  </ContextMenu>
 </template>
 
 <script lang="ts">
@@ -22,9 +24,13 @@ import { onMounted, computed, watch, ComputedRef } from "vue";
 import { Matrix } from "../helpers/LinearAlgebra";
 import { store } from "../store/taskGraph";
 import { IMatrixInstruction } from "@/interfaces/MatrixInterface";
+import ContextMenu from "@/components/ContextMenu.vue";
 
 export default {
   props: { componentID: Number },
+  components: {
+    ContextMenu,
+  },
   setup(props: { componentID: number }) {
     const currentNode = computed(() => store.state.currentNode);
     const componentPath = `nodes__${currentNode.value}__components__${props.componentID}__component`;
@@ -92,7 +98,7 @@ export default {
           if (!value) {
             element.classList.remove("valid");
             element.classList.remove("invalid");
-            return;
+            return false;
           }
           if (validationData.value[i][j] == value) {
             element.classList.remove("invalid");
@@ -119,7 +125,40 @@ export default {
       { deep: true }
     );
 
-    return { id: props.componentID, validationData, userData, rowLabel, columnLabel, isReadOnly, updateField };
+    const methods = {
+      fillZeros: () => {
+        const solution = JSON.parse(JSON.stringify(store.getters.getPropertyFromPath(`${componentPath}__validationData`)));
+        const userData = JSON.parse(JSON.stringify(store.getters.getPropertyFromPath(`${componentPath}__userData`)));
+        const merged = solution.map((row, i) =>
+          row.map((value, j) => {
+            if (value === 0) return "0";
+            return userData[i][j];
+          })
+        );
+        store.dispatch("setPropertyFromPath", { path: `${componentPath}__userData`, value: merged });
+      },
+      showSolution: () => {
+        const solution = JSON.parse(JSON.stringify(store.getters.getPropertyFromPath(`${componentPath}__validationData`)));
+        store.dispatch("setPropertyFromPath", { path: `${componentPath}__userData`, value: solution });
+      },
+      copyToClipboard: () => {},
+    };
+    const selectedMethods = () =>
+      Object.entries(store.getters.getPropertyFromPath(`nodes__${currentNode.value}__components__${props.componentID}__methods`)).reduce(
+        (selectedMethods, [name, description]: [string, string]) => ({ ...selectedMethods, [description]: methods[name] }),
+        {}
+      );
+
+    return {
+      id: props.componentID,
+      validationData,
+      userData,
+      rowLabel,
+      columnLabel,
+      isReadOnly,
+      updateField,
+      selectedMethods: selectedMethods(),
+    };
   },
 };
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div class="canvas">
     <Navigation />
-    <div class="wrapper">
+    <div class="zoomWrapper">
       <grid-layout
         class="grid"
         v-model="currentLayout"
@@ -83,13 +83,13 @@ export default {
     };
 
     onMounted(() => {
-      // - (viewwidth|viewheight * (n-1)), where n is the vw/vh specified in the wrappers css
-      panzoomInstance = panzoom(document.querySelector(".wrapper"), {
+      // - (viewwidth|viewheight * (n-1)), where n is the vw/vh specified in the zoomWrappers css
+      panzoomInstance = panzoom(document.querySelector(".zoomWrapper"), {
         excludeClass: "vue-grid-item",
         canvas: true,
         contain: "outside",
-        startX: -document.querySelector(".wrapper").clientWidth / 2,
-        startY: -document.querySelector(".wrapper").clientHeight / 2,
+        startX: -document.querySelector(".zoomWrapper").clientWidth / 2,
+        startY: -document.querySelector(".zoomWrapper").clientHeight / 2,
       });
 
       document.querySelector(".canvas").addEventListener("wheel", (event: WheelEvent) => {
@@ -134,7 +134,7 @@ export default {
   height: 100vh;
 }
 
-.wrapper {
+.zoomWrapper {
   width: 300vw;
   height: 300vw;
 }
@@ -156,7 +156,7 @@ export default {
   touch-action: none;
   border: solid 1px black;
   box-sizing: border-box;
-  cursor: pointer;
+  cursor: default;
 }
 .vue-grid-item .resizing {
   opacity: 0.9;
@@ -166,7 +166,7 @@ export default {
   width: 100%;
 }
 .vue-grid-item .add {
-  cursor: pointer;
+  cursor: default;
 }
 .vue-draggable-handle {
   position: absolute;

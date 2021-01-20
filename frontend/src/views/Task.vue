@@ -23,7 +23,6 @@ export default {
     const route = useRoute();
     const currentNode = computed(() => store.getters.getPropertyFromPath("currentNode"));
     const isDecisionNode = computed(() => store.getters.getPropertyFromPath(`edges__${currentNode.value}`).length > 1);
-    console.log(isDecisionNode);
     onMounted(async () => {
       if (typeof route.params.task === "string") taskName.value = route.params.task;
       await store.dispatch("fetchTaskGraph", { taskName: [taskName] });
