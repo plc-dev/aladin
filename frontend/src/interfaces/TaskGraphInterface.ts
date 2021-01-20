@@ -3,10 +3,10 @@ import { Matrix } from "@/helpers/LinearAlgebra";
 import { IMatrixComponent } from "@/interfaces/MatrixInterface";
 import { IDOTGraphComponent } from "@/interfaces/DOTGraphInterface";
 import { ITaskConfigurationComponent } from "@/interfaces/TaskConfigurationInterface";
+import { IDecisionNode } from "@/interfaces/DecisionNodeInterface";
 
-interface IEdge {
-  id: number;
-  next: Array<number>;
+interface IEdges {
+  [key: number]: Array<number>;
 }
 
 interface ILayout {
@@ -34,6 +34,7 @@ interface IComponent {
   name: string;
   dimensions: IDimensions;
   component: object;
+  isValid: boolean;
 }
 
 interface IComponents {
@@ -51,20 +52,23 @@ interface ITaskReplay {
 }
 
 interface IState {
+  previousNode: Ref<number>;
+  rootNode: number;
   zoomScale: Ref<number>;
   currentTask: string;
   taskData: { [key: string]: any };
   topology: Matrix;
-  edges: Array<IEdge>;
+  edges: IEdges;
   currentNode: number;
-  canProgress: Ref<boolean>;
   nodes: {
-    [key: number]: {
-      layouts: ILayouts;
-      components: IComponents;
-    };
+    [key: number]:
+      | IDecisionNode
+      | {
+          layouts: ILayouts;
+          components: IComponents;
+        };
   };
   taskReplay: ITaskReplay;
 }
 
-export { IEdge, IState, IComponent };
+export { IState, IComponent };

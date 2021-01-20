@@ -9,19 +9,22 @@ const state: IState = {
   zoomScale: ref(1),
   currentTask: "gozintograph",
   taskData: reactive({}),
+  rootNode: 0,
+  previousNode: ref(0),
   topology: new Matrix([0, null, null], [1, null, null], [2, 3, null], [5, 6, 4], [7, 8, null], [9, null, null]),
-  edges: reactive([
-    { id: 0, next: [1] },
-    { id: 1, next: [2, 3, 4] },
-    { id: 2, next: [5] },
-    { id: 3, next: [6] },
-    { id: 4, next: [9] },
-    { id: 5, next: [7, 8] },
-    { id: 6, next: [8] },
-    { id: 7, next: [9] },
-    { id: 8, next: [9] },
-    { id: 9, next: [] },
-  ]),
+  edges: reactive({
+    0: [1],
+    1: [2, 3, 4],
+    2: [5],
+    3: [6],
+    4: [9],
+    5: [7, 8],
+    6: [8],
+    7: [9],
+    8: [9],
+    9: [],
+  }),
+  currentNode: 0,
   nodes: reactive({
     0: {
       layouts: {
@@ -36,8 +39,8 @@ const state: IState = {
           { x: 0, y: 10, w: 2, h: 5, i: 2, static: false },
         ],
         lg: [
-          { x: 12, y: 7, w: 2, h: 2, i: 0, static: false },
-          { x: 10, y: 7, w: 2, h: 2, i: 1, static: false },
+          { x: 18, y: 15, w: 2, h: 2, i: 0, static: false },
+          { x: 16, y: 15, w: 2, h: 2, i: 1, static: false },
         ],
       },
       components: {
@@ -45,39 +48,15 @@ const state: IState = {
           type: "DOTGraph",
           name: "Gozintograph",
           dimensions: { width: 500, height: 500 },
-          component: {
-            dotDescription: `digraph {
-            node [shape="circle" style="filled"]
-            edge [dir="back"]
-            B3 -> K3 [label=" 50"]
-            B4 -> K4 [label=" 48"]
-            B1 -> R2 [label=" 44"]
-            B2 -> B4 [label=" 40"]
-            B1 -> R0 [label=" 27"]
-            B0 -> B3 [label=" 22"]
-            B0 -> K2 [label=" 14"]
-            B2 -> R1 [label=" 24"]
-            B0 -> K1 [label=" 47"]
-            B0 -> B1 [label=" 13"]
-            B0 -> B2 [label=" 25"]
-            P3 -> K0 [label=" 14"]
-            P3 -> B0 [label=" 22"]
-            P0 -> B4 [label=" 42"]
-            P1 -> K2 [label=" 31"]
-            P2 -> K4 [label=" 29"]
-            { rank=same; P0,P1,P2,P3 }
-            { rank=same; K0,B0 }
-            { rank=same; K1,B1,B2 }
-            { rank=same; R0,R1,B3,K2 }
-            { rank=same; R2,B4 }
-            { rank=same; K3,K4 }
-        }`,
-          },
+          isValid: true,
+          dependency: "taskData__dotDescription",
+          component: {},
         },
         1: {
           type: "TaskConfiguration",
           name: "Konfiguration",
           dimensions: { width: 200, height: 200 },
+          isValid: false,
           component: {
             actions: {
               instruction: "generateGraph",
@@ -89,7 +68,7 @@ const state: IState = {
                 type: "number",
                 initial: {
                   lowerValue: 2,
-                  upperValue: 2,
+                  upperValue: 4,
                 },
                 min: 0,
                 max: 200,
@@ -103,8 +82,8 @@ const state: IState = {
                 type: "number",
                 bounds: { min: 0, max: 200 },
                 initial: {
-                  lowerValue: 2,
-                  upperValue: 2,
+                  lowerValue: 1,
+                  upperValue: 10,
                 },
                 presets: {
                   easy: [2, 10],
@@ -118,7 +97,7 @@ const state: IState = {
                 max: 200,
                 initial: {
                   lowerValue: 2,
-                  upperValue: 2,
+                  upperValue: 4,
                 },
                 presets: {
                   easy: 2,
@@ -131,8 +110,8 @@ const state: IState = {
                 min: 0,
                 max: 200,
                 initial: {
-                  lowerValue: 2,
-                  upperValue: 2,
+                  lowerValue: 0,
+                  upperValue: 10,
                 },
                 presets: {
                   easy: 2,
@@ -145,8 +124,8 @@ const state: IState = {
                 min: 0,
                 max: 1,
                 initial: {
-                  lowerValue: 0,
-                  upperValue: 1,
+                  lowerValue: 0.5,
+                  upperValue: 0.5,
                 },
                 presets: {
                   easy: 2,
@@ -157,41 +136,22 @@ const state: IState = {
             },
           },
         },
-        2: {
-          name: "Direktbedarfsmatrix",
-          type: "MatrixComponent",
-          dimensions: { width: 200, height: 200 },
-          component: {
-            initialize: {
-              operation: "getRows",
-              matrix1Path: "taskData__adjacencyMatrix",
-            },
-            initialData: [
-              [null, null, null],
-              [null, null, null],
-            ],
-            validationData: [],
-            isLocked: false,
-          },
-        },
       },
     },
     1: {
+      pathDescriptions: {
+        2: { title: "Vazsonyi-Verfahren", image: "/img/tasks/gozintograph/Basch_Gozmatr2.png", description: "Hier sehen Sie was" },
+        3: { title: "Vazsonyi", image: "/img/tasks/gozintograph/Basch_Gozmatr2.png", description: "Hier sehen Sie nichts" },
+        4: { title: "Vazsonyi", image: "/img/tasks/gozintograph/Basch_Gozmatr2.png", description: "Überraschung" },
+      },
+    },
+    2: {
       layouts: {
-        sm: [
-          { x: 12, y: 5, w: 3, h: 4, i: 0, static: false },
-          { x: 10, y: 5, w: 2, h: 3, i: 1, static: false },
-          { x: 12, y: 5, w: 2, h: 5, i: 2, static: false },
-        ],
-        md: [
-          { x: 0, y: 0, w: 5, h: 6, i: 0, static: false },
-          { x: 0, y: 5, w: 2, h: 3, i: 1, static: false },
-          { x: 0, y: 10, w: 2, h: 5, i: 2, static: false },
-        ],
+        sm: [{ x: 12, y: 5, w: 2, h: 5, i: 2, static: false }],
+        md: [{ x: 0, y: 10, w: 2, h: 5, i: 2, static: false }],
         lg: [
-          { x: 12, y: 7, w: 2, h: 2, i: 0, static: false },
-          { x: 10, y: 7, w: 2, h: 2, i: 1, static: false },
-          { x: 12, y: 9, w: 2, h: 2, i: 2, static: false },
+          { x: 18, y: 15, w: 2, h: 2, i: 2, static: false },
+          { x: 20, y: 15, w: 2, h: 2, i: 3, static: false },
         ],
       },
       components: {
@@ -199,20 +159,37 @@ const state: IState = {
           name: "Direktbedarfsmatrix",
           type: "MatrixComponent",
           dimensions: { width: 200, height: 200 },
+          isValid: false,
+          dependency: "taskData__adjacencyMatrix",
           component: {
-            initialData: [
-              [null, null, null],
-              [null, null, null],
-            ],
-            validationData: [],
-            isLocked: false,
+            initialize: {
+              validation: {
+                operations: [],
+                matrix1Path: "taskData__adjacencyMatrix",
+              },
+              user: {
+                operations: [{ name: "getValueInitializedMatrix", args: [null] }],
+                matrix1Path: "taskData__adjacencyMatrix",
+              },
+            },
+            userData: null,
+            validationData: null,
+            readOnly: false,
+            rowLabel: "taskData__labelVector",
+            columnLabel: "taskData__labelVector",
           },
+        },
+        3: {
+          type: "DOTGraph",
+          name: "Gozintograph",
+          dimensions: { width: 500, height: 500 },
+          isValid: true,
+          dependency: "taskData__dotDescription",
+          component: {},
         },
       },
     },
   }),
-  currentNode: 0,
-  canProgress: ref(true),
 };
 const mutations = {
   SET_PROPERTY(state: IState, payload: { path: string; value: any }) {
@@ -224,7 +201,6 @@ const mutations = {
     const parsedPath = splitPath.reduce((parsedPath, substring) => {
       return `${parsedPath}["${substring}"]`;
     }, "");
-    console.log(`state${parsedPath}`);
     const setState = new Function("state", "value", `state${parsedPath} = value; console.log(value);`);
     setState(state, value);
   },
@@ -253,7 +229,10 @@ const actions = {
 const getters = {
   getPropertyFromPath: (state: IState) => (path: string) => {
     const splitPath = path.split("__");
-    return splitPath.reduce((value, key) => value[key], state);
+    return splitPath.reduce((value, key) => {
+      if (value && Object.keys(value).includes(key)) return value[key];
+      else return null;
+    }, state);
   },
 };
 

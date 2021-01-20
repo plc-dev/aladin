@@ -8,6 +8,7 @@ function* idGenerator() {
 export interface INode {
     id: number;
     value?: string | number;
+    label?: string;
     [key: string]: any;
 }
 
@@ -27,6 +28,7 @@ export abstract class Graph {
     idGenerator: Generator;
     adjacencyMatrix: Array<Array<number>>;
     valueVector: Array<number | string>;
+    labelVector?: Array<string>;
 
     constructor() {
         this.idGenerator = idGenerator();
@@ -63,6 +65,10 @@ export abstract class Graph {
 
     public createValueVector() {
         this.valueVector = Object.entries(this.nodes).map(([id, node]) => node.value);
+    }
+
+    public createLabelVector() {
+        this.labelVector = Object.values(this.nodes).map((node) => node.label);
     }
 
     public serialiseToJson() {}

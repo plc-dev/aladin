@@ -16,7 +16,12 @@ export default {
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
     const component = computed(() => store.getters.getPropertyFromPath(path));
 
-    const taskData = computed(() => store.getters.getPropertyFromPath("taskData"));
+    const dependencyPath = store.getters.getPropertyFromPath(`nodes__${currentNode.value}__components__${props.componentID}__dependency`);
+    const dependency = computed(() => {
+      const dependency = store.getters.getPropertyFromPath(`${dependencyPath}`);
+      if (!dependency) return "";
+      return dependency;
+    });
 
     const renderGraph = (description) => {
       graphviz(`#graph_${props.componentID}`, {
@@ -27,11 +32,11 @@ export default {
         useWorker: false,
       }).renderDot(description);
     };
-    watch(taskData, () => {
-      renderGraph(taskData.value.dotDescription);
+    watch(dependency, () => {
+      renderGraph(dependency.value);
     });
     onMounted(() => {
-      renderGraph(component.value.component.dotDescription);
+      renderGraph(dependency.value);
     });
     return { component, id: props.componentID };
   },
