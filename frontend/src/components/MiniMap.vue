@@ -15,17 +15,11 @@ export default {
     let canvas: HTMLCanvasElement = document.querySelector("#resizeCanvas");
     const canvasProportions = [0.2, 0.9];
 
-    const currentNode = computed(() => {
-      return store.getters.getPropertyFromPath("currentNode");
-    });
+    const currentNode = computed(() => store.getters.getPropertyFromPath("currentNode"));
 
-    const topology = computed(() => {
-      return store.getters.getPropertyFromPath("topology");
-    });
+    const topology = computed(() => store.getters.getPropertyFromPath("topology"));
 
-    const edges = computed(() => {
-      return store.getters.getPropertyFromPath("edges");
-    });
+    const edges = computed(() => store.getters.getPropertyFromPath("edges"));
 
     let collapsed = false;
 
@@ -86,7 +80,7 @@ export default {
       context.strokeStyle = "green";
       Object.entries(layout).forEach(([id, coordinates]) => {
         drawNode(context, ...coordinates);
-        edges.value[id]["next"].forEach((nextNode) => {
+        edges.value[id].forEach((nextNode) => {
           const nextNodeCoordinates = layout[nextNode];
           context.setLineDash([2, 4]);
           context.fillStyle = "red";
@@ -152,17 +146,17 @@ export default {
     };
 
     watch(currentNode, () => {
-      const context = canvas.getContext("2d");
-      context.lineWidth = 5;
-      context.fillStyle = "green";
-      context.strokeStyle = "green";
-      const { depth, width, layout } = calculateLayout(canvas);
-      const nodeId = currentNode.value;
-      const coordinates = layout[nodeId];
-      drawNode(context, ...coordinates);
-      const previousNodeCoordinates = layout[nodeId - 1];
-      drawEdge(context, coordinates[0], coordinates[1], previousNodeCoordinates[0], previousNodeCoordinates[1], width);
-      resizeCanvas();
+      // const context = canvas.getContext("2d");
+      // context.lineWidth = 5;
+      // context.fillStyle = "green";
+      // context.strokeStyle = "green";
+      // const { depth, width, layout } = calculateLayout(canvas);
+      // const nodeId = currentNode.value;
+      // const coordinates = layout[nodeId];
+      // drawNode(context, ...coordinates);
+      // const previousNodeCoordinates = layout[nodeId - 1];
+      // drawEdge(context, coordinates[0], coordinates[1], previousNodeCoordinates[0], previousNodeCoordinates[1], width);
+      // resizeCanvas();
     });
 
     // https://stackoverflow.com/questions/23939588/how-to-animate-drawing-lines-on-canvas
@@ -184,6 +178,7 @@ export default {
   top: 5vh;
   border: solid 5px black;
   opacity: 0.6;
+  z-index: 1;
 }
 
 .collapsed {
@@ -200,6 +195,7 @@ export default {
   min-width: 20px;
   background: white;
   cursor: pointer;
+  z-index: 2;
 }
 
 #resizeCanvas {

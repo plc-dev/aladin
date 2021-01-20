@@ -146,7 +146,6 @@ class Matrix {
       .map((e: number) => Math.abs(Math.round(e)));
   }
 
-  // TODO find a good name
   public getValueInitializedMatrix(value: number | null) {
     return this.map((element) => (element = value));
   }

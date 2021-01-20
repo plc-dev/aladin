@@ -11,6 +11,7 @@
         :is-resizable="true"
         :vertical-compact="false"
         :use-css-transforms="false"
+        :prevent-collision="true"
         @breakpoint-changed="swapLayout"
       >
         <grid-item
@@ -38,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, computed } from "vue";
+import { onMounted, computed, onUpdated, watch } from "vue";
 import panzoom from "@panzoom/panzoom";
 import MiniMap from "@/components/MiniMap.vue";
 import MatrixComponent from "@/components/Matrix.vue";
@@ -60,14 +61,17 @@ export default {
     Navigation,
   },
   setup() {
-    const exludedInnerElements = () => Array.from(document.querySelectorAll(".wrapper .vue-grid-item"));
-    const columnAmount = 20;
+    const columnAmount = 30;
     const rowHeight = (document.querySelector("html").clientWidth * 3) / columnAmount;
     const currentNode = computed(() => store.getters.getPropertyFromPath("currentNode"));
     const zoomScale = computed(() => store.getters.getPropertyFromPath("zoomScale"));
     const nodeComponents = computed(() => store.getters.getPropertyFromPath(`nodes__${currentNode.value}__components`));
     const layouts = computed(() => store.getters.getPropertyFromPath(`nodes__${currentNode.value}__layouts`));
-    const currentLayout = computed(() => store.getters.getPropertyFromPath(`nodes__${currentNode.value}__layouts__lg`));
+    const currentLayout = computed({
+      get: () => store.getters.getPropertyFromPath(`nodes__${currentNode.value}__layouts__lg`),
+      set: (layout) => store.dispatch("setPropertyFromPath", { path: `nodes__${currentNode.value}__layout`, value: layout }),
+    });
+    let panzoomInstance = null;
 
     const setInitialDimensions = (layout, viewWidth) => {
       layout.forEach((component) =>
@@ -80,8 +84,8 @@ export default {
 
     onMounted(() => {
       // - (viewwidth|viewheight * (n-1)), where n is the vw/vh specified in the wrappers css
-      const wrapper = panzoom(document.querySelector(".wrapper"), {
-        exclude: exludedInnerElements(),
+      panzoomInstance = panzoom(document.querySelector(".wrapper"), {
+        excludeClass: "vue-grid-item",
         canvas: true,
         contain: "outside",
         startX: -document.querySelector(".wrapper").clientWidth / 2,
@@ -89,8 +93,8 @@ export default {
       });
 
       document.querySelector(".canvas").addEventListener("wheel", (event: WheelEvent) => {
-        wrapper.zoomWithWheel(event);
-        store.dispatch("setPropertyFromPath", { path: "zoomScale", value: wrapper.getScale() });
+        panzoomInstance.zoomWithWheel(event);
+        store.dispatch("setPropertyFromPath", { path: "zoomScale", value: panzoomInstance.getScale() });
       });
 
       setInitialDimensions(currentLayout.value, document.querySelector("html").clientWidth);
@@ -104,6 +108,10 @@ export default {
     const swapLayout = (breakpoint, newlayout) => {
       // store.dispatch("setPropertyFromPath", { path: ``, value: })
     };
+
+    watch(currentNode, () => {
+      currentLayout.value = store.getters.getPropertyFromPath(`nodes__${currentNode.value}__layouts__lg`);
+    });
 
     return {
       layouts,
@@ -138,6 +146,8 @@ export default {
 }
 .dragHandler {
   position: absolute;
+  top: 10px;
+  left: 10px;
   width: 20px;
   height: 20px;
   z-index: 999;
