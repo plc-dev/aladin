@@ -82,6 +82,7 @@ export default {
 .backward {
   top: 0;
   background: linear-gradient(0deg, transparent 0%, rgba(0, 153, 51, 0.5) 100%);
+
 }
 
 .forward {
@@ -91,5 +92,6 @@ export default {
 
 .forbidden {
   background: linear-gradient(180deg, transparent 0%, rgb(228, 58, 58, 0.5) 100%);
+
 }
 </style>

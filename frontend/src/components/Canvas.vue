@@ -85,6 +85,7 @@ export default {
     onMounted(() => {
       // - (viewwidth|viewheight * (n-1)), where n is the vw/vh specified in the zoomWrappers css
       panzoomInstance = panzoom(document.querySelector(".zoomWrapper"), {
+
         excludeClass: "vue-grid-item",
         canvas: true,
         contain: "outside",

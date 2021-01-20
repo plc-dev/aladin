@@ -99,6 +99,7 @@ export default {
             element.classList.remove("valid");
             element.classList.remove("invalid");
             return false;
+
           }
           if (validationData.value[i][j] == value) {
             element.classList.remove("invalid");
@@ -112,7 +113,6 @@ export default {
         });
         return isValid;
       }, true);
-
     watch(
       userData,
       () => {

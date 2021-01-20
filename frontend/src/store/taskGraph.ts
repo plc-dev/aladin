@@ -253,6 +253,7 @@ const state: IState = {
       layouts: {
         sm: [{ x: 12, y: 5, w: 2, h: 5, i: 2, static: false }],
         md: [{ x: 0, y: 10, w: 2, h: 5, i: 2, static: false }],
+
         lg: [
           { x: 18, y: 15, w: 2, h: 2, i: 2, static: false },
           { x: 20, y: 15, w: 2, h: 2, i: 3, static: false },
