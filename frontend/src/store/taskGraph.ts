@@ -5,6 +5,8 @@ import axios from "axios";
 import { IState } from "@/interfaces/TaskGraphInterface";
 
 const state: IState = {
+  editor: false,
+  replay: false,
   taskReplay: { stateChange: [] },
   zoomScale: ref(1),
   currentTask: "gozintograph",
@@ -301,8 +303,9 @@ const mutations = {
   SET_PROPERTY(state: IState, payload: { path: string; value: any }) {
     const { path, value } = payload;
     const splitPath = path.split("__");
-    // save state on every mutation as a side effect for task replay
-    state.taskReplay.stateChange.push({ timestamp: new Date().getTime(), ...payload });
+    // save state on every mutation as a side effect for task replay if not in replay or editor mode
+    // if (!editor && !replay)
+    // state.taskReplay.stateChange.push({ timestamp: new Date().getTime(), ...payload });
 
     const parsedPath = splitPath.reduce((parsedPath, substring) => {
       return `${parsedPath}["${substring}"]`;

@@ -54,6 +54,8 @@ interface ITaskReplay {
 interface IState {
   previousNode: Ref<number>;
   rootNode: number;
+  editor: false;
+  replay: false;
   zoomScale: Ref<number>;
   currentTask: string;
   taskData: { [key: string]: any };

@@ -25,6 +25,11 @@ const routes = [
     name: "Settings",
     component: () => import(/* webpackChunkName: "settings" */ "@/views/Settings.vue"),
   },
+  {
+    path: "/editor",
+    name: "Editor",
+    component: () => import(/* webpackChunkName: "settings" */ "@/views/JSONEditor.vue"),
+  },
 ];
 
 const router = createRouter({
