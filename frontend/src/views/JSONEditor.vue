@@ -4,7 +4,7 @@
 
 <script lang="ts">
 export default {
-  name: "Settings",
+  name: "Editor",
   setup() {},
 };
 </script>

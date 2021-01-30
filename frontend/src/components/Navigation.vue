@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import { onMounted, computed, watch } from "vue";
-import { store } from "../store/taskGraph";
+import { store, getProperty, setProperty } from "@/helpers/TaskGraphUtility";
 import { useRouter } from "vue-router";
 
 export default {
@@ -16,23 +16,25 @@ export default {
   },
   setup(props: { nextNode?: number }) {
     const router = useRouter();
-    const rootNode = store.getters.getPropertyFromPath("rootNode");
-    const currentNode = store.getters.getPropertyFromPath("currentNode");
-    const next = props.nextNode ? props.nextNode : store.getters.getPropertyFromPath("edges")[currentNode];
-    const previous = store.getters.getPropertyFromPath("previousNode");
+    const rootNode = getProperty("rootNode");
+    const currentNode = getProperty("currentNode");
+    const next = props.nextNode ? props.nextNode : getProperty("edges")[currentNode];
+    const previous = getProperty("previousNode");
 
     const componentValidities = computed(() => {
-      if (store.getters.getPropertyFromPath("edges")[currentNode].length > 1) return [true];
-      return Object.values(store.getters.getPropertyFromPath(`nodes__${currentNode}__components`)).map(
-        (component: any) => component.isValid
-      );
+      const edges = getProperty("edges");
+      if (edges && edges[currentNode]) {
+        if (edges[currentNode].length > 1) return [true];
+        return Object.values(getProperty(`nodes__${currentNode}__components`)).map((component: any) => component.isValid);
+      }
+      return [false];
     });
 
     const validate = () => {
       const navForward = document.querySelector(".traverse.forward");
       if (componentValidities.value.every((validity) => validity)) {
         navForward.classList.remove("forbidden");
-      } else {
+      } else if (navForward) {
         navForward.classList.add("forbidden");
       }
     };
@@ -50,8 +52,8 @@ export default {
       if (currentNode === rootNode && direction === "backward") {
         router.push({ name: "TaskOverview" });
       } else if (!Array.from(navElement.classList).includes("forbidden")) {
-        store.dispatch("setPropertyFromPath", { path: "previousNode", value: currentNode });
-        store.dispatch("setPropertyFromPath", { path: "currentNode", value: to });
+        setProperty({ path: "previousNode", value: currentNode });
+        setProperty({ path: "currentNode", value: to });
       }
     };
 
@@ -82,7 +84,6 @@ export default {
 .backward {
   top: 0;
   background: linear-gradient(0deg, transparent 0%, rgba(0, 153, 51, 0.5) 100%);
-
 }
 
 .forward {
@@ -92,6 +93,5 @@ export default {
 
 .forbidden {
   background: linear-gradient(180deg, transparent 0%, rgb(228, 58, 58, 0.5) 100%);
-
 }
 </style>

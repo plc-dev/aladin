@@ -10,14 +10,14 @@
 <script lang="ts">
 import Navigation from "@/components/Navigation.vue";
 import DescriptionBox from "@/components/DescriptionBox.vue";
-import { store } from "../store/taskGraph";
+import { getProperty } from "@/helpers/TaskGraphUtility";
 import { onMounted } from "vue";
 
 export default {
   components: { Navigation, DescriptionBox },
   setup() {
-    const currentNode = store.getters.getPropertyFromPath("currentNode");
-    const possibleEdges = store.getters.getPropertyFromPath(`edges__${currentNode}`);
+    const currentNode = getProperty("currentNode");
+    const possibleEdges = getProperty(`edges__${currentNode}`);
 
     onMounted(() => {
       // manually set maxWidth for segmented nav elements

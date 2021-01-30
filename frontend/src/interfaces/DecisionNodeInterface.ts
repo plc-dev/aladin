@@ -1,6 +1,7 @@
 interface IPathDescription {
   image: string;
   description: string;
+  title: string;
 }
 
 interface IDecisionNode {

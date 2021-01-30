@@ -45,10 +45,9 @@ import MiniMap from "@/components/MiniMap.vue";
 import MatrixComponent from "@/components/Matrix.vue";
 import DOTGraph from "@/components/DOTGraph.vue";
 import TaskConfiguration from "@/components/TaskConfiguration.vue";
-import { store } from "../store/taskGraph";
 import { GridLayout, GridItem } from "vue-grid-layout";
 import Navigation from "@/components/Navigation.vue";
-
+import { store, getProperty, setProperty } from "@/helpers/TaskGraphUtility";
 export default {
   name: "Canvas",
   components: {
@@ -63,57 +62,55 @@ export default {
   setup() {
     const columnAmount = 30;
     const rowHeight = (document.querySelector("html").clientWidth * 3) / columnAmount;
-    const currentNode = computed(() => store.getters.getPropertyFromPath("currentNode"));
-    const zoomScale = computed(() => store.getters.getPropertyFromPath("zoomScale"));
-    const nodeComponents = computed(() => store.getters.getPropertyFromPath(`nodes__${currentNode.value}__components`));
-    const layouts = computed(() => store.getters.getPropertyFromPath(`nodes__${currentNode.value}__layouts`));
+    const currentNode = computed(() => getProperty("currentNode"));
+    const zoomScale = computed(() => getProperty("zoomScale"));
+    const nodeComponents = computed(() => getProperty(`nodes__${currentNode.value}__components`));
+    const layouts = computed(() => getProperty(`nodes__${currentNode.value}__layouts`));
+    const layoutSize = computed(() => getProperty(`layoutSize`));
     const currentLayout = computed({
-      get: () => store.getters.getPropertyFromPath(`nodes__${currentNode.value}__layouts__lg`),
-      set: (layout) => store.dispatch("setPropertyFromPath", { path: `nodes__${currentNode.value}__layout`, value: layout }),
+      get: () => {
+        const layout = getProperty(`nodes__${currentNode.value}__layouts__${layoutSize.value}`);
+        return layout;
+      },
+      set: (layout) => setProperty({ path: `nodes__${currentNode.value}__layout`, value: layout }),
     });
-    let panzoomInstance = null;
 
+    let panzoomInstance = null;
     const setInitialDimensions = (layout, viewWidth) => {
       layout.forEach((component) =>
-        store.dispatch("setPropertyFromPath", {
+        setProperty({
           path: `nodes__${currentNode.value}__components__${component.i}__dimensions`,
           value: { height: component.h * rowHeight, width: component.w * (viewWidth / columnAmount) },
         })
       );
     };
-
     onMounted(() => {
       // - (viewwidth|viewheight * (n-1)), where n is the vw/vh specified in the zoomWrappers css
       panzoomInstance = panzoom(document.querySelector(".zoomWrapper"), {
-
         excludeClass: "vue-grid-item",
         canvas: true,
         contain: "outside",
         startX: -document.querySelector(".zoomWrapper").clientWidth / 2,
         startY: -document.querySelector(".zoomWrapper").clientHeight / 2,
       });
-
       document.querySelector(".canvas").addEventListener("wheel", (event: WheelEvent) => {
         panzoomInstance.zoomWithWheel(event);
-        store.dispatch("setPropertyFromPath", { path: "zoomScale", value: panzoomInstance.getScale() });
+        setProperty({ path: "zoomScale", value: panzoomInstance.getScale() });
       });
 
-      setInitialDimensions(currentLayout.value, document.querySelector("html").clientWidth);
+      // TODO remove hack for activating reactivity + add proper eventlisteners for resize and moving grid items
+      setProperty({ path: "zoomScale", value: 1 });
     });
-
     const updateDimensions = (id, gridWidth, gridHeight, pixelWidth, pixelHeight) => {
       const path = `nodes__${currentNode.value}__components__${id}`;
-      store.dispatch("setPropertyFromPath", { path: `${path}__dimensions`, value: { height: pixelHeight, width: pixelWidth } });
+      setProperty({ path: `${path}__dimensions`, value: { height: pixelHeight, width: pixelWidth } });
     };
-
     const swapLayout = (breakpoint, newlayout) => {
-      // store.dispatch("setPropertyFromPath", { path: ``, value: })
+      // setProperty( { path: ``, value: })
     };
-
     watch(currentNode, () => {
-      currentLayout.value = store.getters.getPropertyFromPath(`nodes__${currentNode.value}__layouts__lg`);
+      currentLayout.value = getProperty(`nodes__${currentNode.value}__layouts__${layoutSize.value}`);
     });
-
     return {
       layouts,
       zoomScale,
@@ -128,18 +125,15 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .canvas {
   width: 100vw;
   height: 100vh;
 }
-
 .zoomWrapper {
   width: 300vw;
   height: 300vw;
 }
-
 /* GRID */
 .grid {
   width: 300vw;

@@ -5,7 +5,7 @@
 <script lang="ts">
 import { onMounted, computed, toRefs, ref, defineComponent, watch } from "vue";
 import { graphviz } from "d3-graphviz";
-import { store } from "../store/taskGraph";
+import { store, getProperty } from "@/helpers/TaskGraphUtility";
 
 export default {
   props: {
@@ -14,11 +14,11 @@ export default {
   setup(props: { componentID: number }) {
     const currentNode = computed(() => store.state.currentNode);
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
-    const component = computed(() => store.getters.getPropertyFromPath(path));
+    const component = computed(() => getProperty(path));
 
-    const dependencyPath = store.getters.getPropertyFromPath(`nodes__${currentNode.value}__components__${props.componentID}__dependency`);
+    const dependencyPath = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__dependency`);
     const dependency = computed(() => {
-      const dependency = store.getters.getPropertyFromPath(`${dependencyPath}`);
+      const dependency = getProperty(`${dependencyPath}`);
       if (!dependency) return "";
       return dependency;
     });

@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import { store } from "../store/taskGraph";
+import { getProperty } from "@/helpers/TaskGraphUtility";
 import { onMounted } from "vue";
 
 export default {
@@ -15,8 +15,8 @@ export default {
     nodeId: Number,
   },
   setup(props) {
-    const currentNode = store.getters.getPropertyFromPath("currentNode");
-    const { title, image, description } = store.getters.getPropertyFromPath(`nodes__${currentNode}__pathDescriptions__${props.nodeId}`);
+    const currentNode = getProperty("currentNode");
+    const { title, image, description } = getProperty(`nodes__${currentNode}__pathDescriptions__${props.nodeId}`);
 
     return { image, description, title };
   },
@@ -30,6 +30,8 @@ export default {
   justify-content: center;
   align-items: center;
   background: lightgrey;
+  width: 500px;
+  font-size: 150%;
 }
 .descriptionBox img {
 }

@@ -27,7 +27,7 @@ export abstract class Graph {
     dotDescription: string;
     idGenerator: Generator;
     adjacencyMatrix: Array<Array<number>>;
-    valueVector: Array<number | string>;
+    valueVector: Array<number | string>[];
     labelVector?: Array<string>;
 
     constructor() {
@@ -64,7 +64,7 @@ export abstract class Graph {
     }
 
     public createValueVector() {
-        this.valueVector = Object.entries(this.nodes).map(([id, node]) => node.value);
+        this.valueVector = [Object.entries(this.nodes).map(([id, node]) => node.value)];
     }
 
     public createLabelVector() {

@@ -35,6 +35,7 @@ interface IComponent {
   dimensions: IDimensions;
   component: object;
   isValid: boolean;
+  dependency?: object;
 }
 
 interface IComponents {
@@ -52,10 +53,12 @@ interface ITaskReplay {
 }
 
 interface IState {
-  previousNode: Ref<number>;
+  previousNode: number;
   rootNode: number;
-  zoomScale: Ref<number>;
+  editor: false;
+  replay: false;
   currentTask: string;
+  layoutSize: string;
   taskData: { [key: string]: any };
   topology: Matrix;
   edges: IEdges;
@@ -66,6 +69,7 @@ interface IState {
       | {
           layouts: ILayouts;
           components: IComponents;
+          zoomScale: number;
         };
   };
   taskReplay: ITaskReplay;

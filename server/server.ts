@@ -40,7 +40,9 @@ const serializedRoutes: Array<ISerializedTaskRoute> = [
         taskRouteManager.addRoute(serializedRoutes);
 
         const { dbRoutes } = await import("./api/DB");
+        const { taskGraph } = await import("./api/taskGraphManager");
         app.use("/api", dbRoutes(express.Router(), channel));
+        app.use("/api", taskGraph(express.Router()));
 
         app.get("/", (req: express.Request, res: express.Response) => {
             res.send("Hello world!");

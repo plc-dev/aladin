@@ -22,7 +22,7 @@
 <script lang="ts">
 import { onMounted, computed, watch, ComputedRef } from "vue";
 import { Matrix } from "../helpers/LinearAlgebra";
-import { store } from "../store/taskGraph";
+import { store, getProperty, setProperty } from "@/helpers/TaskGraphUtility";
 import { IMatrixInstruction } from "@/interfaces/MatrixInterface";
 import ContextMenu from "@/components/ContextMenu.vue";
 
@@ -35,28 +35,35 @@ export default {
     const currentNode = computed(() => store.state.currentNode);
     const componentPath = `nodes__${currentNode.value}__components__${props.componentID}__component`;
 
-    const dependencyPath = store.getters.getPropertyFromPath(`nodes__${currentNode.value}__components__${props.componentID}__dependency`);
-    const dependency = computed(() => store.getters.getPropertyFromPath(`${dependencyPath}`));
+    const dependencyPath = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__dependency`);
+    const dependency = computed(() => getProperty(`${dependencyPath}`));
 
-    const isReadOnly = store.getters.getPropertyFromPath(`${componentPath}__readOnly`);
-    const instructions = store.getters.getPropertyFromPath(`${componentPath}__initialize`);
+    const isReadOnly = getProperty(`${componentPath}__readOnly`);
+    const instructions = getProperty(`${componentPath}__initialize`);
 
-    const rowLabelPath = store.getters.getPropertyFromPath(`${componentPath}__rowLabel`);
-    const columnLabelPath = store.getters.getPropertyFromPath(`${componentPath}__columnLabel`);
-    const rowLabel = computed(() => store.getters.getPropertyFromPath(`${rowLabelPath}`));
-    const columnLabel = computed(() => store.getters.getPropertyFromPath(`${columnLabelPath}`));
+    const rowLabelPath = getProperty(`${componentPath}__rowLabel`);
+    const columnLabelPath = getProperty(`${componentPath}__columnLabel`);
+    const rowLabel = computed(() => {
+      if (rowLabelPath) return getProperty(`${rowLabelPath}`);
+      else return [];
+    });
+    const columnLabel = computed(() => {
+      if (rowLabelPath) return getProperty(`${columnLabelPath}`);
+      else return [];
+    });
 
     const initialize = (instructions: IMatrixInstruction) => {
       Object.entries(instructions).forEach(([name, instructions]) => {
+        const strip = (v) => JSON.parse(JSON.stringify(v));
         const { matrix1Path, matrix2Path, operations } = instructions;
-        const matrix1 = new Matrix(...store.getters.getPropertyFromPath(`${matrix1Path}`));
-        const matrix2 = matrix2Path ? new Matrix(...store.getters.getPropertyFromPath(`${matrix2Path}`)) : null;
+        const matrix1 = new Matrix(...strip(getProperty(`${matrix1Path}`)));
+        const matrix2 = matrix2Path ? new Matrix(...strip(getProperty(`${matrix2Path}`))) : null;
         const resultMatrix = operations.reduce((result, operation) => {
           const { name, args } = JSON.parse(JSON.stringify(operation));
           if (args.includes("matrix2")) return matrix1[name](matrix2);
           return matrix1[name](...args);
         }, matrix1);
-        store.dispatch("setPropertyFromPath", { path: `${componentPath}__${name}Data`, value: resultMatrix.getRows() });
+        setProperty({ path: `${componentPath}__${name}Data`, value: resultMatrix.getRows() });
       });
     };
 
@@ -72,7 +79,7 @@ export default {
     });
 
     const loadData = (path) => {
-      const data = store.getters.getPropertyFromPath(path);
+      const data = getProperty(path);
       if (data) return data;
       else return [];
     };
@@ -84,11 +91,12 @@ export default {
       const { index } = element.dataset;
       const [column, row] = index.split(",");
       let value = element.value;
-      store.dispatch("setPropertyFromPath", { path: `${componentPath}__userData__${column}__${row}`, value });
+      setProperty({ path: `${componentPath}__userData__${column}__${row}`, value });
     };
 
-    const validateMatrix = () =>
-      userData.value.reduce((isValid, column, i) => {
+    const validateMatrix = () => {
+      if (isReadOnly) return true;
+      return userData.value.reduce((isValid, column, i) => {
         column.forEach((value, j) => {
           const element = document.querySelector(`#matrix_${props.componentID} .i__${i}__${j}`);
           if (!element) {
@@ -99,7 +107,6 @@ export default {
             element.classList.remove("valid");
             element.classList.remove("invalid");
             return false;
-
           }
           if (validationData.value[i][j] == value) {
             element.classList.remove("invalid");
@@ -113,11 +120,12 @@ export default {
         });
         return isValid;
       }, true);
+    };
     watch(
       userData,
       () => {
         const isValid = validateMatrix();
-        store.dispatch("setPropertyFromPath", {
+        setProperty({
           path: `nodes__${currentNode.value}__components__${props.componentID}__isValid`,
           value: isValid,
         });
@@ -127,24 +135,24 @@ export default {
 
     const methods = {
       fillZeros: () => {
-        const solution = JSON.parse(JSON.stringify(store.getters.getPropertyFromPath(`${componentPath}__validationData`)));
-        const userData = JSON.parse(JSON.stringify(store.getters.getPropertyFromPath(`${componentPath}__userData`)));
+        const solution = JSON.parse(JSON.stringify(getProperty(`${componentPath}__validationData`)));
+        const userData = JSON.parse(JSON.stringify(getProperty(`${componentPath}__userData`)));
         const merged = solution.map((row, i) =>
           row.map((value, j) => {
             if (value === 0) return "0";
             return userData[i][j];
           })
         );
-        store.dispatch("setPropertyFromPath", { path: `${componentPath}__userData`, value: merged });
+        setProperty({ path: `${componentPath}__userData`, value: merged });
       },
       showSolution: () => {
-        const solution = JSON.parse(JSON.stringify(store.getters.getPropertyFromPath(`${componentPath}__validationData`)));
-        store.dispatch("setPropertyFromPath", { path: `${componentPath}__userData`, value: solution });
+        const solution = JSON.parse(JSON.stringify(getProperty(`${componentPath}__validationData`)));
+        setProperty({ path: `${componentPath}__userData`, value: solution });
       },
       copyToClipboard: () => {},
     };
     const selectedMethods = () =>
-      Object.entries(store.getters.getPropertyFromPath(`nodes__${currentNode.value}__components__${props.componentID}__methods`)).reduce(
+      Object.entries(getProperty(`nodes__${currentNode.value}__components__${props.componentID}__methods`)).reduce(
         (selectedMethods, [name, description]: [string, string]) => ({ ...selectedMethods, [description]: methods[name] }),
         {}
       );
