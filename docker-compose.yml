@@ -5,6 +5,10 @@ services:
             context: server/
             dockerfile: server.Dockerfile
         container_name: web-server
+        depends_on:
+            - rabbitmq
+            - backend
+            - postgres
         volumes:
             - ./server:/server
         ports:
@@ -85,9 +89,18 @@ services:
         build:
             context: backend
             dockerfile: orchestrator.Dockerfile
+        depends_on:
+            - rabbitmq
+            - postgres
         container_name: backend
         volumes:
             - ./backend:/backend
+
+    maxima:
+        build:
+            context: backend/services/maxima
+            dockerfile: maxima.Dockerfile
+        container_name: maxima
 
 volumes:
     mongodb_data:

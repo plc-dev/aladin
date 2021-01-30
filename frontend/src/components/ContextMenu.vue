@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import { store } from "../store/taskGraph";
+import { getProperty } from "@/helpers/TaskGraphUtility";
 import { ref } from "vue";
 require("clickout-event");
 
@@ -16,7 +16,7 @@ export default {
   name: "ContextMenu",
   props: { componentId: Number, methods: Object },
   setup(props) {
-    const currentNode = store.getters.getPropertyFromPath("currentNode");
+    const currentNode = getProperty("currentNode");
 
     const closeContextMenu = () => {
       const contextMenu = document.querySelector(".contextMenu.open");
@@ -25,8 +25,8 @@ export default {
     const openContextMenu = (event) => {
       const parent = event.path.filter((n) => /vue-grid-item/.test(n.className))[0];
       const contextMenu: HTMLElement = document.querySelector(`.contextMenu_${props.componentId}`);
-      //   contextMenu.style.left = `${event.pageX - parent.offsetLeft}px`;
-      //   contextMenu.style.top = `${event.pageY - parent.offsetTop}px`;
+      // contextMenu.style.left = `${parent.style.left.match(/\d*/)[0] - event.pageX}px`;
+      // contextMenu.style.top = `${parent.style.top.match(/\d*/)[0] - event.pageY}px`;
       contextMenu.classList.add("open");
     };
 

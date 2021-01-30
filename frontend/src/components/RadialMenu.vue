@@ -99,7 +99,7 @@
 
 <script lang="ts">
 import { onMounted, computed, watch } from "vue";
-import { store } from "../store/taskGraph";
+import { store, getProperty, setProperty } from "@/helpers/TaskGraphUtility";
 import { useRouter } from "vue-router";
 
 export default {
@@ -161,7 +161,7 @@ export default {
 }
 .menu--circle {
   position: absolute;
-  z-index: 13;
+  z-index: 4;
   width: 243.33333333333334px;
   height: 243.33333333333334px;
   overflow: hidden;
@@ -170,7 +170,7 @@ export default {
   position: relative;
 }
 .menu__toggle {
-  z-index: 11;
+  z-index: 3;
   position: absolute;
   top: -100px;
   left: -100px;
@@ -183,7 +183,7 @@ export default {
   pointer-events: auto;
 }
 .menu__listings {
-  z-index: 10;
+  z-index: 2;
   position: absolute;
   top: -200px;
   left: -200px;

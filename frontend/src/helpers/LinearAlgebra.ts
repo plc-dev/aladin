@@ -69,7 +69,7 @@ class Matrix {
   }
 
   subtract(M2: Matrix): Matrix {
-    return this.elementWiseOperation((a: number, b: number) => a + b, M2);
+    return this.elementWiseOperation((a: number, b: number) => a - b, M2);
   }
 
   scale(number: number): Matrix {
@@ -132,18 +132,90 @@ class Matrix {
   }
 
   getInverse(): Matrix {
-    const determinant = this.getDeterminant();
-    if (determinant === 0) {
-      throw new Error("Determinant can't be zero.");
+    // const determinant = this.getDeterminant();
+    // if (determinant === 0) {
+    //   throw new Error("Determinant can't be zero.");
+    // }
+    // const adjugate = this.getAdjugate();
+    // return adjugate.scale(1 / determinant);
+
+    function invertMatrix(M) {
+      if (M.length !== M[0].length) {
+        return;
+      }
+      let i = 0,
+        ii = 0,
+        j = 0,
+        dim = M.length,
+        e = 0;
+      let I = [],
+        C = [];
+      for (i = 0; i < dim; i += 1) {
+        I[I.length] = [];
+        C[C.length] = [];
+        for (j = 0; j < dim; j += 1) {
+          if (i == j) {
+            I[i][j] = 1;
+          } else {
+            I[i][j] = 0;
+          }
+
+          C[i][j] = M[i][j];
+        }
+      }
+      for (i = 0; i < dim; i += 1) {
+        e = C[i][i];
+        if (e == 0) {
+          for (ii = i + 1; ii < dim; ii += 1) {
+            if (C[ii][i] != 0) {
+              for (j = 0; j < dim; j++) {
+                e = C[i][j];
+                C[i][j] = C[ii][j];
+                C[ii][j] = e;
+                e = I[i][j];
+                I[i][j] = I[ii][j];
+                I[ii][j] = e;
+              }
+              break;
+            }
+          }
+          e = C[i][i];
+          if (e == 0) {
+            return;
+          }
+        }
+        for (j = 0; j < dim; j++) {
+          C[i][j] = C[i][j] / e;
+          I[i][j] = I[i][j] / e;
+        }
+        for (ii = 0; ii < dim; ii++) {
+          if (ii == i) {
+            continue;
+          }
+          e = C[ii][i];
+          for (j = 0; j < dim; j++) {
+            C[ii][j] -= e * C[i][j];
+            I[ii][j] -= e * I[i][j];
+          }
+        }
+      }
+      return I;
     }
-    const adjugate = this.getAdjugate();
-    return adjugate.scale(1 / determinant);
+    return new Matrix(...invertMatrix(this.getRows()));
   }
 
-  getUnityMatrix() {
-    return this.getInverse()
-      .multiply(this)
-      .map((e: number) => Math.abs(Math.round(e)));
+  getIdentity() {
+    return new Matrix(
+      ...this.rows.map((row, i) =>
+        row.map((v, j) => {
+          if (i === j) return 1;
+          return 0;
+        })
+      )
+    );
+    // return this.getInverse()
+    //   .multiply(this)
+    //   .map((e: number) => Math.abs(Math.round(e)));
   }
 
   public getValueInitializedMatrix(value: number | null) {

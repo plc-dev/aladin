@@ -16,11 +16,6 @@ const routes = [
     component: () => import(/* webpackChunkName: "task" */ "@/views/Task.vue"),
   },
   {
-    path: "/grid",
-    name: "Grid",
-    component: () => import(/* webpackChunkName: "grid" */ "@/views/VueGrid.vue"),
-  },
-  {
     path: "/settings",
     name: "Settings",
     component: () => import(/* webpackChunkName: "settings" */ "@/views/Settings.vue"),

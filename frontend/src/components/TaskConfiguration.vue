@@ -9,7 +9,7 @@
 import { computed, watch } from "vue";
 import DifficultyPicker from "@/components/DifficultyPicker.vue";
 import ParameterSelection from "@/components/ParameterSelection.vue";
-import { store } from "../store/taskGraph";
+import { store, getProperty, setProperty } from "@/helpers/TaskGraphUtility";
 
 export default {
   props: {
@@ -22,12 +22,10 @@ export default {
   setup(props: { componentID: number }) {
     const isAdvancedUser = false;
 
-    const currentNode = computed(() => store.getters.getPropertyFromPath("currentNode"));
-    const taskData = computed(() => store.getters.getPropertyFromPath("taskData"));
+    const currentNode = computed(() => getProperty("currentNode"));
+    const taskData = computed(() => getProperty("taskData"));
 
-    watch(taskData, () =>
-      store.dispatch("setPropertyFromPath", { path: `nodes__${currentNode.value}__components__${props.componentID}__isValid`, value: true })
-    );
+    watch(taskData, () => setProperty({ path: `nodes__${currentNode.value}__components__${props.componentID}__isValid`, value: true }));
 
     return { isAdvancedUser, props };
   },

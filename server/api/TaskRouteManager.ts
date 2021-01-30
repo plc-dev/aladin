@@ -54,7 +54,6 @@ export class TaskRouteManager {
         let producer = null;
         try {
             const configurationObject = { ...req.body, type: task };
-            console.log(configurationObject);
             producer = new RPCProducer(this.channel, `${task}Task`, configurationObject);
             const response = await producer.produceTask();
             res.status(200).json(JSON.stringify(response));

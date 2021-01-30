@@ -8,18 +8,18 @@
 
 <script lang="ts">
 import { computed, onMounted, onUnmounted, watch } from "vue";
-import { store } from "../store/taskGraph";
+import { getProperty } from "@/helpers/TaskGraphUtility";
 
 export default {
   setup() {
     let canvas: HTMLCanvasElement = document.querySelector("#resizeCanvas");
     const canvasProportions = [0.2, 0.9];
 
-    const currentNode = computed(() => store.getters.getPropertyFromPath("currentNode"));
+    const currentNode = computed(() => getProperty("currentNode"));
 
-    const topology = computed(() => store.getters.getPropertyFromPath("topology"));
+    const topology = computed(() => getProperty("topology"));
 
-    const edges = computed(() => store.getters.getPropertyFromPath("edges"));
+    const edges = computed(() => getProperty("edges"));
 
     let collapsed = false;
 

@@ -1,5 +1,7 @@
 {
     "compilerOptions": {
+        "allowJs": true,
+        "checkJs": false,
         "module": "commonjs",
         "esModuleInterop": true,
         "target": "es6",
@@ -16,5 +18,5 @@
     },
     "include": [
         "."
-    ]
+    ],
 }
