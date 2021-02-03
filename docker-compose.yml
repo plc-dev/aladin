@@ -101,6 +101,8 @@ services:
             context: backend/services/maxima
             dockerfile: maxima.Dockerfile
         container_name: maxima
+        volumes:
+            - ./backend/services/maxima/:/worker/
 
 volumes:
     mongodb_data:

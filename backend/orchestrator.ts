@@ -41,6 +41,9 @@ interface ISerializedQueues {
         const aladinClient = new PgClient(dbName);
         const pgWorker = PostgresWorker(aladinClient, channel, dbName);
 
+        // initialize maxima via docker-compose up maxima
+        // const maximaWorker = MaximaWorker(channel);
+
         // initialize rabbitmq consumers
         // TODO generalize with supervisor and docker api
         // https://docs.docker.com/engine/api/v1.40/#operation/ContainerLogs

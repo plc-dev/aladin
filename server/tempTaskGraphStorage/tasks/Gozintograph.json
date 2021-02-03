@@ -84,7 +84,6 @@
                     "0": {
                         "type": "DOTGraph",
                         "name": "Gozintograph",
-                        "dimensions": { "width": 500, "height": 500 },
                         "isValid": true,
                         "dependency": "taskData__dotDescription",
                         "component": {}
@@ -92,7 +91,6 @@
                     "1": {
                         "type": "TaskConfiguration",
                         "name": "Konfiguration",
-                        "dimensions": { "width": 200, "height": 200 },
                         "isValid": false,
                         "component": {
                             "actions": {
@@ -208,7 +206,6 @@
                     "2": {
                         "name": "Direktbedarfsmatrix",
                         "type": "MatrixComponent",
-                        "dimensions": { "width": 200, "height": 200 },
                         "isValid": false,
                         "dependency": "taskData__adjacencyMatrix",
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
@@ -233,7 +230,6 @@
                     "3": {
                         "type": "DOTGraph",
                         "name": "Gozintograph",
-                        "dimensions": { "width": 500, "height": 500 },
                         "isValid": true,
                         "dependency": "taskData__dotDescription",
                         "component": {}
@@ -254,7 +250,6 @@
                     "2": {
                         "name": "Direktbedarfsmatrix",
                         "type": "MatrixComponent",
-                        "dimensions": { "width": 200, "height": 200 },
                         "isValid": false,
                         "dependency": "taskData__adjacencyMatrix",
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
@@ -279,7 +274,6 @@
                     "3": {
                         "type": "DOTGraph",
                         "name": "Gozintograph",
-                        "dimensions": { "width": 500, "height": 500 },
                         "isValid": true,
                         "dependency": "taskData__dotDescription",
                         "component": {}
@@ -301,7 +295,6 @@
                     "2": {
                         "name": "Direktbedarfsmatrix",
                         "type": "MatrixComponent",
-                        "dimensions": { "width": 200, "height": 200 },
                         "isValid": false,
                         "dependency": "taskData__adjacencyMatrix",
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
@@ -326,7 +319,6 @@
                     "3": {
                         "type": "DOTGraph",
                         "name": "Gozintograph",
-                        "dimensions": { "width": 500, "height": 500 },
                         "isValid": true,
                         "dependency": "taskData__dotDescription",
                         "component": {}
@@ -349,7 +341,6 @@
                     "0": {
                         "name": "Direktbedarfsmatrix",
                         "type": "MatrixComponent",
-                        "dimensions": { "width": 200, "height": 200 },
                         "isValid": true,
                         "dependency": "taskData__adjacencyMatrix",
                         "methods": { "copyToClipboard": "Kopieren" },
@@ -374,7 +365,6 @@
                     "1": {
                         "name": "Einheitsmatrix",
                         "type": "MatrixComponent",
-                        "dimensions": { "width": 200, "height": 200 },
                         "isValid": true,
                         "dependency": "taskData__adjacencyMatrix",
                         "methods": { "copyToClipboard": "Kopieren" },
@@ -399,7 +389,6 @@
                     "2": {
                         "name": "Ergebnis",
                         "type": "MatrixComponent",
-                        "dimensions": { "width": 200, "height": 200 },
                         "isValid": false,
                         "dependency": "nodes__6__components__1__component__validationData",
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
@@ -443,7 +432,6 @@
                     "0": {
                         "name": "Ergebnis",
                         "type": "MatrixComponent",
-                        "dimensions": { "width": 200, "height": 200 },
                         "isValid": true,
                         "dependency": "nodes__6__components__2__component__validationData",
                         "methods": { "copyToClipboard": "Kopieren" },
@@ -469,7 +457,6 @@
                     "1": {
                         "name": "Inverse Matrix",
                         "type": "MatrixComponent",
-                        "dimensions": { "width": 200, "height": 200 },
                         "isValid": false,
                         "dependency": "nodes__6__components__2__component__validationData",
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
@@ -497,7 +484,6 @@
                     "2": {
                         "name": "Primärbedarfsvektor",
                         "type": "MatrixComponent",
-                        "dimensions": { "width": 200, "height": 200 },
                         "isValid": true,
                         "dependency": "taskData__labelVector",
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
