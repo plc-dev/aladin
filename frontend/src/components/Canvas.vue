@@ -40,12 +40,13 @@
 
 <script lang="ts">
 import { onMounted, computed, onUpdated, watch } from "vue";
+import { store, getProperty, setProperty } from "@/helpers/TaskGraphUtility";
+import { GridLayout, GridItem } from "vue-grid-layout";
 import panzoom from "@panzoom/panzoom";
 import MiniMap from "@/components/MiniMap.vue";
 import MatrixComponent from "@/components/Matrix.vue";
 import DOTGraph from "@/components/DOTGraph.vue";
 import TaskConfiguration from "@/components/TaskConfiguration.vue";
-import { GridLayout, GridItem } from "vue-grid-layout";
 import Navigation from "@/components/Navigation.vue";
 import { store, getProperty, setProperty } from "@/helpers/TaskGraphUtility";
 export default {

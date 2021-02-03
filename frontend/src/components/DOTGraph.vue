@@ -14,7 +14,6 @@ export default {
   setup(props: { componentID: number }) {
     const currentNode = computed(() => store.state.currentNode);
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
-    const component = computed(() => getProperty(path));
 
     const dependencyPath = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__dependency`);
     const dependency = computed(() => {
@@ -25,8 +24,6 @@ export default {
 
     const renderGraph = (description) => {
       graphviz(`#graph_${props.componentID}`, {
-        height: component.value.height,
-        width: component.value.width,
         fit: true,
         zoom: false,
         useWorker: false,
@@ -38,7 +35,7 @@ export default {
     onMounted(() => {
       renderGraph(dependency.value);
     });
-    return { component, id: props.componentID };
+    return { id: props.componentID };
   },
 };
 </script>
