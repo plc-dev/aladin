@@ -48,7 +48,7 @@ import MatrixComponent from "@/components/Matrix.vue";
 import DOTGraph from "@/components/DOTGraph.vue";
 import TaskConfiguration from "@/components/TaskConfiguration.vue";
 import Navigation from "@/components/Navigation.vue";
-
+import { store, getProperty, setProperty } from "@/helpers/TaskGraphUtility";
 export default {
   name: "Canvas",
   components: {

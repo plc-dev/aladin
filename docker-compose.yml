@@ -104,6 +104,7 @@ services:
         volumes:
             - ./backend/services/maxima/:/worker/
 
+
 volumes:
     mongodb_data:
     postgres-data:

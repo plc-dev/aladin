@@ -40,9 +40,11 @@ RUN npm i
 # RUN ./install.sh
 # WORKDIR /worker
 
+
 # download and compile maxima from source
 RUN wget https://sourceforge.net/projects/maxima/files/Maxima-source/5.44.0-source/maxima-5.44.0.tar.gz/download
 RUN tar -xf download
+
 WORKDIR /worker/maxima-5.44.0
 RUN ./configure --with-scbl
 RUN make
@@ -52,4 +54,5 @@ WORKDIR /worker
 # CMD ts-node MaximaWorker.ts
 
 # keep alive for debugging
+
 CMD tail -f /dev/null
