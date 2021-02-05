@@ -1,25 +1,26 @@
 <template>
   <div class="taskConfiguration">
-    <DifficultyPicker :componentID="props.componentID" v-if="isAdvancedUser" />
-    <ParameterSelection :componentID="props.componentID" v-else />
+    <DifficultyPicker :storeObject="storeObject" :componentID="props.componentID" v-if="isAdvancedUser" />
+    <ParameterSelection :storeObject="storeObject" :componentID="props.componentID" v-else />
   </div>
 </template>
 
 <script lang="ts">
 import { computed, watch } from "vue";
-import DifficultyPicker from "@/components/DifficultyPicker.vue";
-import ParameterSelection from "@/components/ParameterSelection.vue";
-import { store, getProperty, setProperty } from "@/helpers/TaskGraphUtility";
+import DifficultyPicker from "@/components/taskComponents/DifficultyPicker.vue";
+import ParameterSelection from "@/components/taskComponents/ParameterSelection.vue";
 
 export default {
   props: {
     componentID: Number,
+    storeObject: Object,
   },
   components: {
     DifficultyPicker,
     ParameterSelection,
   },
-  setup(props: { componentID: number }) {
+  setup(props) {
+    const { store, getProperty, setProperty } = props.storeObject;
     const isAdvancedUser = false;
 
     const currentNode = computed(() => getProperty("currentNode"));

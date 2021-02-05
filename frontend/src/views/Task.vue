@@ -1,7 +1,7 @@
 <template>
   <div class="task">
-    <DecisionNode v-if="isDecisionNode" />
-    <Canvas v-if="!isDecisionNode && isLoaded" :key="currentNode" />
+    <DecisionNode v-if="isDecisionNode" :storeObject="taskStore" />
+    <Canvas v-if="!isDecisionNode && isLoaded" :key="currentNode" :storeObject="taskStore" />
   </div>
 </template>
 
@@ -9,7 +9,7 @@
 import { onMounted, ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import Canvas from "@/components/Canvas.vue";
-import { store, getProperty, setProperty } from "@/helpers/TaskGraphUtility";
+import stores from "@/helpers/TaskGraphUtility";
 import DecisionNode from "@/components/DecisionNode.vue";
 
 export default {
@@ -19,6 +19,9 @@ export default {
     DecisionNode,
   },
   setup() {
+    const taskStore = stores.taskStore;
+    const { store, getProperty, setProperty } = taskStore;
+
     const route = useRoute();
     const currentNode = computed(() => getProperty("currentNode"));
     const isDecisionNode = computed(() => {
@@ -34,7 +37,7 @@ export default {
       store.dispatch("fetchTaskGraph", { task: route.params.task });
     }
     onMounted(async () => {});
-    return { currentNode, isDecisionNode, isLoaded };
+    return { currentNode, isDecisionNode, isLoaded, taskStore };
   },
 };
 </script>

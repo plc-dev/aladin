@@ -8,14 +8,14 @@
 </template>
 
 <script lang="ts">
-import { getProperty } from "@/helpers/TaskGraphUtility";
 import { ref } from "vue";
 require("clickout-event");
 
 export default {
   name: "ContextMenu",
-  props: { componentId: Number, methods: Object },
+  props: { componentId: Number, methods: Object, storeObject: Object },
   setup(props) {
+    const { getProperty } = props.storeObject;
     const currentNode = getProperty("currentNode");
 
     const closeContextMenu = () => {

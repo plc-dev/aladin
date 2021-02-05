@@ -8,10 +8,11 @@
 
 <script lang="ts">
 import { computed, onMounted, onUnmounted, watch } from "vue";
-import { getProperty } from "@/helpers/TaskGraphUtility";
 
 export default {
-  setup() {
+  props: { storeObject: Object },
+  setup(props) {
+    const { getProperty } = props.storeObject;
     let canvas: HTMLCanvasElement = document.querySelector("#resizeCanvas");
     const canvasProportions = [0.2, 0.9];
 
@@ -170,7 +171,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 #minimap {
   display: block;
   position: fixed;

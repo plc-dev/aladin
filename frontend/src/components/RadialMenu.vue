@@ -99,7 +99,6 @@
 
 <script lang="ts">
 import { onMounted, computed, watch } from "vue";
-import { store, getProperty, setProperty } from "@/helpers/TaskGraphUtility";
 import { useRouter } from "vue-router";
 
 export default {
@@ -164,7 +163,6 @@ export default {
   z-index: 4;
   width: 243.33333333333334px;
   height: 243.33333333333334px;
-  overflow: hidden;
 }
 .menu__active {
   position: relative;
@@ -244,7 +242,6 @@ export default {
   background-color: grey;
   border-radius: 50%;
   transform: rotate(108deg);
-  overflow: hidden;
   list-style: none;
 }
 .circle li {

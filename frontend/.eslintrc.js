@@ -20,6 +20,8 @@ module.exports = {
     "no-debugger": process.env.NODE_ENV === "production" ? "error" : "off",
     "@typescript-eslint/ban-ts-ignore": 0,
     "no-unused-vars": 1,
+    "vue/no-setup-props-destructure": 0,
+    "no-setup-props-destructure": 0,
   },
   overrides: [
     {
@@ -29,6 +31,8 @@ module.exports = {
       },
       rules: {
         "no-unused-expressions": 0,
+        "vue/no-setup-props-destructure": 0,
+        "no-setup-props-destructure": 0,
       },
     },
   ],

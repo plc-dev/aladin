@@ -7,14 +7,15 @@
 </template>
 
 <script lang="ts">
-import { getProperty } from "@/helpers/TaskGraphUtility";
 import { onMounted } from "vue";
 
 export default {
   props: {
     nodeId: Number,
+    storeObject: Object,
   },
   setup(props) {
+    const { getProperty } = props.storeObject;
     const currentNode = getProperty("currentNode");
     const { title, image, description } = getProperty(`nodes__${currentNode}__pathDescriptions__${props.nodeId}`);
 
