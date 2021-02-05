@@ -5,6 +5,11 @@ import { PostgresWorker } from "./workers/PostgresWorker";
 import { PgClient } from "./database/postgres/postgresDAO";
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
+// TODO generalize generators into serialisable functions
+const generators: { [key: string]: any } = {
+    GozintographGenerator: GozintographGenerator,
+};
+
 // load environment variables
 import * as dotenv from "dotenv";
 dotenv.config({ path: __dirname + "/.env" });
@@ -14,7 +19,7 @@ interface ISerializedQueues {
         minConsumers: number;
         consumerInstructions: {
             [key: string]: {
-                closureArguments: [any];
+                dependencies: Array<string>;
                 body: string;
             };
         };
@@ -36,6 +41,9 @@ interface ISerializedQueues {
         const aladinClient = new PgClient(dbName);
         const pgWorker = PostgresWorker(aladinClient, channel, dbName);
 
+        // initialize maxima via docker-compose up maxima
+        // const maximaWorker = MaximaWorker(channel);
+
         // initialize rabbitmq consumers
         // TODO generalize with supervisor and docker api
         // https://docs.docker.com/engine/api/v1.40/#operation/ContainerLogs
@@ -47,7 +55,7 @@ interface ISerializedQueues {
                 minConsumers: 1,
                 consumerInstructions: {
                     generateGraph: {
-                        closureArguments: [GozintographGenerator],
+                        dependencies: ["GozintographGenerator"],
                         body: `async (taskDescription) => {
                             const g = new GozintographGenerator(taskDescription.parameters); 
                             return g.generateGraph();
@@ -65,9 +73,9 @@ interface ISerializedQueues {
             const parsedFunctions = Object.entries(queueConfig.consumerInstructions).reduce(
                 (parsedFunctions, [instructionName, instruction]) => {
                     const parsedFunction = new AsyncFunction(
-                        ...instruction.closureArguments.map((arg) => arg.name),
+                        ...instruction.dependencies.map((dependency) => generators[dependency].name),
                         `"use strict"; return (${instruction.body});`
-                    )(...instruction.closureArguments);
+                    )(...instruction.dependencies.map((dependency) => generators[dependency]));
                     return { ...parsedFunctions, [instructionName]: parsedFunction };
                 },
                 {}

@@ -3,37 +3,40 @@
 </template>
 
 <script lang="ts">
-import { onMounted, computed, toRefs, ref, defineComponent, watch } from "vue";
+import { onMounted, computed, ref, defineComponent, watch } from "vue";
 import { graphviz } from "d3-graphviz";
-import { store } from "../store/taskGraph";
 
 export default {
   props: {
     componentID: Number,
+    storeObject: Object,
   },
-  setup(props: { componentID: number }) {
+  setup(props) {
+    const { store, getProperty } = props.storeObject;
     const currentNode = computed(() => store.state.currentNode);
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
-    const component = computed(() => store.getters.getPropertyFromPath(path));
 
-    const taskData = computed(() => store.getters.getPropertyFromPath("taskData"));
+    const dependencyPath = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__dependency`);
+    const dependency = computed(() => {
+      const dependency = getProperty(`${dependencyPath}`);
+      if (!dependency) return "";
+      return dependency;
+    });
 
     const renderGraph = (description) => {
       graphviz(`#graph_${props.componentID}`, {
-        height: component.value.height,
-        width: component.value.width,
         fit: true,
         zoom: false,
         useWorker: false,
       }).renderDot(description);
     };
-    watch(taskData, () => {
-      renderGraph(taskData.value.dotDescription);
+    watch(dependency, () => {
+      renderGraph(dependency.value);
     });
     onMounted(() => {
-      renderGraph(component.value.component.dotDescription);
+      renderGraph(dependency.value);
     });
-    return { component, id: props.componentID };
+    return { id: props.componentID };
   },
 };
 </script>

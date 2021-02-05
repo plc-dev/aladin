@@ -1,7 +1,7 @@
 <template>
   <div class="canvas">
-    <Navigation />
-    <div class="wrapper">
+    <Navigation :storeObject="storeObject" />
+    <div class="zoomWrapper">
       <grid-layout
         class="grid"
         v-model="currentLayout"
@@ -10,8 +10,10 @@
         :is-draggable="true"
         :is-resizable="true"
         :vertical-compact="false"
-        :use-css-transforms="false"
+        :use-css-transforms="true"
+        :prevent-collision="true"
         @breakpoint-changed="swapLayout"
+        :key="layoutSize"
       >
         <grid-item
           v-for="item in currentLayout"
@@ -25,28 +27,30 @@
           :scale="zoomScale"
           drag-allow-from=".dragHandler"
           drag-ignore-from=".ignoreDrag"
+          @move="setCoordinates"
           @resize="updateDimensions"
         >
           <img class="dragHandler" src="/img/drag_arrow.webp" />
-          <component :componentID="item.i" :is="nodeComponents[item.i].type"></component>
+          <component :is="nodeComponents[item.i].type" :componentID="item.i" :storeObject="storeObject"></component>
         </grid-item>
       </grid-layout>
     </div>
 
-    <MiniMap class="minimap" />
+    <MiniMap class="minimap" :storeObject="storeObject" />
   </div>
 </template>
 
 <script lang="ts">
-import { onMounted, computed } from "vue";
+import { onMounted, computed, onUpdated, watch } from "vue";
+import { GridLayout, GridItem } from "vue-grid-layout";
 import panzoom from "@panzoom/panzoom";
 import MiniMap from "@/components/MiniMap.vue";
-import MatrixComponent from "@/components/Matrix.vue";
-import DOTGraph from "@/components/DOTGraph.vue";
-import TaskConfiguration from "@/components/TaskConfiguration.vue";
-import { store } from "../store/taskGraph";
-import { GridLayout, GridItem } from "vue-grid-layout";
+import MatrixComponent from "@/components/taskComponents/Matrix.vue";
+import DOTGraph from "@/components/taskComponents/DOTGraph.vue";
+import TaskConfiguration from "@/components/taskComponents/TaskConfiguration.vue";
 import Navigation from "@/components/Navigation.vue";
+import GraphTraversal from "@/components/taskComponents/GraphTraversal.vue";
+import CodeEditor from "@/components/taskComponents/CodeEditor.vue";
 
 export default {
   name: "Canvas",
@@ -58,51 +62,83 @@ export default {
     GridItem,
     GridLayout,
     Navigation,
+    GraphTraversal,
+    CodeEditor,
   },
-  setup() {
-    const exludedInnerElements = () => Array.from(document.querySelectorAll(".wrapper .vue-grid-item"));
-    const columnAmount = 20;
+  props: {
+    storeObject: Object,
+  },
+  setup(props) {
+    const { store, getProperty, setProperty } = props.storeObject;
+    const columnAmount = 30;
     const rowHeight = (document.querySelector("html").clientWidth * 3) / columnAmount;
-    const currentNode = computed(() => store.getters.getPropertyFromPath("currentNode"));
-    const zoomScale = computed(() => store.getters.getPropertyFromPath("zoomScale"));
-    const nodeComponents = computed(() => store.getters.getPropertyFromPath(`nodes__${currentNode.value}__components`));
-    const layouts = computed(() => store.getters.getPropertyFromPath(`nodes__${currentNode.value}__layouts`));
-    const currentLayout = computed(() => store.getters.getPropertyFromPath(`nodes__${currentNode.value}__layouts__lg`));
+    const currentNode = computed(() => getProperty("currentNode"));
+    const zoomScale = computed(() => getProperty("zoomScale"));
+    const nodeComponents = computed(() => getProperty(`nodes__${currentNode.value}__components`));
+    const layouts = computed(() => getProperty(`nodes__${currentNode.value}__layouts`));
+    const layoutSize = computed(() => getProperty(`layoutSize`));
+    const currentLayout = computed({
+      get: () => {
+        const layout = getProperty(`nodes__${currentNode.value}__layouts__${layoutSize.value}`);
+        return layout;
+      },
+      set: (layout) => {
+        setProperty({ path: `nodes__${currentNode.value}__layout`, value: layout });
+      },
+    });
 
+    let panzoomInstance = null;
     const setInitialDimensions = (layout, viewWidth) => {
       layout.forEach((component) =>
-        store.dispatch("setPropertyFromPath", {
+        setProperty({
           path: `nodes__${currentNode.value}__components__${component.i}__dimensions`,
           value: { height: component.h * rowHeight, width: component.w * (viewWidth / columnAmount) },
         })
       );
     };
-
     onMounted(() => {
-      // - (viewwidth|viewheight * (n-1)), where n is the vw/vh specified in the wrappers css
-      const wrapper = panzoom(document.querySelector(".wrapper"), {
-        exclude: exludedInnerElements(),
+      // - (viewwidth|viewheight * (n-1)), where n is the vw/vh specified in the zoomWrappers css
+      panzoomInstance = panzoom(document.querySelector(".zoomWrapper"), {
+        excludeClass: "vue-grid-item",
         canvas: true,
         contain: "outside",
-        startX: -document.querySelector(".wrapper").clientWidth / 2,
-        startY: -document.querySelector(".wrapper").clientHeight / 2,
+        startX: -document.querySelector(".zoomWrapper").clientWidth / 2,
+        startY: -document.querySelector(".zoomWrapper").clientHeight / 2,
       });
-
       document.querySelector(".canvas").addEventListener("wheel", (event: WheelEvent) => {
-        wrapper.zoomWithWheel(event);
-        store.dispatch("setPropertyFromPath", { path: "zoomScale", value: wrapper.getScale() });
+        panzoomInstance.zoomWithWheel(event);
+        setProperty({ path: "zoomScale", value: panzoomInstance.getScale() });
       });
 
-      setInitialDimensions(currentLayout.value, document.querySelector("html").clientWidth);
+      // TODO remove hack for activating reactivity + add proper eventlisteners for resize and moving grid items
+      setProperty({ path: "zoomScale", value: 1 });
     });
-
     const updateDimensions = (id, gridWidth, gridHeight, pixelWidth, pixelHeight) => {
       const path = `nodes__${currentNode.value}__components__${id}`;
-      store.dispatch("setPropertyFromPath", { path: `${path}__dimensions`, value: { height: pixelHeight, width: pixelWidth } });
+      setProperty({ path: `${path}__dimensions`, value: { height: pixelHeight, width: pixelWidth } });
     };
-
     const swapLayout = (breakpoint, newlayout) => {
-      // store.dispatch("setPropertyFromPath", { path: ``, value: })
+      // setProperty( { path: ``, value: })
+    };
+    watch(currentNode, () => {
+      currentLayout.value = getProperty(`nodes__${currentNode.value}__layouts__${layoutSize.value}`);
+    });
+
+    let timer;
+    const setCoordinates = (i, x, y) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const movedLayout = currentLayout.value.map((node) => {
+          if (node.i == i) {
+            node.x = x;
+            node.y = y;
+          }
+          return node;
+        });
+
+        const path = `nodes__${currentNode.value}__layouts__${layoutSize.value}`;
+        setProperty({ path, value: movedLayout });
+      }, 100);
     };
 
     return {
@@ -114,23 +150,22 @@ export default {
       currentLayout,
       columnAmount,
       rowHeight,
+      setCoordinates,
+      layoutSize,
     };
   },
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .canvas {
   width: 100vw;
   height: 100vh;
 }
-
-.wrapper {
+.zoomWrapper {
   width: 300vw;
   height: 300vw;
 }
-
 /* GRID */
 .grid {
   width: 300vw;
@@ -138,6 +173,8 @@ export default {
 }
 .dragHandler {
   position: absolute;
+  top: 10px;
+  left: 10px;
   width: 20px;
   height: 20px;
   z-index: 999;
@@ -146,7 +183,7 @@ export default {
   touch-action: none;
   border: solid 1px black;
   box-sizing: border-box;
-  cursor: pointer;
+  cursor: default;
 }
 .vue-grid-item .resizing {
   opacity: 0.9;
@@ -156,7 +193,7 @@ export default {
   width: 100%;
 }
 .vue-grid-item .add {
-  cursor: pointer;
+  cursor: default;
 }
 .vue-draggable-handle {
   position: absolute;

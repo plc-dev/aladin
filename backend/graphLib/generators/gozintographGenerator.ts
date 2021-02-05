@@ -43,6 +43,7 @@ export class GozintographGenerator extends GraphGenerator {
         this.assignNodeAttributes();
         this.graph.createAdjacencyMatrix();
         this.graph.createValueVector();
+        this.graph.createLabelVector();
         this.graph.dotDescription = this.generateDOTDescription();
         return this.graph;
     }
@@ -132,7 +133,12 @@ export class GozintographGenerator extends GraphGenerator {
     }
 
     private assignValue() {
-        Object.keys(this.graph.nodes).forEach((id) => (this.graph.nodes[id].value = this.rng.intBetween(...this.value)));
+        this.graph.topology.forEach((layer, i) =>
+            layer.forEach((id) => {
+                if (!i) this.graph.nodes[id].value = this.rng.intBetween(1, this.value[1]);
+                else this.graph.nodes[id].value = this.rng.intBetween(...this.value);
+            })
+        );
     }
 
     private assignLabels() {

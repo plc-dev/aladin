@@ -12,3 +12,9 @@ backend/services/postgres/*
 !backend/services/postgres/postgres.Dockerfile
 backend/services/rabbitmq/*
 !backend/services/rabbitmq/rabbitmq.Dockerfile
+backend/services/maxima/*
+!backend/services/maxima/maxima.Dockerfile
+!backend/services/maxima/MaximaInputParser.ts
+!backend/services/maxima/MaximaOutputParser.ts
+!backend/services/maxima/MaximaWorker.ts
+!backend/services/maxima/MaximaWrapper.ts

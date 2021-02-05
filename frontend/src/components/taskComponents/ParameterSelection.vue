@@ -28,25 +28,26 @@
 
 <script lang="ts">
 import { onMounted, computed } from "vue";
-import { store } from "../store/taskGraph";
 
 export default {
   props: {
     componentID: Number,
+    storeObject: Object,
   },
-  setup(props: { componentID: number }) {
+  setup(props) {
+    const { store, getProperty, setProperty } = props.storeObject;
     const currentNode = computed(() => store.state.currentNode);
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
 
-    const elements = computed(() => store.getters.getPropertyFromPath(`${path}__component__state`));
+    const elements = computed(() => getProperty(`${path}__component__state`));
 
     const updateElement = (event) => {
       const { className, value } = event.target;
       const elementPath = `${path}__component__state__${className}__value`;
-      store.dispatch("setPropertyFromPath", { path: elementPath, value });
+      setProperty({ path: elementPath, value });
     };
 
-    const actions = computed(() => store.getters.getPropertyFromPath(`${path}__component__actions`));
+    const actions = computed(() => getProperty(`${path}__component__actions`));
 
     const preparePayload = () => {
       const parameters: { [key: string]: any } = Object.entries(elements.value).reduce(
@@ -61,7 +62,7 @@ export default {
       return payload;
     };
 
-    const currentTask = computed(() => store.getters.getPropertyFromPath("currentTask"));
+    const currentTask = computed(() => getProperty("currentTask"));
 
     const fetchData = () =>
       store.dispatch("fetchTaskData", { payload: preparePayload(), endpoint: `${currentTask.value}/${actions.value.instruction}` });

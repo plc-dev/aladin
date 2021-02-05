@@ -16,7 +16,7 @@ export default {
 
 <style>
 * {
-  overflow: hidden !important;
+  overflow: hidden;
   margin: 0;
   padding: 0;
 }
