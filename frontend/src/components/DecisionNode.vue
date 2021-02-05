@@ -1,21 +1,22 @@
 <template>
   <div class="decisions">
     <div class="branch" v-for="(edge, i) in possibleEdges" :key="i">
-      <Navigation :nextNode="edge" />
-      <DescriptionBox :nodeId="edge" />
+      <Navigation :storeObject="storeObject" :nextNode="edge" />
+      <DescriptionBox :storeObject="storeObject" :nodeId="edge" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import Navigation from "@/components/Navigation.vue";
-import DescriptionBox from "@/components/DescriptionBox.vue";
-import { getProperty } from "@/helpers/TaskGraphUtility";
+import DescriptionBox from "@/components/taskComponents/DescriptionBox.vue";
 import { onMounted } from "vue";
 
 export default {
   components: { Navigation, DescriptionBox },
-  setup() {
+  props: { storeObject: Object },
+  setup(props) {
+    const { getProperty } = props.storeObject;
     const currentNode = getProperty("currentNode");
     const possibleEdges = getProperty(`edges__${currentNode}`);
 

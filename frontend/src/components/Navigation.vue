@@ -7,14 +7,15 @@
 
 <script lang="ts">
 import { onMounted, computed, watch } from "vue";
-import { store, getProperty, setProperty } from "@/helpers/TaskGraphUtility";
 import { useRouter } from "vue-router";
 
 export default {
   props: {
     nextNode: Number,
+    storeObject: Object,
   },
-  setup(props: { nextNode?: number }) {
+  setup(props) {
+    const { store, getProperty, setProperty } = props.storeObject;
     const router = useRouter();
     const rootNode = getProperty("rootNode");
     const currentNode = getProperty("currentNode");

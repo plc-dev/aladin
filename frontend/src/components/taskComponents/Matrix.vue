@@ -1,5 +1,5 @@
 <template>
-  <ContextMenu :componentId="id" :methods="selectedMethods">
+  <ContextMenu :componentId="id" :methods="selectedMethods" :storeObject="storeObject">
     <table :id="`matrix_${id}`" class="matrix">
       <tr v-if="columnLabel.length">
         <p class="placeholder">&nbsp;</p>
@@ -21,17 +21,17 @@
 
 <script lang="ts">
 import { onMounted, computed, watch, ComputedRef } from "vue";
-import { Matrix } from "../helpers/LinearAlgebra";
-import { store, getProperty, setProperty } from "@/helpers/TaskGraphUtility";
+import { Matrix } from "@/helpers/LinearAlgebra";
 import { IMatrixInstruction } from "@/interfaces/MatrixInterface";
-import ContextMenu from "@/components/ContextMenu.vue";
+import ContextMenu from "@/components/taskComponents/ContextMenu.vue";
 
 export default {
-  props: { componentID: Number },
+  props: { componentID: Number, storeObject: Object },
   components: {
     ContextMenu,
   },
-  setup(props: { componentID: number }) {
+  setup(props) {
+    const { store, getProperty, setProperty } = props.storeObject;
     const currentNode = computed(() => store.state.currentNode);
     const componentPath = `nodes__${currentNode.value}__components__${props.componentID}__component`;
 
@@ -171,7 +171,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;

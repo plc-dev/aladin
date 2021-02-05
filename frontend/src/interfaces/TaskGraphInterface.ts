@@ -39,7 +39,7 @@ interface IComponent {
 }
 
 interface IComponents {
-  [key: number]: IMatrixComponent | IDOTGraphComponent | ITaskConfigurationComponent | IComponent;
+  [key: number]: IMatrixComponent | IDOTGraphComponent | ITaskConfigurationComponent | IComponent | object;
 }
 
 interface IStateChange {
@@ -55,8 +55,6 @@ interface ITaskReplay {
 interface IState {
   previousNode: number;
   rootNode: number;
-  editor: false;
-  replay: false;
   currentTask: string;
   layoutSize: string;
   taskData: { [key: string]: any };
@@ -72,7 +70,6 @@ interface IState {
           zoomScale: number;
         };
   };
-  taskReplay: ITaskReplay;
 }
 
 export { IState, IComponent };

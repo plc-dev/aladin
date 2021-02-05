@@ -28,13 +28,14 @@
 
 <script lang="ts">
 import { onMounted, computed } from "vue";
-import { store, getProperty, setProperty } from "@/helpers/TaskGraphUtility";
 
 export default {
   props: {
     componentID: Number,
+    storeObject: Object,
   },
-  setup(props: { componentID: number }) {
+  setup(props) {
+    const { store, getProperty, setProperty } = props.storeObject;
     const currentNode = computed(() => store.state.currentNode);
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
 

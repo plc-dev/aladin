@@ -3,15 +3,16 @@
 </template>
 
 <script lang="ts">
-import { onMounted, computed, toRefs, ref, defineComponent, watch } from "vue";
+import { onMounted, computed, ref, defineComponent, watch } from "vue";
 import { graphviz } from "d3-graphviz";
-import { store, getProperty } from "@/helpers/TaskGraphUtility";
 
 export default {
   props: {
     componentID: Number,
+    storeObject: Object,
   },
-  setup(props: { componentID: number }) {
+  setup(props) {
+    const { store, getProperty } = props.storeObject;
     const currentNode = computed(() => store.state.currentNode);
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
 

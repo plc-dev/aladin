@@ -1,5 +1,4 @@
 import { createStore, createLogger } from "vuex";
-import { reactive, ref } from "vue";
 import { Matrix } from "../helpers/LinearAlgebra";
 import axios from "axios";
 import { IState } from "@/interfaces/TaskGraphInterface";
@@ -19,14 +18,11 @@ const mutations = {
   SET_PROPERTY(state: IState, payload: { path: string; value: any }) {
     const { path, value } = payload;
     const splitPath = path.split("__");
-    // save state on every mutation as a side effect for task replay if not in replay or editor mode
-    // if (!editor && !replay)
-    // state.taskReplay.stateChange.push({ timestamp: new Date().getTime(), ...payload });
 
     const parsedPath = splitPath.reduce((parsedPath, substring) => {
       return `${parsedPath}["${substring}"]`;
     }, "");
-    const setState = new Function("state", "value", `state${parsedPath} = value; console.log(value);`);
+    const setState = new Function("state", "value", `state${parsedPath} = value;`);
     setState(state, value);
   },
 };
@@ -64,7 +60,7 @@ const getters = {
   },
 };
 
-export const taskStore = createStore<IState>({
+export const replayStore = createStore<IState>({
   state,
   mutations,
   actions,

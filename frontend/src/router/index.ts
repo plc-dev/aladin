@@ -23,7 +23,7 @@ const routes = [
   {
     path: "/editor",
     name: "Editor",
-    component: () => import(/* webpackChunkName: "settings" */ "@/views/JSONEditor.vue"),
+    component: () => import(/* webpackChunkName: "settings" */ "@/views/Configurator.vue"),
   },
 ];
 
