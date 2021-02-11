@@ -1,11 +1,14 @@
 <template>
-  <div class="background"></div>
+  <div class="wrapper">
+    <ContourPlot :componentID="componentID" :storeObject="storeObject" />
+    <DOTGraph class="foreground" :componentID="componentID" :storeObject="storeObject" />
+  </div>
 </template>
 
 <script>
 import { onMounted, computed } from "vue";
-import ContourPlot from "ContourPlot.vue";
-import DOTGraph from "DOTGraph.vue";
+import ContourPlot from "@/components/taskComponents/ContourPlot.vue";
+import DOTGraph from "@/components/taskComponents/DOTGraph.vue";
 
 export default {
   props: {
@@ -30,4 +33,10 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.foreground {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+}
+</style>

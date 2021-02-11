@@ -69,7 +69,6 @@ export default {
     Navigation,
     VisualGraphTraversal,
     CodeEditor,
-    ContourPlot
   },
   props: {
     storeObject: Object,
@@ -215,5 +214,11 @@ export default {
   background-origin: content-box;
   box-sizing: border-box;
   cursor: pointer;
+}
+</style>
+
+<style>
+.vue-resizable-handle {
+  z-index: 999 !important;
 }
 </style>
