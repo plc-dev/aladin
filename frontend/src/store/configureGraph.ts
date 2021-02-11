@@ -37,14 +37,6 @@ const state: IState = {
         ],
         lg: [
           {
-            x: 18,
-            y: 15,
-            w: 2,
-            h: 2,
-            i: 2,
-            static: false,
-          },
-          {
             x: 20,
             y: 15,
             w: 2,
@@ -52,55 +44,29 @@ const state: IState = {
             i: 3,
             static: false,
           },
+          {
+            x: 16,
+            y: 15,
+            w: 2,
+            h: 2,
+            i: 1,
+            static: false,
+          },
         ],
       },
       components: {
-        "2": {
-          name: "Direktbedarfsmatrix",
-          type: "MatrixComponent",
-          dimensions: {
-            width: 200,
-            height: 200,
-          },
-          isValid: false,
-          dependency: "taskData__adjacencyMatrix",
-          methods: {
-            fillZeros: "Ergänze Nullen",
-            showSolution: "Zeige Lösung",
-            copyToClipboard: "Kopieren",
-          },
-          component: {
-            initialize: {
-              validation: {
-                operations: [],
-                matrix1Path: "taskData__adjacencyMatrix",
-              },
-              user: {
-                operations: [
-                  {
-                    name: "getValueInitializedMatrix",
-                    args: [null],
-                  },
-                ],
-                matrix1Path: "taskData__adjacencyMatrix",
-              },
-            },
-            userData: null,
-            validationData: null,
-            readOnly: false,
-            rowLabel: "taskData__labelVector",
-            columnLabel: "taskData__labelVector",
-          },
+        "1": {
+          name: "Traversal",
+          type: "VisualGraphTraversal",
+          isValid: true,
+          dependencies: { DOTGraph: "taskData__dotDescription", VisualGraphTraversal: "taskData__nodes" },
+          component: {},
         },
         "3": {
-          type: "DOTGraph",
-          name: "Gozintograph",
-          dimensions: {
-            width: 500,
-            height: 500,
-          },
-          isValid: true,
-          dependency: "taskData__dotDescription",
+          type: "PathDisplay",
+          name: "display",
+          isValid: false,
+          dependencies: { PathDisplay: "taskData__dotDescription" },
           component: {},
         },
       },
@@ -108,43 +74,67 @@ const state: IState = {
   },
   taskData: {
     nodes: {
-      "0": { id: 0, isLeaf: false, label: "P0", value: 5 },
-      "1": { id: 1, isLeaf: false, label: "P1", value: 6 },
-      "2": { id: 2, isLeaf: true, label: "K0", value: 1 },
-      "3": { id: 3, isLeaf: true, label: "K1", value: 5 },
-      "4": { id: 4, isLeaf: true, label: "R0", value: 5 },
+      "0": { id: 0, isLeaf: false, label: "P0", value: 6 },
+      "1": { id: 1, isLeaf: false, label: "P1", value: 9 },
+      "2": { id: 2, isLeaf: false, label: "P2", value: 8 },
+      "3": { id: 3, isLeaf: false, label: "B0", value: 8 },
+      "4": { id: 4, isLeaf: false, label: "B1", value: 10 },
+      "5": { id: 5, isLeaf: false, label: "B2", value: 1 },
+      "6": { id: 6, isLeaf: true, label: "R0", value: 1 },
+      "7": { id: 7, isLeaf: true, label: "R1", value: 3 },
+      "8": { id: 8, isLeaf: true, label: "R2", value: 2 },
     },
     edges: [
-      { between: [2, 1], weight: 2 },
-      { between: [3, 1], weight: 3 },
-      { between: [4, 1], weight: 9 },
-      { between: [3, 0], weight: 6 },
+      { between: [6, 4], weight: 7 },
+      { between: [7, 0], weight: 5 },
+      { between: [7, 3], weight: 7 },
+      { between: [8, 1], weight: 10 },
+      { between: [8, 5], weight: 8 },
+      { between: [3, 2], weight: 2 },
+      { between: [4, 0], weight: 6 },
+      { between: [5, 0], weight: 9 },
     ],
     idGenerator: {},
     isDirected: true,
     topology: [
-      [0, 1],
-      [2, 3, 4],
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
     ],
     paths: [
-      [{ between: [3, 0], weight: 6 }],
-      [{ between: [2, 1], weight: 2 }],
-      [{ between: [3, 1], weight: 3 }],
-      [{ between: [4, 1], weight: 9 }],
+      [{ between: [7, 0], weight: 5 }],
+      [
+        { between: [4, 0], weight: 6 },
+        { between: [6, 4], weight: 7 },
+      ],
+      [
+        { between: [5, 0], weight: 9 },
+        { between: [8, 5], weight: 8 },
+      ],
+      [{ between: [8, 1], weight: 10 }],
+      [
+        { between: [3, 2], weight: 2 },
+        { between: [7, 3], weight: 7 },
+      ],
     ],
     adjacencyMatrix: [
-      [0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0],
-      [0, 2, 0, 0, 0],
-      [6, 3, 0, 0, 0],
-      [0, 9, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 2, 0, 0, 0, 0, 0, 0],
+      [6, 0, 0, 0, 0, 0, 0, 0, 0],
+      [9, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 7, 0, 0, 0, 0],
+      [5, 0, 0, 7, 0, 0, 0, 0, 0],
+      [0, 10, 0, 0, 0, 8, 0, 0, 0],
     ],
-    valueVector: [[5, 6, 1, 5, 5]],
-    labelVector: ["P0", "P1", "K0", "K1", "R0"],
+    valueVector: [[6, 9, 8, 8, 10, 1, 1, 3, 2]],
+    labelVector: ["P0", "P1", "P2", "B0", "B1", "B2", "R0", "R1", "R2"],
     dotDescription:
-      `\n            digraph\n {\n            node [shape="circle" style="filled"]` +
-      `edge [dir="back"]\n\n             P1 -> K0 [label=" 2"]\n P1 -> K1 [label=" 3"]` +
-      `P1 -> R0 [label=" 9"]\n P0 -> K1 [label=" 6"]\n\n             { rank=same; P0,P1 }\n { rank=same; K0,K1,R0 }\n\n            }\n        `,
+      '\n            digraph\n {\n            node [shape="circle" style="filled"]\n\n            edge [dir="back"]\n\n' +
+      '             B1 -> R0 [label=" 7"]\n P0 -> R1 [label=" 5"]\n B0 -> R1 [label=" 7"]\n P1 -> R2 [label=" 10"]\n' +
+      ' B2 -> R2 [label=" 8"]\n P2 -> B0 [label=" 2"]\n P0 -> B1 [label=" 6"]\n P0 -> B2 [label=" 9"]\n\n ' +
+      "            { rank=same; P0,P1,P2 }\n { rank=same; B0,B1,B2 }\n { rank=same; R0,R1,R2 }\n\n            }\n        ",
   },
 };
 
