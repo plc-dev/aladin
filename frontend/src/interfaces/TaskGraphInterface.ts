@@ -35,7 +35,7 @@ interface IComponent {
   dimensions: IDimensions;
   component: object;
   isValid: boolean;
-  dependency?: object;
+  dependencies?: object;
 }
 
 interface IComponents {

@@ -35,8 +35,8 @@ export default {
     const currentNode = computed(() => store.state.currentNode);
     const componentPath = `nodes__${currentNode.value}__components__${props.componentID}__component`;
 
-    const dependencyPath = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__dependency`);
-    const dependency = computed(() => getProperty(`${dependencyPath}`));
+    const dependencies = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__dependencies`);
+    const dependency = computed(() => getProperty(`${dependencies["Matrix"]}`));
 
     const isReadOnly = getProperty(`${componentPath}__readOnly`);
     const instructions = getProperty(`${componentPath}__initialize`);
