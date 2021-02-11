@@ -1,6 +1,6 @@
 <template>
   <div>
-    <DOTGraph :componentID="componentID" />
+    <DOTGraph :componentID="componentID" :storeObject="storeObject" />
   </div>
 </template>
 
@@ -19,7 +19,7 @@ export default {
     const handleSelectedPath = (event) => {};
     const edges = document.querySelectorAll(".edge");
     edges.forEach((edge) => edge.addEventListener("click", handleSelectedPath));
-    return { id: props.componentID };
+    return {};
   },
 };
 </script>

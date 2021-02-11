@@ -41,72 +41,34 @@ const state: IState = {
             y: 15,
             w: 2,
             h: 2,
-            i: 2,
-            static: false,
-          },
-          {
-            x: 20,
-            y: 15,
-            w: 2,
-            h: 2,
             i: 3,
             static: false,
           },
         ],
       },
       components: {
-        "2": {
-          name: "Direktbedarfsmatrix",
-          type: "MatrixComponent",
-          dimensions: {
-            width: 200,
-            height: 200,
-          },
-          isValid: false,
-          dependency: "taskData__adjacencyMatrix",
-          methods: {
-            fillZeros: "Ergänze Nullen",
-            showSolution: "Zeige Lösung",
-            copyToClipboard: "Kopieren",
-          },
-          component: {
-            initialize: {
-              validation: {
-                operations: [],
-                matrix1Path: "taskData__adjacencyMatrix",
-              },
-              user: {
-                operations: [
-                  {
-                    name: "getValueInitializedMatrix",
-                    args: [null],
-                  },
-                ],
-                matrix1Path: "taskData__adjacencyMatrix",
-              },
-            },
-            userData: null,
-            validationData: null,
-            readOnly: false,
-            rowLabel: "taskData__labelVector",
-            columnLabel: "taskData__labelVector",
-          },
-        },
-        "3": {
-          type: "DOTGraph",
+        3: {
+          type: "BackgroundGraph",
           name: "Gozintograph",
-          dimensions: {
-            width: 500,
-            height: 500,
-          },
           isValid: true,
-          dependency: "taskData__dotDescription",
+          dependencies: {
+            ContourPlot: { grid: "taskData__grid", thresholds: "taskData__thresholds" },
+            DOTGraph: "taskData__dotDescription",
+          },
           component: {},
         },
       },
     },
   },
   taskData: {
+    grid: [
+      [90, 95, 104, 105, 105],
+      [106, 106, 106, 107, 107],
+      [106, 106, 105, 105, 104],
+      [104, 104, 104, 105, 107],
+      [75, 99, 102, 109, 90],
+    ],
+    thresholds: [90, 95, 100, 105],
     nodes: {
       "0": { id: 0, isLeaf: false, label: "P0", value: 5 },
       "1": { id: 1, isLeaf: false, label: "P1", value: 6 },

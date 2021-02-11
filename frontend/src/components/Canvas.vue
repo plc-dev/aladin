@@ -45,24 +45,29 @@ import { onMounted, computed, onUpdated, watch } from "vue";
 import { GridLayout, GridItem } from "vue-grid-layout";
 import panzoom from "@panzoom/panzoom";
 import MiniMap from "@/components/MiniMap.vue";
-import MatrixComponent from "@/components/taskComponents/Matrix.vue";
+import Matrix from "@/components/taskComponents/Matrix.vue";
 import DOTGraph from "@/components/taskComponents/DOTGraph.vue";
 import TaskConfiguration from "@/components/taskComponents/TaskConfiguration.vue";
 import Navigation from "@/components/Navigation.vue";
-import GraphTraversal from "@/components/taskComponents/GraphTraversal.vue";
+import VisualGraphTraversal from "@/components/taskComponents/VisualGraphTraversal.vue";
+import PathDisplay from "@/components/taskComponents/PathDisplay.vue";
 import CodeEditor from "@/components/taskComponents/CodeEditor.vue";
+import ContourPlot from "@/components/taskComponents/ContourPlot.vue";
+import BackgroundGraph from "@/components/taskComponents/BackgroundGraph.vue";
 
 export default {
   name: "Canvas",
   components: {
+    BackgroundGraph,
+    ContourPlot,
     MiniMap,
-    MatrixComponent,
+    Matrix,
     DOTGraph,
     TaskConfiguration,
     GridItem,
     GridLayout,
     Navigation,
-    GraphTraversal,
+    VisualGraphTraversal,
     CodeEditor,
   },
   props: {
@@ -209,5 +214,11 @@ export default {
   background-origin: content-box;
   box-sizing: border-box;
   cursor: pointer;
+}
+</style>
+
+<style>
+.vue-resizable-handle {
+  z-index: 999 !important;
 }
 </style>

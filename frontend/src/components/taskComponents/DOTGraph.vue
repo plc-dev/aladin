@@ -16,9 +16,10 @@ export default {
     const currentNode = computed(() => store.state.currentNode);
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
 
-    const dependencyPath = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__dependency`);
+    const dependencies = getProperty(`${path}__dependencies`);
     const dependency = computed(() => {
-      const dependency = getProperty(`${dependencyPath}`);
+      if (!dependencies) return "";
+      const dependency = getProperty(`${dependencies["DOTGraph"]}`);
       if (!dependency) return "";
       return dependency;
     });
@@ -35,6 +36,13 @@ export default {
     });
     onMounted(() => {
       renderGraph(dependency.value);
+      const pollForGraph = setInterval(() => {
+        let background = document.querySelector(".dotGraph polygon");
+        if (background) {
+          clearInterval(pollForGraph);
+          background.setAttribute("fill", "transparent");
+        }
+      }, 50);
     });
     return { id: props.componentID };
   },
