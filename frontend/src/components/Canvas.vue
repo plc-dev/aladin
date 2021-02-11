@@ -52,10 +52,12 @@ import Navigation from "@/components/Navigation.vue";
 import GraphTraversal from "@/components/taskComponents/GraphTraversal.vue";
 import CodeEditor from "@/components/taskComponents/CodeEditor.vue";
 import ContourPlot from "@/components/taskComponents/ContourPlot.vue";
+import BackgroundGraph from "@/components/taskComponents/BackgroundGraph.vue";
 
 export default {
   name: "Canvas",
   components: {
+    BackgroundGraph,
     ContourPlot,
     MiniMap,
     MatrixComponent,

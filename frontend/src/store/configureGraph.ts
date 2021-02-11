@@ -93,21 +93,24 @@ const state: IState = {
           },
         },
         "3": {
-          type: "ContourPlot",
+          type: "BackgroundGraph",
           name: "Gozintograph",
-          dimensions: {
-            width: 500,
-            height: 500,
-          },
           isValid: true,
-          dependency: { ContourPlot: "taskData__Heatmap" },
+          dependencies: { ContourPlot: { grid: "taskData__grid", thresholds: "taskData__thresholds" }, DOTGraph: {} },
           component: {},
         },
       },
     },
   },
   taskData: {
-    Heatmap: [90, 95, 104, 105, 105, 106, 106, 106, 107, 107, 106, 106, 105, 105, 104, 104, 104, 104, 105, 107],
+    grid: [
+      [90, 95, 104, 105, 105],
+      [106, 106, 106, 107, 107],
+      [106, 106, 105, 105, 104],
+      [104, 104, 104, 105, 107],
+      [75, 99, 102, 109, 90],
+    ],
+    thresholds: [90, 95, 100, 105],
     nodes: {
       "0": { id: 0, isLeaf: false, label: "P0", value: 5 },
       "1": { id: 1, isLeaf: false, label: "P1", value: 6 },

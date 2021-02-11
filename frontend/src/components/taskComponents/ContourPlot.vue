@@ -4,7 +4,6 @@
 
 <script>
 import { onMounted, computed } from "vue";
-import * as contour from "d3-contour";
 import * as d3 from "d3";
 import * as hsv from "d3-hsv";
 
@@ -17,15 +16,23 @@ export default {
     const { getProperty } = props.storeObject;
     const currentNode = computed(() => getProperty("currentNode"));
 
-    const dependencyPath = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__dependency`);
-    const dependency = computed(() => {
-      const dependency = getProperty(`${dependencyPath.ContourPlot}`);
-      return dependency;
+    const dependencyPath = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__dependencies`);
+    const data = computed(() => {
+      const { grid, thresholds } = dependencyPath.ContourPlot;
+      const gridDependency = getProperty(grid);
+      const tresholdsDependency = getProperty(thresholds);
+      if (!gridDependency || !tresholdsDependency) return { values: [], rows: 0, columns: 0, thresholds };
+      return {
+        values: gridDependency.reduce((flattened, row) => [...flattened, ...row], []),
+        rows: gridDependency.length,
+        columns: gridDependency[0].length,
+        thresholds: tresholdsDependency,
+      };
     });
 
-    onMounted(() => {
-      const contours = d3.contours().size([dependency.value.length, dependency.value.length]);
-      const path = d3.geoPath();
+    const prepareData = () => {
+      const { values, columns, rows } = data.value;
+      const contours = d3.contours().size([columns, rows]);
 
       const interpolateTerrain = () => {
         const i0 = hsv.interpolateHsvLong(hsv.hsv(120, 1, 0.65), hsv.hsv(60, 1, 0.9));
@@ -33,52 +40,49 @@ export default {
         return (t) => (t < 0.5 ? i0(t * 2) : i1((t - 0.5) * 2));
       };
 
-      const color = d3.scaleSequential(interpolateTerrain).domain(d3.extent(dependency.value)).nice();
+      const color = d3.scaleSequential(interpolateTerrain()).domain(d3.extent(values)).nice();
 
-      const thresholds = [90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165];
-      const width = 20;
-      const height = 20;
+      return { color, contours };
+    };
 
-      const genSvg = function () {
-        const svg = d3
-          .select(".contourPlot")
-          .append("svg")
-          .attr("viewBox", [0, 0, width, height])
-          .style("display", "block")
-          .style("margin", "0 -14px")
-          .style("width", "calc(100% + 28px)")
-          .style("height", "auto");
+    const genSvg = function () {
+      const { color, contours } = prepareData();
+      const { values, thresholds, columns, rows } = data.value;
+      const path = d3.geoPath();
 
-        const g = svg
-          .append("g")
-          .attr(
-            "transform",
-            `
-            rotate(90 ${width / 2},${height / 2})
-            translate(${(width - height) / 2},${(width - height) / 2})
-          `
-          )
-          .attr("stroke", "white")
-          .attr("stroke-width", 0.03);
+      const svg = d3
+        .select(".contourPlot")
+        .append("svg")
+        .attr("preserveAspectRatio", "xMinYMin ")
+        .attr("viewBox", `0 0 ${rows} ${columns}`);
 
-        for (const threshold of thresholds) {
-          console.log(contours.contour(dependency.value, threshold));
-          console.log(color(threshold));
-          g.append("path")
-            .attr("d", path(contours.contour(dependency.value, threshold)))
-            .attr("fill", color(threshold));
-        }
-        return svg.node();
-      };
+      const g = svg.append("g").attr("stroke", "white").attr("stroke-width", 0.03);
 
+      for (const threshold of thresholds) {
+        g.append("path")
+          .attr("d", path(contours.contour(values, threshold)))
+          .attr("fill", color(threshold));
+      }
+      return svg.node();
+    };
+
+    onMounted(() => {
       genSvg();
     });
 
-    return {
-      matrix: dependency,
-    };
+    return {};
   },
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.contourPlot {
+  width: 100%;
+  height: 100%;
+}
+
+.contourPlot > svg {
+  width: 100%;
+  height: 100%;
+}
+</style>
