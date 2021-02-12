@@ -37,7 +37,7 @@ const state: IState = {
         ],
         lg: [
           {
-            x: 20,
+            x: 18,
             y: 15,
             w: 2,
             h: 2,

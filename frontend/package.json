@@ -23,6 +23,7 @@
     "d3-contour": "^2.0.0",
     "d3-drag": "1.2.5",
     "d3-graphviz": "^3.1.0",
+    "d3-hsv": "^0.1.0",
     "highlight.js": "^10.5.0",
     "install": "^0.13.0",
     "register-service-worker": "^1.7.1",

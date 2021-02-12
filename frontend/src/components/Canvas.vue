@@ -52,10 +52,14 @@ import Navigation from "@/components/Navigation.vue";
 import VisualGraphTraversal from "@/components/taskComponents/VisualGraphTraversal.vue";
 import PathDisplay from "@/components/taskComponents/PathDisplay.vue";
 import CodeEditor from "@/components/taskComponents/CodeEditor.vue";
+import ContourPlot from "@/components/taskComponents/ContourPlot.vue";
+import BackgroundGraph from "@/components/taskComponents/BackgroundGraph.vue";
 
 export default {
   name: "Canvas",
   components: {
+    BackgroundGraph,
+    ContourPlot,
     MiniMap,
     Matrix,
     DOTGraph,
@@ -210,5 +214,11 @@ export default {
   background-origin: content-box;
   box-sizing: border-box;
   cursor: pointer;
+}
+</style>
+
+<style>
+.vue-resizable-handle {
+  z-index: 999 !important;
 }
 </style>
