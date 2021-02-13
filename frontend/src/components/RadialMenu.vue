@@ -122,7 +122,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .icon {
   position: absolute;
   top: 70%;
