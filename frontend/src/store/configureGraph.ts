@@ -103,6 +103,28 @@ const state: IState = {
           dependency: "taskData__dotDescription",
           component: {},
         },
+        "4": {
+          type: "Textbox",
+          name: "Textbox",
+          dimensions: {
+            width: 500,
+            height: 500,
+          },
+          isValid: true,
+          dependency: "taskData__serverAnswer",
+          component: {},
+        },
+        "5": {
+          type: "Dropdown",
+          name: "Dropdown",
+          dimensions: {
+            width: 500,
+            height: 500,
+          },
+          isValid: true,
+          dependency: "taskData__databaseDecision",
+          component: {},
+        },
       },
     },
   },
@@ -145,6 +167,8 @@ const state: IState = {
       `\n            digraph\n {\n            node [shape="circle" style="filled"]` +
       `edge [dir="back"]\n\n             P1 -> K0 [label=" 2"]\n P1 -> K1 [label=" 3"]` +
       `P1 -> R0 [label=" 9"]\n P0 -> K1 [label=" 6"]\n\n             { rank=same; P0,P1 }\n { rank=same; K0,K1,R0 }\n\n            }\n        `,
+    serverAnswer: "blablabla",
+    databaseDecision: ["POSTGRESDB", "SQLITE"],
   },
 };
 

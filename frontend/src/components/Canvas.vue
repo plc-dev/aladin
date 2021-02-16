@@ -51,6 +51,8 @@ import TaskConfiguration from "@/components/taskComponents/TaskConfiguration.vue
 import Navigation from "@/components/Navigation.vue";
 import GraphTraversal from "@/components/taskComponents/GraphTraversal.vue";
 import CodeEditor from "@/components/taskComponents/CodeEditor.vue";
+import Textbox from "@/components/taskComponents/Textbox.vue";
+import Dropdown from "@/components/taskComponents/Dropdown.vue";
 
 export default {
   name: "Canvas",
@@ -64,6 +66,8 @@ export default {
     Navigation,
     GraphTraversal,
     CodeEditor,
+    Textbox,
+    Dropdown,
   },
   props: {
     storeObject: Object,
