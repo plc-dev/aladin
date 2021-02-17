@@ -1,7 +1,10 @@
 <template>
   <div @click="handleClick">
-    <h1>Serveroutput</h1>
-    <textarea name="Text1" cols="40" rows="5"></textarea>
+    <p>Serveroutput:</p>
+<form>
+  <label for="answer">Antwort</label>
+  <input type="text" id="answer" name="answer">
+</form>
   </div>
 </template>
 
@@ -35,7 +38,12 @@ export default {
 </script>
 
 <style scoped>
-textarea {
-  resize: none;
+input[type=text] {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 2px solid orange;
+  border-radius: 4px;
 }
 </style>

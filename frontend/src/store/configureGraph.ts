@@ -127,7 +127,7 @@ const state: IState = {
             height: 500,
           },
           isValid: true,
-          dependency: "taskData__result",
+          dependency: "taskData__sqlresult",
           component: {},
         },
         "5": {
@@ -138,8 +138,12 @@ const state: IState = {
             height: 500,
           },
           isValid: true,
-          dependency: "taskData__selected",
-          component: {},
+          dependency: "taskData__options",
+          component: {
+            selected: "northwind",
+            header: "Wähle eine Datenbank aus.",
+            label: "Datenbank"
+          },
         },
       },
     },
@@ -183,8 +187,8 @@ const state: IState = {
       `\n            digraph\n {\n            node [shape="circle" style="filled"]` +
       `edge [dir="back"]\n\n             P1 -> K0 [label=" 2"]\n P1 -> K1 [label=" 3"]` +
       `P1 -> R0 [label=" 9"]\n P0 -> K1 [label=" 6"]\n\n             { rank=same; P0,P1 }\n { rank=same; K0,K1,R0 }\n\n            }\n        `,
-    result: "blablabla",
-    selected: ["POSTGRESDB", "SQLITE"],
+    sqlResult: "blablabla",
+    options: ["northwind", "architecture"],
   },
 };
 

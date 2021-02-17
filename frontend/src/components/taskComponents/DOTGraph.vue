@@ -16,7 +16,7 @@ export default {
     const currentNode = computed(() => store.state.currentNode);
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
 
-    const dependencyPath = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__dependency`);
+    const dependencyPath = getProperty(`${path}__dependency`);
     const dependency = computed(() => {
       const dependency = getProperty(`${dependencyPath}`);
       if (!dependency) return "";

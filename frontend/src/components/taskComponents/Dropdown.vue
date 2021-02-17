@@ -1,12 +1,13 @@
 <template>
   <div>
-    <h2>Wähle eine Datenbank aus.</h2>
+    <h2> {{ header }} </h2>
     <form action="#">
-	  <label>Datenbank:
-		<select name="Datenbanken">
-			<option>PostgreSQL</option>
-			<option>MSQL</option>
-			<option>SQLite</option>
+	  <label> {{ label }}
+		<select id="db" name="Datenbanken" @change="onChange($event)" class="form-control" v-model="selected">
+			<option 
+      v-for="(option, i) in options" :key="i">
+      {{ option }}
+      </option>
 		</select>
 	</label>
 </form>
@@ -27,56 +28,33 @@ export default {
     const currentNode = computed(() => getProperty("currentNode"));
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
 
-    const selected = computed(() => getProperty(`${path}__component__selected`));
+    const dependencyPath = computed(() => getProperty(`${path}__dependency`));
+    const componentPath =  `${path}__component`;
+
+    const options = computed(() => {
+      const dependency = getProperty(dependencyPath.value);
+      if (!dependency) return [];
+      return dependency;
+    });
+
+
+    const selected = computed(() => getProperty(`${componentPath}__selected`));
+    const header = computed(() => getProperty(`${componentPath}__header`));
+    const label = computed(() => getProperty(`${componentPath}__label`));
+
+    function onChange(event) {
+    setProperty({path: `${path}__component__selected`, value: event.target.value});
+    }
 
     watch(selected, (newValue) => {
         if (newValue != null) setProperty({path: `${path}__isValid`, value: true});
         else setProperty({path: `${path}__isValid`, value: false});
     })
 
-    return {};
+    return {options, onChange, header, label};
   },
 };
 </script>
 
 <style scoped>
-.dropbtn {
-  background-color: #ca7423;
-  color: white;
-  padding: 16px;
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
-}
-
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #f9f9f9;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-}
-
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-}
-
-.dropdown-content a:hover {background-color: #f1f1f1}
-
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-
-.dropdown:hover .dropbtn {
-  background-color: #3e8e41;
-}
 </style>
