@@ -1,14 +1,15 @@
 <template>
   <div>
-    <h2>Dropdown Menü</h2>
-    <div class="dropdown">
-      <button class="dropbtn">Dropdown</button>
-      <div class="dropdown-content">
-        <a href="#"> {{}} </a>
-        <a href="#"> {{}} </a>
-        <a href="#"> {{}} </a>
-      </div>
-    </div>
+    <h2>Wähle eine Datenbank aus.</h2>
+    <form action="#">
+	  <label>Datenbank:
+		<select name="Datenbanken">
+			<option>PostgreSQL</option>
+			<option>MSQL</option>
+			<option>SQLite</option>
+		</select>
+	</label>
+</form>
   </div>
 </template>
 
@@ -40,7 +41,7 @@ export default {
 
 <style scoped>
 .dropbtn {
-  background-color: #4CAF50;
+  background-color: #ca7423;
   color: white;
   padding: 16px;
   font-size: 16px;

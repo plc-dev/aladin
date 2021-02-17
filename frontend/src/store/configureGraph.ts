@@ -52,6 +52,22 @@ const state: IState = {
             i: 3,
             static: false,
           },
+          {
+						x: 18,
+						y: 17,
+						w: 2,
+						h: 2,
+						i: 4,
+						static: false,
+          },
+          {
+						x: 20,
+						y: 17,
+						w: 2,
+						h: 2,
+						i: 5,
+						static: false,
+					}
         ],
       },
       components: {
@@ -111,7 +127,7 @@ const state: IState = {
             height: 500,
           },
           isValid: true,
-          dependency: "taskData__serverAnswer",
+          dependency: "taskData__result",
           component: {},
         },
         "5": {
@@ -122,7 +138,7 @@ const state: IState = {
             height: 500,
           },
           isValid: true,
-          dependency: "taskData__databaseDecision",
+          dependency: "taskData__selected",
           component: {},
         },
       },
@@ -167,8 +183,8 @@ const state: IState = {
       `\n            digraph\n {\n            node [shape="circle" style="filled"]` +
       `edge [dir="back"]\n\n             P1 -> K0 [label=" 2"]\n P1 -> K1 [label=" 3"]` +
       `P1 -> R0 [label=" 9"]\n P0 -> K1 [label=" 6"]\n\n             { rank=same; P0,P1 }\n { rank=same; K0,K1,R0 }\n\n            }\n        `,
-    serverAnswer: "blablabla",
-    databaseDecision: ["POSTGRESDB", "SQLITE"],
+    result: "blablabla",
+    selected: ["POSTGRESDB", "SQLITE"],
   },
 };
 
