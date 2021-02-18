@@ -128,7 +128,10 @@ const state: IState = {
           },
           isValid: true,
           dependency: "taskData__sqlresult",
-          component: {},
+          component: {
+            header: "Serveroutput",
+            answer: "Antwort"
+          },
         },
         "5": {
           type: "Dropdown",
@@ -187,7 +190,7 @@ const state: IState = {
       `\n            digraph\n {\n            node [shape="circle" style="filled"]` +
       `edge [dir="back"]\n\n             P1 -> K0 [label=" 2"]\n P1 -> K1 [label=" 3"]` +
       `P1 -> R0 [label=" 9"]\n P0 -> K1 [label=" 6"]\n\n             { rank=same; P0,P1 }\n { rank=same; K0,K1,R0 }\n\n            }\n        `,
-    sqlResult: "blablabla",
+    sqlresult: "Das ist der Serveroutput",
     options: ["northwind", "architecture"],
   },
 };

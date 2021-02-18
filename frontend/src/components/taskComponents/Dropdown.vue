@@ -28,8 +28,8 @@ export default {
     const currentNode = computed(() => getProperty("currentNode"));
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
 
-    const dependencyPath = computed(() => getProperty(`${path}__dependency`));
     const componentPath =  `${path}__component`;
+    const dependencyPath = computed(() => getProperty(`${path}__dependency`));
 
     const options = computed(() => {
       const dependency = getProperty(dependencyPath.value);

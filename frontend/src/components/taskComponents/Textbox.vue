@@ -1,9 +1,11 @@
 <template>
-  <div @click="handleClick">
-    <p>Serveroutput:</p>
+  <div>
+    <h2>{{ header }}</h2>
 <form>
-  <label for="answer">Antwort</label>
-  <input type="text" id="answer" name="answer">
+  <label for="answer"> {{answer}} </label>
+  <div class="boxed">
+  {{ sqlresult }}
+</div>  
 </form>
   </div>
 </template>
@@ -17,33 +19,43 @@ export default {
     componentID: Number,
     storeObject: Object,
   },
-  components: {
-  },
-
   setup(props) {
     const { getProperty, setProperty } = props.storeObject;
     const currentNode = computed(() => getProperty("currentNode"));
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
 
-    const selected = computed(() => getProperty(`${path}__component__selected`));
-    const resultPath = getProperty(`${path}__result`);
+    const componentPath =  `${path}__component`;
+    const dependencyPath = computed(() => getProperty(`${path}__dependency`));
 
-    watch(selected, (newValue) => {
+    const sqlresult = computed(() => {
+    const dependency = getProperty(dependencyPath.value);
+      if (!dependency) return [];
+      return dependency;
+    });
+
+    const header = computed(() => getProperty(`${componentPath}__header`));
+    const answer = computed(() => getProperty(`${componentPath}__answer`));
+
+
+    watch(sqlresult, (newValue) => {
         if (newValue != null) setProperty({path: `${path}__isValid`, value: true});
         else setProperty({path: `${path}__isValid`, value: false});
-    });
-    return {};
+    })
+    return {sqlresult, answer, header};
   },
 };
 </script>
 
 <style scoped>
-input[type=text] {
+/*input[type=text] {
   width: 100%;
   padding: 12px 20px;
   margin: 8px 0;
   box-sizing: border-box;
   border: 2px solid orange;
   border-radius: 4px;
+} */
+.boxed {
+  border: 3px solid rgb(245, 160, 2) ;
 }
 </style>
