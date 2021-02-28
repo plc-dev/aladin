@@ -1,5 +1,5 @@
 <template>
-  <div class="dotGraph" :id="`graph_${id}`"></div>
+  <div class="dotGraph" :id="`graph_${componentID}`"></div>
 </template>
 
 <script lang="ts">
@@ -16,11 +16,11 @@ export default {
     const currentNode = computed(() => store.state.currentNode);
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
 
-    const dependencyPath = getProperty(`${path}__dependency`);
-    const dependency = computed(() => {
-      const dependency = getProperty(`${dependencyPath}`);
-      if (!dependency) return "";
-      return dependency;
+    const dependencies = getProperty(`${path}__dependencies`);
+    const dotDescription = computed(() => {
+      const dotDescription = getProperty(dependencies.DOTGraph.dotDescription);
+      if (!dotDescription) return "";
+      return dotDescription;
     });
 
     const renderGraph = (description) => {
@@ -30,13 +30,20 @@ export default {
         useWorker: false,
       }).renderDot(description);
     };
-    watch(dependency, () => {
-      renderGraph(dependency.value);
+    watch(dotDescription, () => {
+      renderGraph(dotDescription.value);
     });
     onMounted(() => {
-      renderGraph(dependency.value);
+      renderGraph(dotDescription.value);
+      const pollForGraph = setInterval(() => {
+        let background = document.querySelector(".dotGraph polygon");
+        if (background) {
+          clearInterval(pollForGraph);
+          background.setAttribute("fill", "transparent");
+        }
+      }, 50);
     });
-    return { id: props.componentID };
+    return {};
   },
 };
 </script>

@@ -17,11 +17,6 @@
         }
     },
     "UI": {
-        "editor": false,
-        "replay": false,
-        "taskReplay": {
-            "stateChange": []
-        },
         "currentTask": "gozintograph",
         "taskData": {},
         "rootNode": 0,
@@ -32,7 +27,8 @@
             [3, 4, null],
             [5, 6, null],
             [7, 8, null],
-            [9, null, null]
+            [9, null, null],
+            [10, null, null]
         ],
         "edges": {
             "0": [1, 1],
@@ -86,7 +82,7 @@
                         "type": "DOTGraph",
                         "name": "Gozintograph",
                         "isValid": true,
-                        "dependency": "taskData__dotDescription",
+                        "dependencies": { "DOTGraph": { "dotDescription": "taskData__dotDescription" } },
                         "component": {}
                     },
                     "1": {
@@ -94,11 +90,14 @@
                         "name": "Konfiguration",
                         "isValid": false,
                         "component": {
-                            "actions": {
-                                "instruction": "generateGraph",
-                                "type": "stuff",
-                                "label": "stuff"
-                            },
+                            "title": "Parameter Konfiguration",
+                            "actions": [
+                                {
+                                    "instruction": "generateGraph",
+                                    "type": "fetchData",
+                                    "label": "Generieren!"
+                                }
+                            ],
                             "state": {
                                 "depth": {
                                     "type": "number",
@@ -106,8 +105,7 @@
                                         "lowerValue": 2,
                                         "upperValue": 4
                                     },
-                                    "min": 0,
-                                    "max": 200,
+                                    "boundaries": { "min": 0, "max": 200 },
                                     "presets": {
                                         "easy": 2,
                                         "medium": 3,
@@ -116,7 +114,7 @@
                                 },
                                 "weight": {
                                     "type": "number",
-                                    "bounds": { "min": 0, "max": 200 },
+                                    "boundaries": { "min": 0, "max": 200 },
                                     "initial": {
                                         "lowerValue": 1,
                                         "upperValue": 10
@@ -129,8 +127,7 @@
                                 },
                                 "width": {
                                     "type": "number",
-                                    "min": 0,
-                                    "max": 200,
+                                    "boundaries": { "min": 0, "max": 200 },
                                     "initial": {
                                         "lowerValue": 2,
                                         "upperValue": 4
@@ -143,8 +140,7 @@
                                 },
                                 "value": {
                                     "type": "number",
-                                    "min": 0,
-                                    "max": 200,
+                                    "boundaries": { "min": 0, "max": 200 },
                                     "initial": {
                                         "lowerValue": 0,
                                         "upperValue": 10
@@ -157,8 +153,7 @@
                                 },
                                 "edgeDensity": {
                                     "type": "number",
-                                    "min": 0,
-                                    "max": 1,
+                                    "boundaries": { "min": 0, "max": 200 },
                                     "initial": {
                                         "lowerValue": 0.2,
                                         "upperValue": 0.2
@@ -206,9 +201,9 @@
                 "components": {
                     "2": {
                         "name": "Direktbedarfsmatrix",
-                        "type": "MatrixComponent",
+                        "type": "Matrix",
                         "isValid": false,
-                        "dependency": "taskData__adjacencyMatrix",
+                        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -232,7 +227,7 @@
                         "type": "DOTGraph",
                         "name": "Gozintograph",
                         "isValid": true,
-                        "dependency": "taskData__dotDescription",
+                        "dependencies": { "DOTGraph": { "dotDescription": "taskData__dotDescription" } },
                         "component": {}
                     }
                 }
@@ -250,9 +245,9 @@
                 "components": {
                     "2": {
                         "name": "Direktbedarfsmatrix",
-                        "type": "MatrixComponent",
+                        "type": "Matrix",
                         "isValid": false,
-                        "dependency": "taskData__adjacencyMatrix",
+                        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -276,7 +271,7 @@
                         "type": "DOTGraph",
                         "name": "Gozintograph",
                         "isValid": true,
-                        "dependency": "taskData__dotDescription",
+                        "dependencies": { "DOTGraph": { "dotDescription": "taskData__dotDescription" } },
                         "component": {}
                     }
                 }
@@ -295,9 +290,9 @@
                 "components": {
                     "2": {
                         "name": "Direktbedarfsmatrix",
-                        "type": "MatrixComponent",
+                        "type": "Matrix",
                         "isValid": false,
-                        "dependency": "taskData__adjacencyMatrix",
+                        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -321,7 +316,7 @@
                         "type": "DOTGraph",
                         "name": "Gozintograph",
                         "isValid": true,
-                        "dependency": "taskData__dotDescription",
+                        "dependencies": { "DOTGraph": { "dotDescription": "taskData__dotDescription" } },
                         "component": {}
                     }
                 }
@@ -341,9 +336,9 @@
                 "components": {
                     "0": {
                         "name": "Direktbedarfsmatrix",
-                        "type": "MatrixComponent",
+                        "type": "Matrix",
                         "isValid": true,
-                        "dependency": "taskData__adjacencyMatrix",
+                        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
                         "methods": { "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -365,9 +360,9 @@
                     },
                     "1": {
                         "name": "Einheitsmatrix",
-                        "type": "MatrixComponent",
+                        "type": "Matrix",
                         "isValid": true,
-                        "dependency": "taskData__adjacencyMatrix",
+                        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
                         "methods": { "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -389,9 +384,9 @@
                     },
                     "2": {
                         "name": "Ergebnis",
-                        "type": "MatrixComponent",
+                        "type": "Matrix",
                         "isValid": false,
-                        "dependency": "nodes__6__components__1__component__validationData",
+                        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -432,9 +427,9 @@
                 "components": {
                     "0": {
                         "name": "Ergebnis",
-                        "type": "MatrixComponent",
+                        "type": "Matrix",
                         "isValid": true,
-                        "dependency": "nodes__6__components__2__component__validationData",
+                        "dependencies": { "Matrix": { "data": "nodes__6__components__2__component__validationData" } },
                         "methods": { "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -457,9 +452,9 @@
                     },
                     "1": {
                         "name": "Inverse Matrix",
-                        "type": "MatrixComponent",
+                        "type": "Matrix",
                         "isValid": false,
-                        "dependency": "nodes__6__components__2__component__validationData",
+                        "dependencies": { "Matrix": { "data": "nodes__6__components__2__component__validationData" } },
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -484,9 +479,9 @@
                     },
                     "2": {
                         "name": "Primärbedarfsvektor",
-                        "type": "MatrixComponent",
+                        "type": "Matrix",
                         "isValid": true,
-                        "dependency": "taskData__labelVector",
+                        "dependencies": { "Matrix": { "data": "taskData__labelVector" } },
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {

@@ -16,6 +16,9 @@ interface IMatrixComponent extends IComponent {
     rowLabel: string;
     columnLabel: string;
   };
+  dependencies: {
+    Matrix: { data: string };
+  };
 }
 
 export { IMatrixComponent, IMatrixInstruction };
