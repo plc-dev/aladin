@@ -1,6 +1,8 @@
 */node_modules
 */.DS_Store
 */.env
+.vscode
+*/.vscode
 databases
 backend/services/minio/*
 !backend/services/minio/minio.Dockerfile
@@ -18,3 +20,4 @@ backend/services/maxima/*
 !backend/services/maxima/MaximaOutputParser.ts
 !backend/services/maxima/MaximaWorker.ts
 !backend/services/maxima/MaximaWrapper.ts
+backend/services/schemaspy/*

@@ -1,4 +1,3 @@
-import { Ref } from "vue";
 import { Matrix } from "@/helpers/LinearAlgebra";
 import { IMatrixComponent } from "@/interfaces/MatrixInterface";
 import { IDOTGraphComponent } from "@/interfaces/DOTGraphInterface";
@@ -24,32 +23,22 @@ interface ILayouts {
   lg: ILayout[];
 }
 
-interface IDimensions {
-  width: number;
-  height: number;
+interface IDependencies {
+  [componentName: string]: {
+    [dependencyName: string]: string;
+  };
 }
 
 interface IComponent {
   type: string;
   name: string;
-  dimensions: IDimensions;
   component: object;
   isValid: boolean;
-  dependencies?: object;
+  dependencies?: IDependencies;
 }
 
 interface IComponents {
   [key: number]: IMatrixComponent | IDOTGraphComponent | ITaskConfigurationComponent | IComponent | object;
-}
-
-interface IStateChange {
-  timestamp: number;
-  path: string;
-  value: any;
-}
-
-interface ITaskReplay {
-  stateChange: Array<IStateChange>;
 }
 
 interface IState {
