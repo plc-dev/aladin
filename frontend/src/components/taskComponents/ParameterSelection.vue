@@ -1,6 +1,6 @@
 <template>
   <div class="parameter_form">
-    <h2>Parameter Konfiguration</h2>
+    <h2>{{ title }}</h2>
     <div class="parameter_form_row" v-for="(element, key) in elements" :key="key">
       <p>{{ key }}</p>
       <div class="parameter_range">
@@ -22,7 +22,9 @@
         />
       </div>
     </div>
-    <button @click="fetchData">Generieren!</button>
+    <div class="actions">
+      <button :data-id="i" v-for="(action, i) in acions" :key="i" @click="handleAction">{{ action.label }}</button>
+    </div>
   </div>
 </template>
 
@@ -38,6 +40,8 @@ export default {
     const { store, getProperty, setProperty } = props.storeObject;
     const currentNode = computed(() => store.state.currentNode);
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
+
+    const title = getProperty(`${path}__component__title`);
 
     const elements = computed(() => getProperty(`${path}__component__state`));
 
@@ -64,9 +68,21 @@ export default {
 
     const currentTask = computed(() => getProperty("currentTask"));
 
-    const fetchData = () =>
-      store.dispatch("fetchTaskData", { payload: preparePayload(), endpoint: `${currentTask.value}/${actions.value.instruction}` });
-    return { elements, updateElement, fetchData };
+    const handleAction = (event) => {
+      const actionId = event.target.dataset.id;
+      const { type, instruction } = actions.value[actionId];
+
+      actionTypes[type](instruction);
+    };
+
+    const fetchData = (instruction) =>
+      store.dispatch("fetchTaskData", { payload: preparePayload(), endpoint: `${currentTask.value}/${instruction}` });
+
+    const actionTypes = {
+      fetchData,
+    };
+
+    return { elements, updateElement, handleAction, actions };
   },
 };
 </script>

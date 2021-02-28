@@ -35,6 +35,7 @@ interface IComponent {
   component: object;
   isValid: boolean;
   dependencies?: IDependencies;
+  methods?: { [key: string]: string };
 }
 
 interface IComponents {

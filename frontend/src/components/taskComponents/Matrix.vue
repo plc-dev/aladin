@@ -36,19 +36,18 @@ export default {
     const componentPath = `nodes__${currentNode.value}__components__${props.componentID}__component`;
 
     const dependencies = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__dependencies`);
-    const dependency = computed(() => getProperty(`${dependencies["Matrix"]}`));
+    const dependency = computed(() => getProperty(dependencies.Matrix.data));
 
     const isReadOnly = getProperty(`${componentPath}__readOnly`);
     const instructions = getProperty(`${componentPath}__initialize`);
-
     const rowLabelPath = getProperty(`${componentPath}__rowLabel`);
     const columnLabelPath = getProperty(`${componentPath}__columnLabel`);
     const rowLabel = computed(() => {
-      if (rowLabelPath) return getProperty(`${rowLabelPath}`);
+      if (rowLabelPath) return getProperty(rowLabelPath);
       else return [];
     });
     const columnLabel = computed(() => {
-      if (rowLabelPath) return getProperty(`${columnLabelPath}`);
+      if (rowLabelPath) return getProperty(columnLabelPath);
       else return [];
     });
 
