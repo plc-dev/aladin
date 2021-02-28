@@ -74,6 +74,8 @@ export default {
   justify-content: space-around;
   align-items: center;
   width: 100%;
+  border: 1px solid black;
+  border-radius: 5px;
 }
 
 .edge {
