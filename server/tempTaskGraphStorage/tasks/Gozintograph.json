@@ -90,11 +90,14 @@
                         "name": "Konfiguration",
                         "isValid": false,
                         "component": {
-                            "actions": {
-                                "instruction": "generateGraph",
-                                "type": "stuff",
-                                "label": "stuff"
-                            },
+                            "title": "Parameter Konfiguration",
+                            "actions": [
+                                {
+                                    "instruction": "generateGraph",
+                                    "type": "fetchData",
+                                    "label": "Generieren!"
+                                }
+                            ],
                             "state": {
                                 "depth": {
                                     "type": "number",
@@ -102,8 +105,7 @@
                                         "lowerValue": 2,
                                         "upperValue": 4
                                     },
-                                    "min": 0,
-                                    "max": 200,
+                                    "boundaries": { "min": 0, "max": 200 },
                                     "presets": {
                                         "easy": 2,
                                         "medium": 3,
@@ -112,7 +114,7 @@
                                 },
                                 "weight": {
                                     "type": "number",
-                                    "bounds": { "min": 0, "max": 200 },
+                                    "boundaries": { "min": 0, "max": 200 },
                                     "initial": {
                                         "lowerValue": 1,
                                         "upperValue": 10
@@ -125,8 +127,7 @@
                                 },
                                 "width": {
                                     "type": "number",
-                                    "min": 0,
-                                    "max": 200,
+                                    "boundaries": { "min": 0, "max": 200 },
                                     "initial": {
                                         "lowerValue": 2,
                                         "upperValue": 4
@@ -139,8 +140,7 @@
                                 },
                                 "value": {
                                     "type": "number",
-                                    "min": 0,
-                                    "max": 200,
+                                    "boundaries": { "min": 0, "max": 200 },
                                     "initial": {
                                         "lowerValue": 0,
                                         "upperValue": 10
@@ -153,8 +153,7 @@
                                 },
                                 "edgeDensity": {
                                     "type": "number",
-                                    "min": 0,
-                                    "max": 1,
+                                    "boundaries": { "min": 0, "max": 200 },
                                     "initial": {
                                         "lowerValue": 0.2,
                                         "upperValue": 0.2
@@ -204,7 +203,7 @@
                         "name": "Direktbedarfsmatrix",
                         "type": "Matrix",
                         "isValid": false,
-                        "dependencies": { "Matrix": "taskData__adjacencyMatrix" },
+                        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -248,7 +247,7 @@
                         "name": "Direktbedarfsmatrix",
                         "type": "Matrix",
                         "isValid": false,
-                        "dependencies": { "Matrix": "taskData__adjacencyMatrix" },
+                        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -293,7 +292,7 @@
                         "name": "Direktbedarfsmatrix",
                         "type": "Matrix",
                         "isValid": false,
-                        "dependencies": { "Matrix": "taskData__adjacencyMatrix" },
+                        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -339,7 +338,7 @@
                         "name": "Direktbedarfsmatrix",
                         "type": "Matrix",
                         "isValid": true,
-                        "dependencies": { "Matrix": "taskData__adjacencyMatrix" },
+                        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
                         "methods": { "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -363,7 +362,7 @@
                         "name": "Einheitsmatrix",
                         "type": "Matrix",
                         "isValid": true,
-                        "dependencies": { "Matrix": "taskData__adjacencyMatrix" },
+                        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
                         "methods": { "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -387,7 +386,7 @@
                         "name": "Ergebnis",
                         "type": "Matrix",
                         "isValid": false,
-                        "dependencies": { "Matrix": "nodes__6__components__1__component__validationData" },
+                        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -430,7 +429,7 @@
                         "name": "Ergebnis",
                         "type": "Matrix",
                         "isValid": true,
-                        "dependencies": { "Matrix": "nodes__6__components__2__component__validationData" },
+                        "dependencies": { "Matrix": { "data": "nodes__6__components__2__component__validationData" } },
                         "methods": { "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -455,7 +454,7 @@
                         "name": "Inverse Matrix",
                         "type": "Matrix",
                         "isValid": false,
-                        "dependencies": { "Matrix": "nodes__6__components__2__component__validationData" },
+                        "dependencies": { "Matrix": { "data": "nodes__6__components__2__component__validationData" } },
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {
@@ -482,7 +481,7 @@
                         "name": "Primärbedarfsvektor",
                         "type": "Matrix",
                         "isValid": true,
-                        "dependencies": { "Matrix": "taskData__labelVector" },
+                        "dependencies": { "Matrix": { "data": "taskData__labelVector" } },
                         "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
                         "component": {
                             "initialize": {

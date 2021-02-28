@@ -1,14 +1,12 @@
 import { IComponent } from "@/interfaces/TaskGraphInterface";
 
-interface IPathDisplayComponent extends IComponent {
-  component: {};
+interface IPathDisplay extends IComponent {
   dependencies: {
     PathDisplay: {
-      userPaths: [];
-      allPaths: [];
-      nodes: {};
+      nodes: string;
+      selectedPaths: string;
     };
   };
 }
 
-export { IPathDisplayComponent };
+export { IPathDisplay };

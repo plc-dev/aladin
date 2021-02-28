@@ -3,6 +3,8 @@
 */node_modules
 */.DS_Store
 */.env
+.vscode
+*/.vscode
 databases
 backend/services/minio/*
 !backend/services/minio/minio.Dockerfile

@@ -1,11 +1,9 @@
 import { IComponent } from "@/interfaces/TaskGraphInterface";
 
-interface IComponentState {
-  dotDescription: string;
-}
-
 interface IDOTGraphComponent extends IComponent {
-  component: IComponentState;
+  dependencies: {
+    DOTGraph: { dotDescription: string };
+  };
 }
 
 export { IDOTGraphComponent };
