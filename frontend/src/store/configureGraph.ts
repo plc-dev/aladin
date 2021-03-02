@@ -53,21 +53,21 @@ const state: IState = {
             static: false,
           },
           {
-						x: 18,
-						y: 17,
-						w: 2,
-						h: 2,
-						i: 4,
-						static: false,
+            x: 18,
+            y: 17,
+            w: 2,
+            h: 2,
+            i: 4,
+            static: false,
           },
           {
-						x: 20,
-						y: 17,
-						w: 2,
-						h: 2,
-						i: 5,
-						static: false,
-					}
+            x: 20,
+            y: 17,
+            w: 2,
+            h: 2,
+            i: 5,
+            static: false,
+          },
         ],
       },
       components: {
@@ -99,30 +99,28 @@ const state: IState = {
         "4": {
           type: "Textbox",
           name: "Textbox",
-          dimensions: {
-            width: 500,
-            height: 500,
-          },
           isValid: true,
-          dependency: "taskData__sqlresult",
+          dependencies: {
+            Textbox: {
+              serverOutput: "taskData__sqlresult",
+            },
+          },
           component: {
             header: "Serveroutput",
-            answer: "Antwort"
           },
         },
         "5": {
           type: "Dropdown",
           name: "Dropdown",
-          dimensions: {
-            width: 500,
-            height: 500,
-          },
           isValid: true,
-          dependency: "taskData__options",
+          dependencies: {
+            Dropdown: {
+              options: "taskData__options",
+            },
+          },
           component: {
             selected: "northwind",
             header: "Wähle eine Datenbank aus.",
-            label: "Datenbank"
           },
         },
       },

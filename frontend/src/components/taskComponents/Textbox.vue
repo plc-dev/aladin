@@ -1,12 +1,9 @@
 <template>
-  <div>
+  <div class="textbox">
     <h2>{{ header }}</h2>
-<form>
-  <label for="answer"> {{answer}} </label>
-  <div class="boxed">
-  {{ sqlresult }}
-</div>  
-</form>
+    <form>
+      <div class="boxed">{{ sqlresult }}</div>
+    </form>
   </div>
 </template>
 
@@ -24,38 +21,37 @@ export default {
     const currentNode = computed(() => getProperty("currentNode"));
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
 
-    const componentPath =  `${path}__component`;
-    const dependencyPath = computed(() => getProperty(`${path}__dependency`));
+    const componentPath = `${path}__component`;
+    const dependencyPath = computed(() => getProperty(`${path}__dependencies`));
 
     const sqlresult = computed(() => {
-    const dependency = getProperty(dependencyPath.value);
+      const dependency = getProperty(dependencyPath.value.Textbox.serverOutput);
       if (!dependency) return [];
       return dependency;
     });
 
     const header = computed(() => getProperty(`${componentPath}__header`));
-    const answer = computed(() => getProperty(`${componentPath}__answer`));
-
 
     watch(sqlresult, (newValue) => {
-        if (newValue != null) setProperty({path: `${path}__isValid`, value: true});
-        else setProperty({path: `${path}__isValid`, value: false});
-    })
-    return {sqlresult, answer, header};
+      if (newValue != null) setProperty({ path: `${path}__isValid`, value: true });
+      else setProperty({ path: `${path}__isValid`, value: false });
+    });
+    return { sqlresult, header };
   },
 };
 </script>
 
 <style scoped>
-/*input[type=text] {
+.textbox {
+  height: 100%;
   width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  box-sizing: border-box;
-  border: 2px solid orange;
-  border-radius: 4px;
-} */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
 .boxed {
-  border: 3px solid rgb(245, 160, 2) ;
+  border: 3px solid rgb(245, 160, 2);
 }
 </style>

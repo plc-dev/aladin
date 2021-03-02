@@ -19,17 +19,7 @@ export default {
     DOTGraph,
     ContourPlot,
   },
-  setup(props) {
-    const { getProperty } = props.storeObject;
-    const currentNode = computed(() => getProperty("currentNode"));
-
-    const dependencyPath = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__dependencies`);
-    const data = computed(() => {
-      return;
-    });
-
-    return {};
-  },
+  setup(props) {},
 };
 </script>
 
