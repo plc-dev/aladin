@@ -41,7 +41,7 @@ const state: IState = {
             y: 15,
             w: 2,
             h: 2,
-            i: 3,
+            i: 0,
             static: false,
           },
           {
@@ -52,77 +52,40 @@ const state: IState = {
             i: 1,
             static: false,
           },
-          {
-            x: 18,
-            y: 17,
-            w: 2,
-            h: 2,
-            i: 4,
-            static: false,
-          },
-          {
-            x: 20,
-            y: 17,
-            w: 2,
-            h: 2,
-            i: 5,
-            static: false,
-          },
         ],
       },
       components: {
-        "1": {
-          name: "Traversal",
-          type: "VisualGraphTraversal",
-          isValid: true,
-          dependencies: {
-            DOTGraph: { dotDescription: "taskData__dotDescription" },
-            VisualGraphTraversal: { nodes: "taskData__nodes", paths: "taskData__paths", dotDescription: "taskData__dotDescription" },
-          },
-          component: {
-            selectedPaths: [],
-            colorCoding: {
-              standard: "black",
-              completed: "green",
-              selected: "red",
-              partial: "blue",
+        "0": {
+          "type": "DOTGraph",
+          "name": "Gozintograph",
+          "isValid": true,
+          "dependencies": { "DOTGraph": { "dotDescription": "taskData__dotDescription" } },
+          "component": {}
+      },
+      "1": {
+        "name": "Direktbedarfsmatrix",
+        "type": "Matrix",
+        "isValid": false,
+        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
+        "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
+        "component": {
+            "initialize": {
+                "validation": {
+                    "operations": [],
+                    "matrix1Path": "taskData__adjacencyMatrix"
+                },
+                "user": {
+                    "operations": [{ "name": "getValueInitializedMatrix", "args": [null] }],
+                    "matrix1Path": "taskData__adjacencyMatrix"
+                }
             },
-          },
-        },
-        "3": {
-          type: "PathDisplay",
-          name: "display",
-          isValid: false,
-          dependencies: { PathDisplay: { selectedPaths: "nodes__0__components__1__component__selectedPaths", nodes: "taskData__nodes" } },
-          component: {},
-        },
-        "4": {
-          type: "Textbox",
-          name: "Textbox",
-          isValid: true,
-          dependencies: {
-            Textbox: {
-              serverOutput: "taskData__sqlresult",
-            },
-          },
-          component: {
-            header: "Serveroutput",
-          },
-        },
-        "5": {
-          type: "Dropdown",
-          name: "Dropdown",
-          isValid: true,
-          dependencies: {
-            Dropdown: {
-              options: "taskData__options",
-            },
-          },
-          component: {
-            selected: "northwind",
-            header: "Wähle eine Datenbank aus.",
-          },
-        },
+            "userData": null,
+            "validationData": null,
+            "readOnly": false,
+            "rowLabel": "taskData__labelVector",
+            "columnLabel": "taskData__labelVector"
+        }
+    },  
       },
     },
   },
@@ -199,11 +162,11 @@ const state: IState = {
     valueVector: [[3, 1, 2, 6, 2, 7, 2, 2, 8, 4]],
     labelVector: ["P0", "P1", "P2", "B0", "B1", "B2", "K0", "K1", "R0", "R1"],
     dotDescription:
-      `\n            digraph\n {\n            node [shape="circle" style="filled"]` +
-      `edge [dir="back"]\n\n             P1 -> K0 [label=" 2"]\n P1 -> K1 [label=" 3"]` +
-      `P1 -> R0 [label=" 9"]\n P0 -> K1 [label=" 6"]\n\n             { rank=same; P0,P1 }\n { rank=same; K0,K1,R0 }\n\n            }\n        `,
-    sqlresult: "Das ist der Serveroutput",
-    options: ["northwind", "architecture"],
+      '\n            digraph\n {\n            node [shape="circle" style="filled"]\n\n            edge [dir="back"]\n\n' +
+      '             P1 -> K0 [label=" 6"]\n B1 -> K0 [label=" 8"]\n B2 -> K1 [label=" 7"]\n B0 -> R0 [label=" 4"]\n' +
+      ' P1 -> R1 [label=" 5"]\n B0 -> R1 [label=" 1"]\n B2 -> R1 [label=" 9"]\n P2 -> B0 [label=" 4"]\n P1 -> B1 [label=" 9"]\n' +
+      ' P2 -> B2 [label=" 2"]\n P0 -> R0 [label=" 7"]\n\n             { rank=same; P0,P1,P2 }\n { rank=same; B0,B1,B2 }\n' +
+      " { rank=same; K0,K1,R0,R1 }\n\n            }\n        ",
   },
 };
 
