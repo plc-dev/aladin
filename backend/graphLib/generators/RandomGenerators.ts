@@ -1,5 +1,5 @@
 import { Graph, DiGraph } from "../graphs/BaseGraphs";
-import RNG from "../helper/NumberGenerators";
+import { RNG } from "../../helpers/NumberGenerators";
 
 export default abstract class GraphGenerator {
     rng: RNG;

@@ -22,10 +22,10 @@ export class RPCConsumer {
     }
 
     public async startConsuming() {
-        try {
-            await this.setup();
+        await this.setup();
 
-            await this.channel.consume(this.queue, async (msg: amqp.ConsumeMessage) => {
+        await this.channel.consume(this.queue, async (msg: amqp.ConsumeMessage) => {
+            try {
                 const instructionConfiguration: IInstructionConfiguration = JSON.parse(msg.content.toString());
                 const { instruction } = instructionConfiguration;
                 const result = await this.tasks[instruction](instructionConfiguration);
@@ -33,9 +33,10 @@ export class RPCConsumer {
                     correlationId: msg.properties.correlationId,
                 });
                 this.channel.ack(msg);
-            });
-        } catch (error) {
-            console.log(error);
-        }
+            } catch (error) {
+                console.error(error);
+                console.error(JSON.parse(msg.content.toString()));
+            }
+        });
     }
 }

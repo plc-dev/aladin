@@ -1,8 +1,8 @@
-const templateString = (template: string, valueObject: { [key: string]: string[] } = {}, concatWidth: string = " ") => {
+const templateString = (template: string, valueObject: { [key: string]: string[] } = {}, concatWith: string = " ") => {
     let output = template;
     Object.entries(valueObject).forEach(([key, values]) => {
         output = output.replace(new RegExp("\\$" + `{${key}}`, "g"), () =>
-            values.reduce((string, value, i) => (!i ? value : string + concatWidth + value), "")
+            values.reduce((string, value, i) => (!i ? value : string + concatWith + value), "")
         );
     });
     return output;

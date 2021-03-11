@@ -22,7 +22,7 @@
         "mongoose": "^5.11.5",
         "node": "^15.3.0",
         "pg": "^8.5.1",
-        "rabbitmq-rpc-wrapper": "^0.2.2",
+        "rabbitmq-rpc-wrapper": "^0.2.3",
         "seedrandom": "^3.0.5",
         "ts-node": "^9.1.0",
         "tslint": "^6.1.3",

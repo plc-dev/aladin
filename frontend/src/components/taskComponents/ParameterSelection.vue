@@ -23,7 +23,7 @@
       </div>
     </div>
     <div class="actions">
-      <button :data-id="i" v-for="(action, i) in acions" :key="i" @click="handleAction">{{ action.label }}</button>
+      <button :data-id="i" v-for="(action, i) in actions" :key="i" @click="handleAction">{{ action.label }}</button>
     </div>
   </div>
 </template>
@@ -53,7 +53,7 @@ export default {
 
     const actions = computed(() => getProperty(`${path}__component__actions`));
 
-    const preparePayload = () => {
+    const preparePayload = (instruction) => {
       const parameters: { [key: string]: any } = Object.entries(elements.value).reduce(
         (parameters, [k, v]: [string, { [key: string]: any }]) => {
           return { ...parameters, [k]: [v.initial.lowerValue, v.initial.upperValue] };
@@ -62,7 +62,7 @@ export default {
       );
       const payload: { [key: string]: any } = { parameters };
       payload.type = currentTask.value;
-      payload.instruction = actions.value.instruction;
+      payload.instruction = instruction;
       return payload;
     };
 
@@ -76,13 +76,13 @@ export default {
     };
 
     const fetchData = (instruction) =>
-      store.dispatch("fetchTaskData", { payload: preparePayload(), endpoint: `${currentTask.value}/${instruction}` });
+      store.dispatch("fetchTaskData", { payload: preparePayload(instruction), endpoint: `${currentTask.value}/${instruction}` });
 
     const actionTypes = {
       fetchData,
     };
 
-    return { elements, updateElement, handleAction, actions };
+    return { elements, updateElement, handleAction, actions, title };
   },
 };
 </script>

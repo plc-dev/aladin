@@ -1,6 +1,6 @@
 {
     "name": "rabbitmq-rpc-wrapper",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "description": "Thin layer around the amqplib package to enable RPC.",
     "main": "dist/RPCLib.js",
     "types": "dist/RPCLib.d.ts",

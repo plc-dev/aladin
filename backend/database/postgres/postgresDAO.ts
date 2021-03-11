@@ -1,4 +1,4 @@
-import { Pool } from "pg";
+import { Pool, QueryResult } from "pg";
 import * as dotenv from "dotenv";
 dotenv.config({ path: __dirname + "./../../.env" });
 
@@ -13,8 +13,9 @@ export class PgClient {
         this.pool = new Pool({ connectionString: this.connectionString });
     }
 
-    public async queryDB(query: string) {
-        return await this.pool.query(query);
+    public async queryDB(query: string): Promise<Array<any>> {
+        const result: QueryResult = await this.pool.query(query);
+        return result.rows;
     }
 
     public async tearDown() {

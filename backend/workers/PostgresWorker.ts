@@ -1,7 +1,7 @@
 import { RPCConsumer } from "rabbitmq-rpc-wrapper";
 import { Channel } from "amqplib";
 import { PgClient } from "../database/postgres/postgresDAO";
-import { templateString } from "../helperFunctions";
+import { templateString } from "../helpers/helperFunctions";
 
 interface ISQLStatements {
     [key: string]: { query: string; formatResult: Function };
