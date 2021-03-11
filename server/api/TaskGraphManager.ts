@@ -7,6 +7,7 @@ function readTasks(dir: string) {
     fs.readdirSync(dir).forEach((filename: string) => {
         const name: string = path.parse(filename).name;
         const filepath = path.resolve(dir, filename);
+        console.log(filepath);
         const task: { API: object; Worker: object; UI: { [key: string]: object } } = JSON.parse(fs.readFileSync(filepath));
         tasks[name] = task;
     });

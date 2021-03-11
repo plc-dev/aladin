@@ -24,22 +24,22 @@ class RPCConsumer {
     }
     startConsuming() {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield this.setup();
-                yield this.channel.consume(this.queue, (msg) => __awaiter(this, void 0, void 0, function* () {
+            yield this.setup();
+            yield this.channel.consume(this.queue, (msg) => __awaiter(this, void 0, void 0, function* () {
+                try {
                     const instructionConfiguration = JSON.parse(msg.content.toString());
                     const { instruction } = instructionConfiguration;
-                    console.log(this.tasks[instruction]);
                     const result = yield this.tasks[instruction](instructionConfiguration);
                     this.channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(result)), {
                         correlationId: msg.properties.correlationId,
                     });
                     this.channel.ack(msg);
-                }));
-            }
-            catch (error) {
-                console.log(error);
-            }
+                }
+                catch (error) {
+                    console.error(error);
+                    console.error(JSON.parse(msg.content.toString()));
+                }
+            }));
         });
     }
 }

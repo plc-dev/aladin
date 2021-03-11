@@ -1,17 +1,7 @@
 import { RPCConsumer } from "rabbitmq-rpc-wrapper";
 import { Channel } from "amqplib";
 import { PgClient } from "../database/postgres/postgresDAO";
-
-// TODO EXTRACT INTO HELPER PACKAGE
-const templateString = (template: string, valueObject: { [key: string]: string[] }, concatWidth: string = " ") => {
-    let output = template;
-    Object.entries(valueObject).forEach(([key, values]) => {
-        output = output.replace(new RegExp("\\$" + `{${key}}`, "g"), () =>
-            values.reduce((string, value, i) => (!i ? value : string + concatWidth + value), "")
-        );
-    });
-    return output;
-};
+import { templateString } from "../helpers/helperFunctions";
 
 interface ISQLStatements {
     [key: string]: { query: string; formatResult: Function };
@@ -26,8 +16,8 @@ interface INarrowInstructionParameters {
 const handleDBResult = () => {};
 
 const sqlStatements: ISQLStatements = {
-    taskList: { query: 'SELECT name from "task"."task";', formatResult: () => {} },
-    taskGraph: { query: `SELECT * from "task"."parameter" where param_name = '\${taskName}';`, formatResult: () => {} },
+    taskList: { query: 'SELECT name from "task"."task";', formatResult: (r: any) => r },
+    taskGraph: { query: `SELECT * from "task"."parameter" where param_name = '\${taskName}';`, formatResult: (r: any) => r },
 };
 
 const prepareQueryFunctions = (sqlStatements: ISQLStatements, dbClient: PgClient) =>

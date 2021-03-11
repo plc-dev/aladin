@@ -1,5 +1,5 @@
 import { DAG } from "./BaseGraphs";
-import { statefulCounter } from "../helper/NumberGenerators";
+import { statefulCounter } from "../../helpers/NumberGenerators";
 
 export default class Gozintograph extends DAG {
     constructor(public solver: Function) {
