@@ -52,6 +52,8 @@ import Navigation from "@/components/Navigation.vue";
 import VisualGraphTraversal from "@/components/taskComponents/VisualGraphTraversal.vue";
 import PathDisplay from "@/components/taskComponents/PathDisplay.vue";
 import CodeEditor from "@/components/taskComponents/CodeEditor.vue";
+import Textbox from "@/components/taskComponents/Textbox.vue";
+import Dropdown from "@/components/taskComponents/Dropdown.vue";
 import ContourPlot from "@/components/taskComponents/ContourPlot.vue";
 import BackgroundGraph from "@/components/taskComponents/BackgroundGraph.vue";
 
@@ -69,6 +71,8 @@ export default {
     Navigation,
     VisualGraphTraversal,
     CodeEditor,
+    Textbox,
+    Dropdown,
     PathDisplay,
   },
   props: {
