@@ -50,10 +50,10 @@ interface IReference {
 }
 
 interface IParsedTable {
-    [key: string]: {
+    [tableName: string]: {
         references: Array<IReference>;
         columns: {
-            [key: string]: {
+            [columnName: string]: {
                 type: keyof SQLMetaDataParser["typeMap"] | "unknown";
             };
         };
@@ -130,7 +130,7 @@ class SQLMetaDataParser {
 }
 
 interface IOptions {
-    joins: number;
+    joinRange: Array<number>;
     columnRange: Array<number>;
     constraintRange: Array<number>;
     allowAggregates: boolean;
@@ -256,9 +256,9 @@ class QueryGenerator {
     }
 
     public async generateQuery(): Promise<IStructuredQuery> {
-        const { joins, columnRange, constraintRange, allowAggregates, forceHavingClause, forceOrderBy } = this.options;
+        const { joinRange, columnRange, constraintRange, allowAggregates, forceHavingClause, forceOrderBy } = this.options;
         const pathsPerTable = this.findAllPaths();
-        const possibleTables = this.findPossibleTables(pathsPerTable, joins);
+        const possibleTables = this.findPossibleTables(pathsPerTable, joinRange);
 
         const selectedJoin = this.selectJoin(possibleTables);
 
@@ -266,7 +266,7 @@ class QueryGenerator {
         if (allowAggregates) {
             sampledColumns = this.setAggregateColumns(sampledColumns);
         }
-        let havingClause = undefined;
+        let havingClause = {};
         if (forceHavingClause) {
             havingClause = await this.generateHavingClause(selectedJoin);
             // if no aggregatable column is available, rerun the query generation
@@ -276,7 +276,7 @@ class QueryGenerator {
         const adjustedConstraintRange = this.adjustRange(constraintRange, columnAmount);
         const whereClause = await this.generateWhereClause(sampledColumns, adjustedConstraintRange);
 
-        let orderBy = undefined;
+        let orderBy = {};
         if (forceOrderBy) {
             orderBy = this.generateOrderBy(selectedJoin);
         }
@@ -561,16 +561,24 @@ class QueryGenerator {
         const tableList = Object.entries(tables);
         const tableAmount = tableList.length - 1;
         const tableIndex = this.rng.intBetween(0, tableAmount);
-        const [table, paths] = tableList[tableIndex];
-        const pathIndex = this.rng.intBetween(0, paths.length - 1);
-        const path = paths[pathIndex].map((edge) => {
-            const joinType = randomSample(this.joinTypes, 1, this.rng)[0];
-            return { ...edge, type: joinType };
-        });
-        return { table, path };
+        if (!tableList.length) {
+            const path: Array<IEdge> = [];
+            const tableNames = Object.keys(this.parsedMetaData.tables);
+            const table = randomSample(tableNames, 1, this.rng)[0];
+            return { table, path };
+        } else {
+            const [table, paths] = tableList[tableIndex];
+            const pathIndex = this.rng.intBetween(0, paths.length - 1);
+            const path = paths[pathIndex].map((edge) => {
+                const joinType = randomSample(this.joinTypes, 1, this.rng)[0];
+                return { ...edge, type: joinType };
+            });
+            return { table, path };
+        }
     }
 
-    private findPossibleTables(pathsPerTable: IJoinables, joinAmount: number) {
+    private findPossibleTables(pathsPerTable: IJoinables, joinRange: Array<number>) {
+        const joinAmount = this.rng.intBetween(joinRange[0], joinRange[1]);
         const possibleTables = Object.entries(pathsPerTable).reduce((possibleTables, [table, paths]) => {
             const validPaths = paths.filter((path) => path.length === joinAmount);
             if (validPaths.length) possibleTables[table] = validPaths;
@@ -1142,49 +1150,85 @@ class NLParser {
     }
 }
 
-(async () => {
+interface SQLTaskDescription {
+    schema: string;
+    language: string;
+    parameters: IOptions;
+}
+
+export const sqlQueryGenerator = async (taskDescription: SQLTaskDescription) => {
     const sqlTaskClient = new PgClient("test");
     const reflector = new SQLDBReflection(["northwind"], sqlTaskClient);
     const reflection = await reflector.reflectDB();
     const parser = new SQLMetaDataParser(reflection);
     const parsedMetaData = parser.parseMetaData();
-    const schema = "northwind";
-    const language = "de";
-    const parameters = {
-        joins: 2,
-        columnRange: [1, 7],
-        constraintRange: [3, 4],
-        allowAggregates: true,
-        forceHavingClause: true,
-        forceOrderBy: true,
-    };
 
-    const generateValidQuery = async () => {
-        const qb = new QueryGenerator(parsedMetaData, parameters, sqlTaskClient, schema, new RNG());
-        const sqlParser = new SQLParser();
-        const nlParser = new NLParser(templatesPerLanguage[language]);
+    const { schema, language, parameters } = taskDescription;
 
-        let result = [];
-        let query;
-        let parsedQuery;
-        while (!result.length) {
-            try {
-                query = await qb.generateQuery();
-                parsedQuery = sqlParser.parse(query, schema);
-                console.dir(parsedQuery, { depth: null });
+    const qb = new QueryGenerator(parsedMetaData, parameters, sqlTaskClient, schema, new RNG());
+    const sqlParser = new SQLParser();
+    const nlParser = new NLParser(templatesPerLanguage[language]);
 
-                result = await sqlTaskClient.queryDB(parsedQuery);
-            } catch (error) {
-                console.log(error);
-            }
+    let result = [];
+    let query;
+    let parsedQuery;
+    while (!result.length) {
+        try {
+            query = await qb.generateQuery();
+            parsedQuery = sqlParser.parse(query, schema);
+            result = await sqlTaskClient.queryDB(parsedQuery);
+        } catch (error) {
+            console.log(error);
         }
-        const nlQuery = nlParser.parse(query);
-        console.dir(result.length, { depth: null });
-        console.dir(nlQuery, { depth: null });
+    }
+    const nlQuery = nlParser.parse(query);
 
-        return { query: parsedQuery, description: "" };
+    return { query: parsedQuery, description: nlQuery, result };
+};
 
-        // console.dir(query, { depth: null });
-    };
-    await generateValidQuery();
-})();
+// (async () => {
+//     const sqlTaskClient = new PgClient("test");
+//     const reflector = new SQLDBReflection(["northwind"], sqlTaskClient);
+//     const reflection = await reflector.reflectDB();
+//     const parser = new SQLMetaDataParser(reflection);
+//     const parsedMetaData = parser.parseMetaData();
+//     const schema = "northwind";
+//     const language = "de";
+//     const parameters = {
+//         joinRange: [0, 3],
+//         columnRange: [1, 4],
+//         constraintRange: [0, 4],
+//         allowAggregates: false,
+//         forceHavingClause: false,
+//         forceOrderBy: false,
+//     };
+
+//     const generateValidQuery = async () => {
+//         const qb = new QueryGenerator(parsedMetaData, parameters, sqlTaskClient, schema, new RNG());
+//         const sqlParser = new SQLParser();
+//         const nlParser = new NLParser(templatesPerLanguage[language]);
+
+//         let result = [];
+//         let query;
+//         let parsedQuery;
+//         while (!result.length) {
+//             try {
+//                 query = await qb.generateQuery();
+//                 parsedQuery = sqlParser.parse(query, schema);
+//                 console.dir(parsedQuery, { depth: null });
+
+//                 result = await sqlTaskClient.queryDB(parsedQuery);
+//             } catch (error) {
+//                 console.log(error);
+//             }
+//         }
+//         const nlQuery = nlParser.parse(query);
+//         console.dir(result.length, { depth: null });
+//         console.dir(nlQuery, { depth: null });
+
+//         return { query: parsedQuery, description: "" };
+
+//         // console.dir(query, { depth: null });
+//     };
+//     await generateValidQuery();
+// })();

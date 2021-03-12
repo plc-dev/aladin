@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: __dirname + "./../../.env" });
 
 export class PgClient {
-    private connectionString: string = "postgresql://admin:admin@localhost:5432/"; //`${process.env.postgresConnection}/`;
+    private connectionString: string = "postgresql://admin:admin@postgres:5432/"; //`${process.env.postgresConnection}/`;
     private pool: Pool;
 
     constructor(dbName?: string) {

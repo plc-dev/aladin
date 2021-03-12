@@ -1,6 +1,7 @@
 import { RPCConsumer } from "rabbitmq-rpc-wrapper";
 import amqp, { Channel } from "amqplib";
 import { GozintographGenerator } from "./graphLib/generators/gozintographGenerator";
+import { sqlQueryGenerator } from "./workers/SQLTaskWorker";
 import { PostgresWorker } from "./workers/PostgresWorker";
 import { PgClient } from "./database/postgres/postgresDAO";
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
@@ -8,6 +9,7 @@ const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 // TODO generalize generators into serialisable functions
 const generators: { [key: string]: any } = {
     GozintographGenerator: GozintographGenerator,
+    sqlQueryGenerator: sqlQueryGenerator,
 };
 
 // load environment variables
@@ -59,6 +61,17 @@ interface ISerializedQueues {
                         body: `async (taskDescription) => {
                             const g = new GozintographGenerator(taskDescription.parameters); 
                             return g.generateGraph();
+                        }`,
+                    },
+                },
+            },
+            sqlTask: {
+                minConsumers: 1,
+                consumerInstructions: {
+                    generateQuery: {
+                        dependencies: ["sqlQueryGenerator"],
+                        body: `async (taskDescription) => {
+                            return await sqlQueryGenerator(taskDescription);
                         }`,
                     },
                 },
