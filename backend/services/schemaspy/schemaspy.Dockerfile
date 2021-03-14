@@ -12,6 +12,8 @@ RUN apt-get install -y vim
 RUN apt-get install -y openjdk-8-jre-headless
 RUN apt install -y postgresql postgresql-contrib
 
+WORKDIR /worker
+
 RUN wget https://jdbc.postgresql.org/download/postgresql-42.2.18.jar
 RUN wget https://github.com/schemaspy/schemaspy/releases/download/v6.1.0/schemaspy-6.1.0.jar
 

@@ -18,6 +18,24 @@ const serializedRoutes: Array<ISerializedTaskRoute> = [
         httpMethod: "post",
         params: { parameters: "object" },
     },
+    {
+        task: "sql",
+        name: "generateQuery",
+        httpMethod: "post",
+        params: { parameters: "object", schema: "string", language: "string" },
+    },
+    {
+        task: "sql",
+        name: "validateQuery",
+        httpMethod: "post",
+        params: { parameters: "object" },
+    },
+    {
+        task: "sql",
+        name: "generateERD",
+        httpMethod: "post",
+        params: { parameters: "object" },
+    },
 ];
 
 (async () => {

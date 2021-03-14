@@ -8,6 +8,11 @@ interface IMatrixInstruction {
 }
 
 interface IMatrixComponent extends IComponent {
+  methods: {
+    fillZeros: string;
+    showSolution: string;
+    copyToClipboard: string;
+  };
   component: {
     initialize: IMatrixInstruction;
     validationData: null | Matrix;

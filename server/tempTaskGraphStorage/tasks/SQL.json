@@ -1,1 +1,225 @@
-{}
+{
+    "API": [
+        {
+            "task": "sql",
+            "name": "generateQuery",
+            "httpMethod": "post",
+            "params": { "parameters": "object", "schema": "string", "language": "string" }
+        },
+        {
+            "task": "sql",
+            "name": "validateQuery",
+            "httpMethod": "post",
+            "params": { "parameters": "object" }
+        },
+        {
+            "task": "sql",
+            "name": "importDatabase",
+            "httpMethod": "post",
+            "params": { "parameters": "object" }
+        }
+    ],
+    "Worker": {
+        "sqlTask": {
+            "minConsumers": 1,
+            "consumerInstructions": {
+                "generateQuery": {
+                    "dependencies": ["sqlQueryGenerator"],
+                    "body": "async (taskDescription) => { return await sqlQueryGenerator(taskDescription); }"
+                },
+                "validateQuery": {
+                    "dependencies": ["sqlQueryValidator"],
+                    "body": "async (taskDescription) => { return await sqlQueryValidator(taskDescription); }"
+                },
+                "importDatabase": {
+                    "dependencies": ["importDatabase"],
+                    "body": "async (taskDescription) => { return await importDatabase(taskDescription); }"
+                }
+            }
+        }
+    },
+    "UI": {
+        "currentTask": "sql",
+        "taskData": {},
+        "rootNode": 0,
+        "topology": [[0, null, null]],
+        "edges": {
+            "0": []
+        },
+        "currentNode": 0,
+        "nodes": {
+            "0": {
+                "zoomScale": 1,
+                "layouts": {
+                    "sm": [{ "x": 12, "y": 5, "w": 2, "h": 5, "i": 1, "static": false }],
+                    "md": [{ "x": 0, "y": 10, "w": 2, "h": 5, "i": 1, "static": false }],
+                    "lg": [
+                        { "x": 16, "y": 15, "w": 2, "h": 2, "i": 0, "static": false },
+                        { "x": 16, "y": 13, "w": 2, "h": 2, "i": 1, "static": false },
+                        { "x": 18, "y": 13, "w": 2, "h": 2, "i": 2, "static": false },
+                        { "x": 18, "y": 15, "w": 2, "h": 2, "i": 3, "static": false }
+                    ]
+                },
+                "components": {
+                    "0": {
+                        "type": "DOTGraph",
+                        "name": "Gozintograph",
+                        "isValid": true,
+                        "dependencies": { "DOTGraph": { "dotDescription": "taskData__dotDescription" } },
+                        "component": {}
+                    },
+                    "1": {
+                        "type": "TaskConfiguration",
+                        "name": "Konfiguration",
+                        "isValid": true,
+                        "component": {
+                            "title": "Parameter Konfiguration",
+                            "actions": [
+                                {
+                                    "instruction": "generateQuery",
+                                    "type": "fetchData",
+                                    "label": "Generieren!"
+                                }
+                            ],
+                            "form": {
+                                "schema": {
+                                    "formType": "DropdownFormField",
+                                    "label": "Datenbank",
+                                    "type": "string",
+                                    "initial": "northwind",
+                                    "options": [
+                                        "northwind",
+                                        "northwinds",
+                                        "northwinde",
+                                        "northwinda",
+                                        "northwindy",
+                                        "northwindq",
+                                        "northwinde"
+                                    ],
+                                    "presets": {
+                                        "easy": "northwind",
+                                        "medium": "northwind",
+                                        "hard": "northwind"
+                                    }
+                                },
+                                "joinRange": {
+                                    "formType": "RangeFormField",
+                                    "label": "Anzahl Joins",
+                                    "type": "number",
+                                    "initial": {
+                                        "lowerValue": 0,
+                                        "upperValue": 2
+                                    },
+                                    "boundaries": { "min": 0, "max": 5 },
+                                    "presets": {
+                                        "easy": 0,
+                                        "medium": 2,
+                                        "hard": 3
+                                    }
+                                },
+                                "columnRange": {
+                                    "formType": "RangeFormField",
+                                    "label": "Anzahl Spalten",
+                                    "type": "number",
+                                    "initial": {
+                                        "lowerValue": 1,
+                                        "upperValue": 4
+                                    },
+                                    "boundaries": { "min": 1, "max": 5 },
+                                    "presets": {
+                                        "easy": 1,
+                                        "medium": 3,
+                                        "hard": 5
+                                    }
+                                },
+                                "constraintRange": {
+                                    "formType": "RangeFormField",
+                                    "label": "Anzahl Bedingungen",
+                                    "type": "number",
+                                    "initial": {
+                                        "lowerValue": 0,
+                                        "upperValue": 3
+                                    },
+                                    "boundaries": { "min": 0, "max": 6 },
+                                    "presets": {
+                                        "easy": 0,
+                                        "medium": 2,
+                                        "hard": 4
+                                    }
+                                },
+                                "allowAggregates": {
+                                    "formType": "CheckboxFormField",
+                                    "label": "Aggregat",
+                                    "type": "checkbox",
+                                    "initial": false,
+                                    "presets": {
+                                        "easy": false,
+                                        "medium": true,
+                                        "hard": true
+                                    }
+                                },
+                                "forceHavingClause": {
+                                    "formType": "CheckboxFormField",
+                                    "label": "Having-Clause",
+                                    "type": "checkbox",
+                                    "initial": false,
+                                    "presets": {
+                                        "easy": false,
+                                        "medium": true,
+                                        "hard": true
+                                    }
+                                },
+                                "orderBy": {
+                                    "formType": "CheckboxFormField",
+                                    "label": "OrderBy",
+                                    "type": "checkbox",
+                                    "initial": true,
+                                    "presets": {
+                                        "easy": true,
+                                        "medium": true,
+                                        "hard": true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "2": {
+                        "type": "CodeEditor",
+                        "name": "SQL-Query",
+                        "isValid": true,
+                        "methods": {
+                            "showSolution": "Zeig mir die Lösung",
+                            "copyToClipboard": "Kopieren!"
+                        },
+                        "actions": [
+                            {
+                                "type": "execute",
+                                "instruction": "validateQuery",
+                                "label": "Ausführen!",
+                                "parameters": {
+                                    "expectedResult": "taskData__result",
+                                    "schema": "nodes__0__components__1__component__form__schema__initial",
+                                    "query": "nodes__0__components__2__component__code"
+                                }
+                            }
+                        ],
+                        "dependencies": { "CodeEditor": { "validCode": "taskData__query" } },
+                        "component": {
+                            "language": ".sql",
+                            "code": ""
+                        }
+                    },
+                    "3": {
+                        "type": "Output",
+                        "name": "SQL-Output",
+                        "isValid": false,
+                        "dependencies": { "Output": { "serverOutput": "taskData__userResult", "validOutput": "isMatchingResult" } },
+                        "component": {
+                            "header": "SQL-Rückgabe"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

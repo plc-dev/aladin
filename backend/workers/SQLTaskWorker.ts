@@ -1,7 +1,10 @@
-import { flattenDiagnosticMessageText } from "typescript";
+import { MinioClientWrapper } from "../database/minio/minioDAO";
 import { PgClient } from "../database/postgres/postgresDAO";
 import { templateString, toPascalCase } from "../helpers/helperFunctions";
 import { RNG, randomSample } from "../helpers/NumberGenerators";
+
+const minioClient = new MinioClientWrapper();
+const SQL_TASK_DB = "test";
 
 const reflectionQueries = {
     tables: `SELECT columns.table_name,
@@ -136,6 +139,7 @@ interface IOptions {
     allowAggregates: boolean;
     forceHavingClause: boolean;
     forceOrderBy: boolean;
+    schema: string;
 }
 
 type JoinType = "LEFT JOIN" | "LEFT OUTER JOIN" | "CROSS JOIN" | "INNER JOIN";
@@ -1151,19 +1155,19 @@ class NLParser {
 }
 
 interface SQLTaskDescription {
-    schema: string;
     language: string;
     parameters: IOptions;
 }
 
 export const sqlQueryGenerator = async (taskDescription: SQLTaskDescription) => {
-    const sqlTaskClient = new PgClient("test");
+    const sqlTaskClient = new PgClient(SQL_TASK_DB);
     const reflector = new SQLDBReflection(["northwind"], sqlTaskClient);
     const reflection = await reflector.reflectDB();
     const parser = new SQLMetaDataParser(reflection);
     const parsedMetaData = parser.parseMetaData();
 
-    const { schema, language, parameters } = taskDescription;
+    const { language, parameters } = taskDescription;
+    const { schema } = parameters;
 
     const qb = new QueryGenerator(parsedMetaData, parameters, sqlTaskClient, schema, new RNG());
     const sqlParser = new SQLParser();
@@ -1183,52 +1187,92 @@ export const sqlQueryGenerator = async (taskDescription: SQLTaskDescription) => 
     }
     const nlQuery = nlParser.parse(query);
 
-    return { query: parsedQuery, description: nlQuery, result };
+    const dotDescription = await minioClient.getFile("erd", `${schema}.dot`);
+    return { query: parsedQuery, description: nlQuery, result, dotDescription };
 };
 
-// (async () => {
-//     const sqlTaskClient = new PgClient("test");
-//     const reflector = new SQLDBReflection(["northwind"], sqlTaskClient);
-//     const reflection = await reflector.reflectDB();
-//     const parser = new SQLMetaDataParser(reflection);
-//     const parsedMetaData = parser.parseMetaData();
-//     const schema = "northwind";
-//     const language = "de";
-//     const parameters = {
-//         joinRange: [0, 3],
-//         columnRange: [1, 4],
-//         constraintRange: [0, 4],
-//         allowAggregates: false,
-//         forceHavingClause: false,
-//         forceOrderBy: false,
-//     };
+interface SQLTaskValidationDescription {
+    parameters: {
+        schema: string;
+        query: string;
+        expectedResult: object;
+    };
+}
 
-//     const generateValidQuery = async () => {
-//         const qb = new QueryGenerator(parsedMetaData, parameters, sqlTaskClient, schema, new RNG());
-//         const sqlParser = new SQLParser();
-//         const nlParser = new NLParser(templatesPerLanguage[language]);
+const levenshtein = (a: string, b: string) => {
+    let alen = a.length;
+    let blen = b.length;
+    if (alen === 0) return blen;
+    if (blen === 0) return alen;
+    let tmp, i, j, prev, val, row, ma, mb, mc, md, bprev;
+    if (alen > blen) {
+        tmp = a;
+        a = b;
+        b = tmp;
+    }
+    row = new Int8Array(alen + 1);
+    // init the row
+    for (i = 0; i <= alen; i++) {
+        row[i] = i;
+    }
+    // fill in the rest
+    for (i = 1; i <= blen; i++) {
+        prev = i;
+        bprev = b[i - 1];
+        for (j = 1; j <= alen; j++) {
+            if (bprev === a[j - 1]) {
+                val = row[j - 1];
+            } else {
+                ma = prev + 1;
+                mb = row[j] + 1;
+                mc = ma - ((ma - mb) & ((mb - ma) >> 7));
+                md = row[j - 1] + 1;
+                val = mc - ((mc - md) & ((md - mc) >> 7));
+            }
+            row[j - 1] = prev;
+            prev = val;
+        }
+        row[alen] = prev;
+    }
+    return row[alen];
+};
 
-//         let result = [];
-//         let query;
-//         let parsedQuery;
-//         while (!result.length) {
-//             try {
-//                 query = await qb.generateQuery();
-//                 parsedQuery = sqlParser.parse(query, schema);
-//                 console.dir(parsedQuery, { depth: null });
+const fuzzyEqual = (a: { [key: string]: any }, b: { [key: string]: any }, maxDifference: number): boolean => {
+    const keys = Object.keys,
+        ta = typeof a,
+        tb = typeof b;
+    const truth =
+        a && b && ta === "object" && ta === tb
+            ? keys(a).length === keys(b).length &&
+              keys(a).every(
+                  (aKey, index) =>
+                      levenshtein(aKey.toLowerCase(), keys(b)[index].toLowerCase()) <= maxDifference &&
+                      fuzzyEqual(a[aKey], b[keys(b)[index]], maxDifference)
+              )
+            : a === b;
+    return truth;
+};
 
-//                 result = await sqlTaskClient.queryDB(parsedQuery);
-//             } catch (error) {
-//                 console.log(error);
-//             }
-//         }
-//         const nlQuery = nlParser.parse(query);
-//         console.dir(result.length, { depth: null });
-//         console.dir(nlQuery, { depth: null });
+export const sqlQueryValidator = async (taskDescription: SQLTaskValidationDescription) => {
+    const { schema, query, expectedResult } = taskDescription.parameters;
+    const parsedExpectedResult = expectedResult;
 
-//         return { query: parsedQuery, description: "" };
+    const allowedDeviation = 8;
 
-//         // console.dir(query, { depth: null });
-//     };
-//     await generateValidQuery();
-// })();
+    const sqlTaskClient = new PgClient(SQL_TASK_DB);
+    let userResult;
+    try {
+        // setting schema to be able to access the proper tables - postgres-specific, default is 'public'
+        // avoids having to prefix every table with the schema as a user
+        await sqlTaskClient.queryDB(`SET search_path TO '${schema}';`);
+        userResult = await sqlTaskClient.queryDB(query);
+    } catch (error) {
+        userResult = error;
+    }
+    const isMatchingResult: boolean = fuzzyEqual(parsedExpectedResult, userResult, allowedDeviation);
+    return { isMatchingResult, userResult };
+};
+
+export const importDatabase = async (taskDescription: {}) => {
+    minioClient;
+};

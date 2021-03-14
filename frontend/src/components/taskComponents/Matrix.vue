@@ -23,7 +23,7 @@
 import { onMounted, computed, watch, ComputedRef } from "vue";
 import { Matrix } from "@/helpers/LinearAlgebra";
 import { IMatrixInstruction } from "@/interfaces/MatrixInterface";
-import ContextMenu from "@/components/taskComponents/ContextMenu.vue";
+import ContextMenu from "@/components/taskComponents/mixins/ContextMenu.vue";
 
 export default {
   props: { componentID: Number, storeObject: Object },
@@ -150,11 +150,12 @@ export default {
       },
       copyToClipboard: () => {},
     };
-    const selectedMethods = () =>
-      Object.entries(getProperty(`nodes__${currentNode.value}__components__${props.componentID}__methods`)).reduce(
+    const selectedMethods = () => {
+      return Object.entries(getProperty(`nodes__${currentNode.value}__components__${props.componentID}__methods`)).reduce(
         (selectedMethods, [name, description]: [string, string]) => ({ ...selectedMethods, [description]: methods[name] }),
         {}
       );
+    };
 
     return {
       id: props.componentID,

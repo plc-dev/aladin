@@ -5,7 +5,7 @@ import { Router } from "express";
 function readTasks(dir: string) {
     const tasks: { [key: string]: { API: object; Worker: object; UI: { [key: string]: object } } } = {};
     fs.readdirSync(dir).forEach((filename: string) => {
-        const name: string = path.parse(filename).name;
+        const name: string = path.parse(filename).name.toLowerCase();
         const filepath = path.resolve(dir, filename);
         console.log(filepath);
         const task: { API: object; Worker: object; UI: { [key: string]: object } } = JSON.parse(fs.readFileSync(filepath));
@@ -35,7 +35,7 @@ const taskParts = Object.entries(tasks).reduce(
 export const taskGraph = (router: Router) => {
     router.post("/fetchTaskGraph", async (req, res) => {
         try {
-            const { task } = req.body;
+            const task = req.body.task.toLowerCase();
             res.status(200).json(JSON.stringify(tasks[task]));
         } catch (error) {
             res.status(400).json(JSON.stringify(error));

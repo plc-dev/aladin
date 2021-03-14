@@ -52,22 +52,6 @@ const state: IState = {
             i: 1,
             static: false,
           },
-          {
-            x: 18,
-            y: 17,
-            w: 2,
-            h: 2,
-            i: 4,
-            static: false,
-          },
-          {
-            x: 20,
-            y: 17,
-            w: 2,
-            h: 2,
-            i: 5,
-            static: false,
-          },
         ],
       },
       components: {
@@ -95,33 +79,6 @@ const state: IState = {
           isValid: false,
           dependencies: { PathDisplay: { selectedPaths: "nodes__0__components__1__component__selectedPaths", nodes: "taskData__nodes" } },
           component: {},
-        },
-        "4": {
-          type: "Textbox",
-          name: "Textbox",
-          isValid: true,
-          dependencies: {
-            Textbox: {
-              serverOutput: "taskData__sqlresult",
-            },
-          },
-          component: {
-            header: "Serveroutput",
-          },
-        },
-        "5": {
-          type: "Dropdown",
-          name: "Dropdown",
-          isValid: true,
-          dependencies: {
-            Dropdown: {
-              options: "taskData__options",
-            },
-          },
-          component: {
-            selected: "northwind",
-            header: "Wähle eine Datenbank aus.",
-          },
         },
       },
     },
