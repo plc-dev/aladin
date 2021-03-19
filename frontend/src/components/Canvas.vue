@@ -29,6 +29,8 @@
           drag-ignore-from=".ignoreDrag"
           @move="setCoordinates"
           @resize="updateDimensions"
+          :preserveAspectRatio="true"
+          :autosize="true"
         >
           <img class="dragHandler" src="/img/drag_arrow.webp" />
           <component :is="nodeComponents[item.i].type" :componentID="item.i" :storeObject="storeObject"></component>

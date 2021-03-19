@@ -171,9 +171,15 @@ export class GozintographGenerator extends GraphGenerator {
 
     private generateDOTDescription() {
         const graphType = this.graph.isDirected ? "digraph\n" : "graph\n";
-        const nodeStyle = 'node [shape="circle" style="filled"]\n';
-        const edgeDirection = 'edge [dir="back"]\n';
+        const graphStyle = 'graph [bgcolor="transparent"]';
+        const nodeStyle = `node [shape="circle", style="filled"]\n`;
+        const edgeDirection = '\n edge [dir="back"]\n';
         const nodes = this.graph.nodes;
+        const nodeString = Object.entries(nodes)
+            .map(([id, { label, value }]) => {
+                `${label} [tooltip="${value}"]`;
+            })
+            .join("\n");
         const edgeString = this.graph.edges.reduce((edgeString, edge) => {
             const parentLabel = nodes[edge.between[1]].label;
             const childLabel = nodes[edge.between[0]].label;
@@ -185,7 +191,9 @@ export class GozintographGenerator extends GraphGenerator {
         }, "");
         return `
             ${graphType} {
+            ${graphStyle}
             ${nodeStyle}
+            ${nodeString}
             ${edgeDirection}
             ${edgeString}
             ${topologyString}

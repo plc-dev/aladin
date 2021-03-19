@@ -1,6 +1,6 @@
 import { createStore, createLogger } from "vuex";
 import { Matrix } from "../helpers/LinearAlgebra";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { IState } from "@/interfaces/TaskGraphInterface";
 
 const state: IState = {
@@ -34,7 +34,9 @@ const actions = {
     const { endpoint, payload } = payloadObject;
     // TODO extract language to seperate user module
     const result = await axios.post(`/api/${endpoint}`, { ...payload, language: "de" });
-    commit("SET_PROPERTY", { path: "taskData", value: JSON.parse(result.data) });
+    Object.entries(JSON.parse(result.data)).forEach(([key, value]) => {
+      commit("SET_PROPERTY", { path: `taskData__${key}`, value: value });
+    });
   },
   fetchTaskGraph: async ({ commit }, payload: { task: string }) => {
     try {

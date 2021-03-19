@@ -45,10 +45,12 @@ export default {
       return { color, contours };
     };
 
-    const genSvg = function () {
+    const genSvg = () => {
       const { color, contours } = prepareData();
       const { values, thresholds, columns, rows } = data.value;
       const path = d3.geoPath();
+
+      console.log(path);
 
       const svg = d3
         .select(".contourPlot")
@@ -56,12 +58,12 @@ export default {
         .attr("preserveAspectRatio", "xMinYMin ")
         .attr("viewBox", `0 0 ${rows} ${columns}`);
 
-      const g = svg.append("g").attr("stroke", "white").attr("stroke-width", 0.03);
+      const g = svg.append("g").attr("stroke", "black").attr("stroke-width", 0.03);
 
       for (const threshold of thresholds) {
-        g.append("path")
-          .attr("d", path(contours.contour(values, threshold)))
-          .attr("fill", color(threshold));
+        const geoJson = contours.contour(values, threshold);
+        console.log(geoJson);
+        g.append("path").attr("d", path(geoJson)).attr("fill", color(threshold));
       }
       return svg.node();
     };

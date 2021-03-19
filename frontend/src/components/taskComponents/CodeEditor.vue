@@ -127,7 +127,7 @@ export default {
 
     const selectedMethods = () => {
       const serialisedMethods = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__methods`);
-      if (!methods) return {};
+      if (!serialisedMethods) return {};
       return Object.entries(serialisedMethods).reduce(
         (selectedMethods, [name, description]: [string, string]) => ({ ...selectedMethods, [description]: methods[name] }),
         {}

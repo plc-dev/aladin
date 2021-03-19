@@ -632,7 +632,11 @@ class SQLParser {
         const havingStatement = this.parseHavingClause(havingClause, aliasDictionary);
         const orderByStatement = this.parseOrderBy(orderBy, aliasDictionary);
 
-        return `${selectStatement} ${joinStatement} ${whereStatement} ${groupByStatement} ${havingStatement} ${orderByStatement};`;
+        return [selectStatement, joinStatement, whereStatement, groupByStatement, havingStatement, orderByStatement]
+            .filter((statement) => !!statement)
+            .join("\n");
+
+        // return `${selectStatement} ${joinStatement} ${whereStatement} ${groupByStatement} ${havingStatement} ${orderByStatement};`;
     }
 
     private parseColumns(columns: IColumns, aliasDictionary: IAliasDictionary) {
