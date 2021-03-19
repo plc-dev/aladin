@@ -1,7 +1,10 @@
-import { flattenDiagnosticMessageText } from "typescript";
+import { MinioClientWrapper } from "../database/minio/minioDAO";
 import { PgClient } from "../database/postgres/postgresDAO";
 import { templateString, toPascalCase } from "../helpers/helperFunctions";
 import { RNG, randomSample } from "../helpers/NumberGenerators";
+
+const minioClient = new MinioClientWrapper();
+const SQL_TASK_DB = "test";
 
 const reflectionQueries = {
     tables: `SELECT columns.table_name,
@@ -50,10 +53,10 @@ interface IReference {
 }
 
 interface IParsedTable {
-    [key: string]: {
+    [tableName: string]: {
         references: Array<IReference>;
         columns: {
-            [key: string]: {
+            [columnName: string]: {
                 type: keyof SQLMetaDataParser["typeMap"] | "unknown";
             };
         };
@@ -130,12 +133,13 @@ class SQLMetaDataParser {
 }
 
 interface IOptions {
-    joins: number;
+    joinRange: Array<number>;
     columnRange: Array<number>;
     constraintRange: Array<number>;
     allowAggregates: boolean;
     forceHavingClause: boolean;
     forceOrderBy: boolean;
+    schema: string;
 }
 
 type JoinType = "LEFT JOIN" | "LEFT OUTER JOIN" | "CROSS JOIN" | "INNER JOIN";
@@ -256,9 +260,9 @@ class QueryGenerator {
     }
 
     public async generateQuery(): Promise<IStructuredQuery> {
-        const { joins, columnRange, constraintRange, allowAggregates, forceHavingClause, forceOrderBy } = this.options;
+        const { joinRange, columnRange, constraintRange, allowAggregates, forceHavingClause, forceOrderBy } = this.options;
         const pathsPerTable = this.findAllPaths();
-        const possibleTables = this.findPossibleTables(pathsPerTable, joins);
+        const possibleTables = this.findPossibleTables(pathsPerTable, joinRange);
 
         const selectedJoin = this.selectJoin(possibleTables);
 
@@ -266,7 +270,7 @@ class QueryGenerator {
         if (allowAggregates) {
             sampledColumns = this.setAggregateColumns(sampledColumns);
         }
-        let havingClause = undefined;
+        let havingClause = {};
         if (forceHavingClause) {
             havingClause = await this.generateHavingClause(selectedJoin);
             // if no aggregatable column is available, rerun the query generation
@@ -276,7 +280,7 @@ class QueryGenerator {
         const adjustedConstraintRange = this.adjustRange(constraintRange, columnAmount);
         const whereClause = await this.generateWhereClause(sampledColumns, adjustedConstraintRange);
 
-        let orderBy = undefined;
+        let orderBy = {};
         if (forceOrderBy) {
             orderBy = this.generateOrderBy(selectedJoin);
         }
@@ -561,16 +565,24 @@ class QueryGenerator {
         const tableList = Object.entries(tables);
         const tableAmount = tableList.length - 1;
         const tableIndex = this.rng.intBetween(0, tableAmount);
-        const [table, paths] = tableList[tableIndex];
-        const pathIndex = this.rng.intBetween(0, paths.length - 1);
-        const path = paths[pathIndex].map((edge) => {
-            const joinType = randomSample(this.joinTypes, 1, this.rng)[0];
-            return { ...edge, type: joinType };
-        });
-        return { table, path };
+        if (!tableList.length) {
+            const path: Array<IEdge> = [];
+            const tableNames = Object.keys(this.parsedMetaData.tables);
+            const table = randomSample(tableNames, 1, this.rng)[0];
+            return { table, path };
+        } else {
+            const [table, paths] = tableList[tableIndex];
+            const pathIndex = this.rng.intBetween(0, paths.length - 1);
+            const path = paths[pathIndex].map((edge) => {
+                const joinType = randomSample(this.joinTypes, 1, this.rng)[0];
+                return { ...edge, type: joinType };
+            });
+            return { table, path };
+        }
     }
 
-    private findPossibleTables(pathsPerTable: IJoinables, joinAmount: number) {
+    private findPossibleTables(pathsPerTable: IJoinables, joinRange: Array<number>) {
+        const joinAmount = this.rng.intBetween(joinRange[0], joinRange[1]);
         const possibleTables = Object.entries(pathsPerTable).reduce((possibleTables, [table, paths]) => {
             const validPaths = paths.filter((path) => path.length === joinAmount);
             if (validPaths.length) possibleTables[table] = validPaths;
@@ -620,7 +632,11 @@ class SQLParser {
         const havingStatement = this.parseHavingClause(havingClause, aliasDictionary);
         const orderByStatement = this.parseOrderBy(orderBy, aliasDictionary);
 
-        return `${selectStatement} ${joinStatement} ${whereStatement} ${groupByStatement} ${havingStatement} ${orderByStatement};`;
+        return [selectStatement, joinStatement, whereStatement, groupByStatement, havingStatement, orderByStatement]
+            .filter((statement) => !!statement)
+            .join("\n");
+
+        // return `${selectStatement} ${joinStatement} ${whereStatement} ${groupByStatement} ${havingStatement} ${orderByStatement};`;
     }
 
     private parseColumns(columns: IColumns, aliasDictionary: IAliasDictionary) {
@@ -1142,49 +1158,125 @@ class NLParser {
     }
 }
 
-(async () => {
-    const sqlTaskClient = new PgClient("test");
+interface SQLTaskDescription {
+    language: string;
+    parameters: IOptions;
+}
+
+export const sqlQueryGenerator = async (taskDescription: SQLTaskDescription) => {
+    const sqlTaskClient = new PgClient(SQL_TASK_DB);
     const reflector = new SQLDBReflection(["northwind"], sqlTaskClient);
     const reflection = await reflector.reflectDB();
     const parser = new SQLMetaDataParser(reflection);
     const parsedMetaData = parser.parseMetaData();
-    const schema = "northwind";
-    const language = "de";
-    const parameters = {
-        joins: 2,
-        columnRange: [1, 7],
-        constraintRange: [3, 4],
-        allowAggregates: true,
-        forceHavingClause: true,
-        forceOrderBy: true,
-    };
 
-    const generateValidQuery = async () => {
-        const qb = new QueryGenerator(parsedMetaData, parameters, sqlTaskClient, schema, new RNG());
-        const sqlParser = new SQLParser();
-        const nlParser = new NLParser(templatesPerLanguage[language]);
+    const { language, parameters } = taskDescription;
+    const { schema } = parameters;
 
-        let result = [];
-        let query;
-        let parsedQuery;
-        while (!result.length) {
-            try {
-                query = await qb.generateQuery();
-                parsedQuery = sqlParser.parse(query, schema);
-                console.dir(parsedQuery, { depth: null });
+    const qb = new QueryGenerator(parsedMetaData, parameters, sqlTaskClient, schema, new RNG());
+    const sqlParser = new SQLParser();
+    const nlParser = new NLParser(templatesPerLanguage[language]);
 
-                result = await sqlTaskClient.queryDB(parsedQuery);
-            } catch (error) {
-                console.log(error);
-            }
+    let result = [];
+    let query;
+    let parsedQuery;
+    while (!result.length) {
+        try {
+            query = await qb.generateQuery();
+            parsedQuery = sqlParser.parse(query, schema);
+            result = await sqlTaskClient.queryDB(parsedQuery);
+        } catch (error) {
+            console.log(error);
         }
-        const nlQuery = nlParser.parse(query);
-        console.dir(result.length, { depth: null });
-        console.dir(nlQuery, { depth: null });
+    }
+    const nlQuery = nlParser.parse(query);
 
-        return { query: parsedQuery, description: "" };
+    const dotDescription = await minioClient.getFile("erd", `${schema}.dot`);
+    return { query: parsedQuery, description: nlQuery, result, dotDescription };
+};
 
-        // console.dir(query, { depth: null });
+interface SQLTaskValidationDescription {
+    parameters: {
+        schema: string;
+        query: string;
+        expectedResult: object;
     };
-    await generateValidQuery();
-})();
+}
+
+const levenshtein = (a: string, b: string) => {
+    let alen = a.length;
+    let blen = b.length;
+    if (alen === 0) return blen;
+    if (blen === 0) return alen;
+    let tmp, i, j, prev, val, row, ma, mb, mc, md, bprev;
+    if (alen > blen) {
+        tmp = a;
+        a = b;
+        b = tmp;
+    }
+    row = new Int8Array(alen + 1);
+    // init the row
+    for (i = 0; i <= alen; i++) {
+        row[i] = i;
+    }
+    // fill in the rest
+    for (i = 1; i <= blen; i++) {
+        prev = i;
+        bprev = b[i - 1];
+        for (j = 1; j <= alen; j++) {
+            if (bprev === a[j - 1]) {
+                val = row[j - 1];
+            } else {
+                ma = prev + 1;
+                mb = row[j] + 1;
+                mc = ma - ((ma - mb) & ((mb - ma) >> 7));
+                md = row[j - 1] + 1;
+                val = mc - ((mc - md) & ((md - mc) >> 7));
+            }
+            row[j - 1] = prev;
+            prev = val;
+        }
+        row[alen] = prev;
+    }
+    return row[alen];
+};
+
+const fuzzyEqual = (a: { [key: string]: any }, b: { [key: string]: any }, maxDifference: number): boolean => {
+    const keys = Object.keys,
+        ta = typeof a,
+        tb = typeof b;
+    const truth =
+        a && b && ta === "object" && ta === tb
+            ? keys(a).length === keys(b).length &&
+              keys(a).every(
+                  (aKey, index) =>
+                      levenshtein(aKey.toLowerCase(), keys(b)[index].toLowerCase()) <= maxDifference &&
+                      fuzzyEqual(a[aKey], b[keys(b)[index]], maxDifference)
+              )
+            : a === b;
+    return truth;
+};
+
+export const sqlQueryValidator = async (taskDescription: SQLTaskValidationDescription) => {
+    const { schema, query, expectedResult } = taskDescription.parameters;
+    const parsedExpectedResult = expectedResult;
+
+    const allowedDeviation = 8;
+
+    const sqlTaskClient = new PgClient(SQL_TASK_DB);
+    let userResult;
+    try {
+        // setting schema to be able to access the proper tables - postgres-specific, default is 'public'
+        // avoids having to prefix every table with the schema as a user
+        await sqlTaskClient.queryDB(`SET search_path TO '${schema}';`);
+        userResult = await sqlTaskClient.queryDB(query);
+    } catch (error) {
+        userResult = error;
+    }
+    const isMatchingResult: boolean = fuzzyEqual(parsedExpectedResult, userResult, allowedDeviation);
+    return { isMatchingResult, userResult };
+};
+
+export const importDatabase = async (taskDescription: {}) => {
+    minioClient;
+};

@@ -29,6 +29,8 @@
           drag-ignore-from=".ignoreDrag"
           @move="setCoordinates"
           @resize="updateDimensions"
+          :preserveAspectRatio="true"
+          :autosize="true"
         >
           <img class="dragHandler" src="/img/drag_arrow.webp" />
           <component :is="nodeComponents[item.i].type" :componentID="item.i" :storeObject="storeObject"></component>
@@ -52,7 +54,7 @@ import Navigation from "@/components/Navigation.vue";
 import VisualGraphTraversal from "@/components/taskComponents/VisualGraphTraversal.vue";
 import PathDisplay from "@/components/taskComponents/PathDisplay.vue";
 import CodeEditor from "@/components/taskComponents/CodeEditor.vue";
-import Textbox from "@/components/taskComponents/Textbox.vue";
+import Output from "@/components/taskComponents/Output.vue";
 import Dropdown from "@/components/taskComponents/Dropdown.vue";
 import ContourPlot from "@/components/taskComponents/ContourPlot.vue";
 import BackgroundGraph from "@/components/taskComponents/BackgroundGraph.vue";
@@ -71,7 +73,7 @@ export default {
     Navigation,
     VisualGraphTraversal,
     CodeEditor,
-    Textbox,
+    Output,
     Dropdown,
     PathDisplay,
   },

@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, ref, computed } from "vue";
+import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import Canvas from "@/components/Canvas.vue";
 import stores from "@/helpers/TaskGraphUtility";
@@ -30,13 +30,12 @@ export default {
       return false;
     });
 
-    const isLoaded = computed(() => getProperty(`currentNode`));
+    const isLoaded = computed(() => getProperty(`currentNode`) !== null);
 
     if (typeof route.params.task === "string") {
       setProperty({ path: "currentTask", value: route.params.task });
       store.dispatch("fetchTaskGraph", { task: route.params.task });
     }
-    onMounted(async () => {});
     return { currentNode, isDecisionNode, isLoaded, taskStore };
   },
 };

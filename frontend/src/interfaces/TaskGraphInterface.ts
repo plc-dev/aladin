@@ -4,6 +4,10 @@ import { IDOTGraphComponent } from "@/interfaces/DOTGraphInterface";
 import { ITaskConfigurationComponent } from "@/interfaces/TaskConfigurationInterface";
 import { IDecisionNode } from "@/interfaces/DecisionNodeInterface";
 
+// defaults to string as typescript not yet allows for true regex based string checks
+// must have shape "i__am__a__path"
+type taskGraphPath = string;
+
 interface IEdges {
   [key: number]: Array<number>;
 }
@@ -25,8 +29,22 @@ interface ILayouts {
 
 interface IDependencies {
   [componentName: string]: {
-    [dependencyName: string]: string;
+    [dependencyName: string]: taskGraphPath;
   };
+}
+
+type keyboardEventProperties = "ctrlKey" | "altKey" | "key" | "keyCode";
+interface IKeyboardShortCut {
+  property: keyboardEventProperties;
+  value: boolean | number | string;
+}
+
+interface IAction {
+  instruction: string;
+  label: string;
+  type: string;
+  keyboardShortcut?: Array<IKeyboardShortCut>;
+  parameters?: { [parameter: string]: taskGraphPath };
 }
 
 interface IComponent {
@@ -36,6 +54,7 @@ interface IComponent {
   isValid: boolean;
   dependencies?: IDependencies;
   methods?: { [key: string]: string };
+  actions?: [IAction];
 }
 
 interface IComponents {

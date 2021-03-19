@@ -35,6 +35,7 @@ services:
             - postgres
         volumes:
             - ./backend/services/schemaspy/output:/output
+            - ./backend/services/schemaspy:/worker
 
     postgres:
         build:
@@ -64,9 +65,10 @@ services:
         restart: unless-stopped
 
     minio:
-        build:
-            context: backend/services/minio
-            dockerfile: minio.Dockerfile
+        # build:
+        #     context: backend/services/minio
+        #     dockerfile: minio.Dockerfile
+        image: bitnami/minio:2020.2.20
         container_name: minio
         ports:
             - "9000:9000"
@@ -75,6 +77,8 @@ services:
         environment:
             MINIO_ACCESS_KEY: minio_access_key
             MINIO_SECRET_KEY: minio_secret_key
+            MINIO_ROOT_USER: minio
+            MINIO_ROOT_PASSWORD: admin
         restart: unless-stopped
 
     rabbitmq:

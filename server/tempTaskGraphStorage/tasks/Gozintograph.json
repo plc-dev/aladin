@@ -98,8 +98,10 @@
                                     "label": "Generieren!"
                                 }
                             ],
-                            "state": {
+                            "form": {
                                 "depth": {
+                                    "formType": "RangeFormField",
+                                    "label": "Graphentiefe",
                                     "type": "number",
                                     "initial": {
                                         "lowerValue": 2,
@@ -113,6 +115,8 @@
                                     }
                                 },
                                 "weight": {
+                                    "formType": "RangeFormField",
+                                    "label": "Graphengewichte",
                                     "type": "number",
                                     "boundaries": { "min": 0, "max": 200 },
                                     "initial": {
@@ -126,6 +130,8 @@
                                     }
                                 },
                                 "width": {
+                                    "formType": "RangeFormField",
+                                    "label": "Graphenbreite",
                                     "type": "number",
                                     "boundaries": { "min": 0, "max": 200 },
                                     "initial": {
@@ -139,6 +145,8 @@
                                     }
                                 },
                                 "value": {
+                                    "formType": "RangeFormField",
+                                    "label": "Knotenwerte",
                                     "type": "number",
                                     "boundaries": { "min": 0, "max": 200 },
                                     "initial": {
@@ -152,6 +160,8 @@
                                     }
                                 },
                                 "edgeDensity": {
+                                    "formType": "RangeFormField",
+                                    "label": "Kantendichte",
                                     "type": "number",
                                     "boundaries": { "min": 0, "max": 200 },
                                     "initial": {

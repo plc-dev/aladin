@@ -46,16 +46,16 @@ interface IParameters {
   parameters: { [key: string]: IRangeFormfield | INumberFormField | IFormField };
 }
 
-interface IAction {
-  instruction: string;
-  label: string;
-  type: string;
-}
-
 interface ITaskConfigurationComponent extends IComponent {
   component: {
     state: IParameters;
-    actions: IAction;
+    actions: [
+      {
+        type: "fetchData";
+        instruction: string;
+        label: string;
+      }
+    ];
   };
 }
 

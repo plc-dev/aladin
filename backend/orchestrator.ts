@@ -1,13 +1,18 @@
 import { RPCConsumer } from "rabbitmq-rpc-wrapper";
 import amqp, { Channel } from "amqplib";
 import { GozintographGenerator } from "./graphLib/generators/gozintographGenerator";
+import { sqlQueryGenerator, sqlQueryValidator, importDatabase } from "./workers/SQLTaskWorker";
 import { PostgresWorker } from "./workers/PostgresWorker";
 import { PgClient } from "./database/postgres/postgresDAO";
+import { MinioClientWrapper } from "./database/minio/minioDAO";
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 // TODO generalize generators into serialisable functions
 const generators: { [key: string]: any } = {
     GozintographGenerator: GozintographGenerator,
+    sqlQueryGenerator: sqlQueryGenerator,
+    sqlQueryValidator: sqlQueryValidator,
+    importDatabase: importDatabase,
 };
 
 // load environment variables
@@ -36,6 +41,9 @@ interface ISerializedQueues {
         // Set up mongoDB
         // const mdb = await require("./database/mongodb/mongooseDAO")();
 
+        // initialize minio
+        // const minioClient = new MinioClientWrapper();
+
         // initialize postgres
         const dbName = "aladin";
         const aladinClient = new PgClient(dbName);
@@ -57,8 +65,59 @@ interface ISerializedQueues {
                     generateGraph: {
                         dependencies: ["GozintographGenerator"],
                         body: `async (taskDescription) => {
-                            const g = new GozintographGenerator(taskDescription.parameters); 
-                            return g.generateGraph();
+                            let result = {};
+                            try {
+                                const g = new GozintographGenerator(taskDescription.parameters); 
+                                result = g.generateGraph();
+                            } catch (error) {
+                                console.error(error);
+                                result = error;
+                            }
+                            return result;
+                        }`,
+                    },
+                },
+            },
+            sqlTask: {
+                minConsumers: 1,
+                consumerInstructions: {
+                    generateQuery: {
+                        dependencies: ["sqlQueryGenerator"],
+                        body: `async (taskDescription) => {
+                            let result = {};
+                            try {
+                                result = await sqlQueryGenerator(taskDescription);
+                            } catch (error) {
+                                console.error(error);
+                                result = error;
+                            }
+                            return result;
+                        }`,
+                    },
+                    validateQuery: {
+                        dependencies: ["sqlQueryValidator"],
+                        body: `async (taskDescription) => {
+                            let result = {};
+                            try {
+                                result = await sqlQueryValidator(taskDescription);
+                            } catch (error) {
+                                console.error(error);
+                                result = error;
+                            }
+                            return result;
+                        }`,
+                    },
+                    importDatabase: {
+                        dependencies: ["importDatabase"],
+                        body: `async (taskDescription) => {
+                            let result = {};
+                            try {
+                                result = await importDatabase(taskDescription);
+                            } catch (error) {
+                                console.error(error);
+                                result = error;
+                            }
+                            return result;
                         }`,
                     },
                 },

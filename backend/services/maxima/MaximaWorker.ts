@@ -76,7 +76,7 @@ const spawnMaxima = async (input: string): Promise<Array<string>> => {
     });
 };
 
-// start rabbitmq
+// connect to rabbitmq
 (async () => {
     const connection = await amqp.connect("amqp://guest:guest@rabbitmq:5672"); //process.env.brokerConnection
     const channel: Channel = await connection.createChannel();
