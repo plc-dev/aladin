@@ -1,18 +1,19 @@
 <template>
   <div class="actions">
-    <button :data-id="i" v-for="(action, i) in actions" :key="i" @keydown="handleKeyboardShortcut" @click="handleAction">
-      {{ action.label }}
-    </button>
+    <Button v-for="(action, i) in actions" :key="i" :data="{ name: 'id', value: i }" :label="action.label" :callback="handleAction" />
   </div>
 </template>
 
 <script lang="ts">
+import Button from "@/components/Button.vue";
+
 export default {
   name: "CodeEditor",
   props: {
     actionTypes: Object,
     actions: Array,
   },
+  components: { Button },
   setup(props) {
     // TODO register on global object (window/html) to register, since button is not keydownable
     const handleKeyboardShortcut = (event) => {
@@ -37,10 +38,11 @@ export default {
 </script>
 
 <style scoped>
-button {
-  background: grey;
-  width: 5vw;
-  height: 5vh;
-  font-size: 1em;
+.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 10vw;
+  height: 10vh;
 }
 </style>

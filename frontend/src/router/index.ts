@@ -25,6 +25,11 @@ const routes = [
     name: "Editor",
     component: () => import(/* webpackChunkName: "settings" */ "@/views/Configurator.vue"),
   },
+  {
+    path: "/replay/:id",
+    name: "Replay",
+    component: () => import(/* webpackChunkName: "settings" */ "@/views/Replay.vue"),
+  },
 ];
 
 const router = createRouter({

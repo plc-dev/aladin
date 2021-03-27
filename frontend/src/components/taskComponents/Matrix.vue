@@ -12,7 +12,15 @@
           <p class="matrix_label">{{ rowLabel[i] }}</p>
         </th>
         <td class="matrix_element" v-for="(element, j) in userData[i]" :key="j">
-          <input :class="`i__${i}__${j}`" :data-index="[i, j]" :readonly="isReadOnly" @keyup="updateField" type="number" :value="element" />
+          <input
+            :class="`i__${i}__${j}`"
+            :data-index="[i, j]"
+            :readonly="isReadOnly"
+            :disabled="isReadOnly"
+            @keyup="updateField"
+            type="number"
+            :value="element"
+          />
         </td>
       </tr>
     </table>
@@ -203,7 +211,8 @@ input::-webkit-inner-spin-button {
 th {
   min-height: 100%;
   border: 1px solid black;
-  background: lightgrey;
+  background: #57636b;
+  color: #b1b2b4;
 }
 
 .matrix_label {

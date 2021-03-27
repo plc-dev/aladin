@@ -30,4 +30,10 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+body {
+  background: #e8edf1;
+  box-shadow: inset 0 -7px 5px -7px rgba(0, 0, 0, 1);
+  box-shadow: inset -7px -7px 5px -7px rgba(0, 0, 0, 1);
+}
 </style>

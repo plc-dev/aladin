@@ -26,3 +26,4 @@ backend/services/maxima/*
 !backend/services/maxima/tsconfig.json
 backend/services/schemaspy/*
 !backend/services/schemaspy/schemaspy.Dockerfile
+server/tempReplayStorage/*

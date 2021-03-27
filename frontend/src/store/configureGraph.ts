@@ -1,5 +1,4 @@
 import { createStore, createLogger } from "vuex";
-import { Matrix } from "../helpers/LinearAlgebra";
 import axios from "axios";
 import { IState } from "@/interfaces/TaskGraphInterface";
 
@@ -9,7 +8,7 @@ const state: IState = {
   currentNode: 0,
   previousNode: 0,
   rootNode: 0,
-  topology: new Matrix([]),
+  topology: [],
   edges: {},
   nodes: {
     0: {
@@ -17,8 +16,8 @@ const state: IState = {
       layouts: {
         sm: [
           {
-            x: 12,
-            y: 5,
+            x: 20,
+            y: 10,
             w: 2,
             h: 5,
             i: 2,
@@ -37,24 +36,24 @@ const state: IState = {
         ],
         lg: [
           {
-            x: 18,
-            y: 15,
+            x: 36,
+            y: 30,
             w: 2,
             h: 2,
             i: 3,
             static: false,
           },
           {
-            x: 16,
-            y: 15,
+            x: 34,
+            y: 30,
             w: 2,
             h: 2,
             i: 1,
             static: false,
           },
           {
-            x: 20,
-            y: 15,
+            x: 32,
+            y: 30,
             w: 2,
             h: 2,
             i: 4,
@@ -2841,7 +2840,7 @@ const actions = {
       const result = await axios.post("/api/fetchTaskGraph", payload);
       const { UI } = JSON.parse(result.data);
       const { topology, edges, nodes, rootNode } = UI;
-      commit("SET_PROPERTY", { path: "topology", value: new Matrix(...topology) });
+      commit("SET_PROPERTY", { path: "topology", value: topology });
       commit("SET_PROPERTY", { path: "edges", value: edges });
       commit("SET_PROPERTY", { path: "nodes", value: nodes });
       commit("SET_PROPERTY", { path: "rootNode", value: rootNode });

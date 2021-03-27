@@ -1,22 +1,26 @@
 import { createStore, createLogger } from "vuex";
-import { Matrix } from "../helpers/LinearAlgebra";
 import axios from "axios";
 import { IState } from "@/interfaces/TaskGraphInterface";
 
-const state: IState = {
+const emptyState = {
   currentTask: null,
   layoutSize: "lg",
   currentNode: null,
   previousNode: null,
   rootNode: null,
-  topology: new Matrix([]),
+  topology: [],
   edges: {},
   nodes: {},
   taskData: {},
 };
+
+const state: IState = {
+  ...emptyState,
+  taskReplay: { steps: [] },
+};
 const mutations = {
-  SET_PROPERTY(state: IState, payload: { path: string; value: any }) {
-    const { path, value } = payload;
+  async SET_PROPERTY(state: IState, payload: { path: string; value: any }) {
+    let { path, value } = payload;
     const splitPath = path.split("__");
 
     const parsedPath = splitPath.reduce((parsedPath, substring) => {
@@ -27,23 +31,18 @@ const mutations = {
   },
 };
 const actions = {
-  fetchTaskData: async ({ commit }, payloadObject: { [key: string]: any }) => {
-    const { endpoint, payload } = payloadObject;
-    const result = await axios.post(`/api/${endpoint}`, payload);
-    commit("SET_PROPERTY", { path: "taskData", value: JSON.parse(result.data) });
-  },
-  fetchTaskGraph: async ({ commit }, payload: { task: string }) => {
+  fetchReplayGraph: async ({ commit }, payload: { id: string }) => {
     try {
-      const result = await axios.post("/api/fetchTaskGraph", payload);
-      const { UI } = JSON.parse(result.data);
-      const { topology, edges, nodes, rootNode } = UI;
-      commit("SET_PROPERTY", { path: "topology", value: new Matrix(...topology) });
-      commit("SET_PROPERTY", { path: "edges", value: edges });
-      commit("SET_PROPERTY", { path: "nodes", value: nodes });
-      commit("SET_PROPERTY", { path: "rootNode", value: rootNode });
-      commit("SET_PROPERTY", { path: "currentNode", value: rootNode });
+      const result = await axios.post("/api/fetchReplay", payload);
+      const { replay } = JSON.parse(result.data);
+      commit("SET_PROPERTY", { path: "taskReplay", value: JSON.parse(replay) });
     } catch (error) {
       console.log(error);
+    }
+  },
+  clearState: async ({ commit }) => {
+    for (let [path, value] of Object.entries(emptyState)) {
+      commit("SET_PROPERTY", { path, value });
     }
   },
   setPropertyFromPath: async ({ commit }, payload: { path: string; value: any }) => {

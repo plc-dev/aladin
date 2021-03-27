@@ -38,6 +38,13 @@ export default {
       window.removeEventListener("resize", resizeCanvas);
     });
 
+    const getRows = (topology) => {
+      return topology;
+    };
+    const getColumns = (topology) => {
+      return topology[0].map((element, elementIndex) => topology.map((row) => row[elementIndex]));
+    };
+
     const minimize = () => {
       const minimap: HTMLCanvasElement = document.querySelector("#minimap");
       const button: HTMLButtonElement = document.querySelector(".minimap_collapse");
@@ -53,8 +60,8 @@ export default {
 
     const calculateLayout = (canvas: HTMLCanvasElement): { depth: number; width: number; layout: { [id: number]: [number, number] } } => {
       const depth = topology.value.length;
-      const laneCount = topology.value.getRows()[0].length;
-      const rows = topology.value.getColumns();
+      const laneCount = getRows(topology.value)[0].length;
+      const rows = getColumns(topology.value);
       const laneWidth = canvas.offsetWidth / laneCount;
       const laneHeight = canvas.offsetHeight / depth;
       let x = laneWidth / 2;
@@ -177,9 +184,10 @@ export default {
   position: fixed;
   right: 0.5vw;
   top: 5vh;
-  border: solid 5px black;
+  border: solid 2px black;
   opacity: 0.6;
   z-index: 1;
+  box-shadow: 2px 3px 9px 0px rgba(0, 0, 0, 1);
 }
 
 .collapsed {

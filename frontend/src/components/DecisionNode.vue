@@ -1,33 +1,37 @@
 <template>
-  <div class="decisions">
-    <div class="branch" v-for="(edge, i) in possibleEdges" :key="i">
-      <Navigation :storeObject="storeObject" :nextNode="edge" />
-      <DescriptionBox :storeObject="storeObject" :nodeId="edge" />
-    </div>
+  <div class="branches">
+    <FolderTabs :tabs="tabs"></FolderTabs>
   </div>
 </template>
 
 <script lang="ts">
-import Navigation from "@/components/Navigation.vue";
-import DescriptionBox from "@/components/taskComponents/DescriptionBox.vue";
-import { onMounted } from "vue";
+import FolderTabs from "@/components/FolderTabs.vue";
+import { onMounted, ref } from "vue";
 
 export default {
-  components: { Navigation, DescriptionBox },
+  components: { FolderTabs },
   props: { storeObject: Object },
   setup(props) {
-    const { getProperty } = props.storeObject;
+    const { getProperty, setProperty } = props.storeObject;
     const currentNode = getProperty("currentNode");
-    const possibleEdges = getProperty(`edges__${currentNode}`);
+    const pathDescriptions: { [key: string]: { title: string; image: string; description: string } } = getProperty(
+      `nodes__${currentNode}__pathDescriptions`
+    );
 
-    onMounted(() => {
-      // manually set maxWidth for segmented nav elements
-      const edgeCount = possibleEdges.length;
-      const maxWidth = document.querySelector("body").clientWidth / edgeCount;
-      Array.from(document.querySelectorAll(".traverse")).forEach((node: HTMLElement) => (node.style.maxWidth = `${maxWidth}px`));
+    // TODO: maybe add back button as a fixed element in top right corner
+
+    const navHandler = (event) => {
+      const button: HTMLElement = event.target;
+      const nodeId = button.dataset.id;
+      setProperty({ path: "previousNode", value: currentNode });
+      setProperty({ path: "currentNode", value: nodeId });
+    };
+
+    const tabs = Object.entries(pathDescriptions).map(([nodeId, pathDescription]) => {
+      return { data: { value: nodeId, name: "id" }, handler: navHandler, ...pathDescription };
     });
 
-    return { possibleEdges };
+    return { tabs };
   },
 };
 </script>

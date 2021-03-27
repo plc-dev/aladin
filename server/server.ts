@@ -60,9 +60,11 @@ const serializedRoutes: Array<ISerializedTaskRoute> = [
         const { dbRoutes } = await import("./api/DB");
         const { maximaRoutes } = await import("./api/Maxima");
         const { taskGraph } = await import("./api/taskGraphManager");
+        const { replayRoutes } = await import("./api/Replay");
         app.use("/api", dbRoutes(express.Router(), channel));
         app.use("/api", maximaRoutes(express.Router(), channel));
         app.use("/api", taskGraph(express.Router()));
+        app.use("/api", replayRoutes(express.Router(), channel));
 
         app.get("/", (req: express.Request, res: express.Response) => {
             res.send("Hello world!");

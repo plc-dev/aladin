@@ -1,4 +1,3 @@
-import { Matrix } from "@/helpers/LinearAlgebra";
 import { IMatrixComponent } from "@/interfaces/MatrixInterface";
 import { IDOTGraphComponent } from "@/interfaces/DOTGraphInterface";
 import { ITaskConfigurationComponent } from "@/interfaces/TaskConfigurationInterface";
@@ -61,13 +60,20 @@ interface IComponents {
   [key: number]: IMatrixComponent | IDOTGraphComponent | ITaskConfigurationComponent | IComponent | object;
 }
 
+interface IReplay {
+  steps: Array<any>;
+  mouse?: Array<any>;
+  panning?: Array<any>;
+  zooming?: Array<any>;
+}
+
 interface IState {
   previousNode: number;
   rootNode: number;
   currentTask: string;
   layoutSize: string;
   taskData: { [key: string]: any };
-  topology: Matrix;
+  topology: Array<Array<number>>;
   edges: IEdges;
   currentNode: number;
   nodes: {
@@ -79,6 +85,8 @@ interface IState {
           zoomScale: number;
         };
   };
+  taskReplay?: IReplay;
+  restoredFromReplay?: boolean;
 }
 
 export { IState, IComponent };

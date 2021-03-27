@@ -254,3 +254,24 @@ const graph = generateGraph(10, 15);
 
 console.dir(graph, { depth: null });
 // console.log(JSON.stringify(graph, null, 2));
+
+interface IVertexProperties extends VertexProperties {}
+
+class VertexProperties {
+    private id: number;
+    private label: string;
+
+    constructor() {}
+
+    public getProperty(property: string) {}
+
+    // public getProperty(property: string): any {
+    //     const attribute = property as keyof Vertex;
+    //     if (Reflect.has(this, attribute)) {
+    //         const value = this[attribute];
+    //         Reflect.defineProperty(this, attribute, { value });
+    //         return value;
+    //     }
+    //     return undefined;
+    // }
+}
