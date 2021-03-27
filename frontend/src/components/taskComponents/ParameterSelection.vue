@@ -21,7 +21,11 @@
 </template>
 
 <script lang="ts">
+<<<<<<< HEAD
 import { computed, watch } from "vue";
+=======
+import { onMounted, computed } from "vue";
+>>>>>>> origin/master
 import RangeFormField from "@/components/taskComponents/form/RangeFormField.vue";
 import DropdownFormField from "@/components/taskComponents/form/DropdownFormField.vue";
 import CheckboxFormField from "@/components/taskComponents/form/CheckboxFormField.vue";
