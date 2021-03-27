@@ -1,6 +1,5 @@
 import { createStore, createLogger } from "vuex";
-import { Matrix } from "../helpers/LinearAlgebra";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { IState } from "@/interfaces/TaskGraphInterface";
 
 const state: IState = {
@@ -9,27 +8,56 @@ const state: IState = {
   currentNode: null,
   previousNode: null,
   rootNode: null,
-  topology: new Matrix([]),
+  topology: [],
   edges: {},
   nodes: {},
   taskData: {},
+  taskReplay: { steps: [], mouse: [], panning: [], zooming: [] },
+  restoredFromReplay: false,
 };
 const mutations = {
   SET_PROPERTY(state: IState, payload: { path: string; value: any }) {
     const { path, value } = payload;
     const splitPath = path.split("__");
-    // save state on every mutation as a side effect for task replay if not in replay or editor mode
-    // if (!editor && !replay)
-    // state.taskReplay.stateChange.push({ timestamp: new Date().getTime(), ...payload });
+    // save state on every mutation as a side effect for task replay
+    state.taskReplay.steps.push({ timestamp: new Date().getTime(), ...payload });
 
     const parsedPath = splitPath.reduce((parsedPath, substring) => {
       return `${parsedPath}["${substring}"]`;
     }, "");
-    const setState = new Function("state", "value", `state${parsedPath} = value; console.log(value);`);
+    const setState = new Function("state", "value", `state${parsedPath} = value;`);
     setState(state, value);
+  },
+  TRACK_MOUSE(state: IState, payload: { timestamp: string; x: number; y: number }) {
+    state.taskReplay.mouse.push(payload);
+  },
+  TRACK_PANNING(state: IState, payload: { timestamp: string; x: number; y: number }) {
+    state.taskReplay.panning.push(payload);
+  },
+  TRACK_ZOOMING(state: IState, payload: { timestamp: string; scale: number }) {
+    state.taskReplay.zooming.push(payload);
+  },
+  RESTORED_FROM_REPLAY(state: IState) {
+    state.restoredFromReplay = true;
   },
 };
 const actions = {
+  trackMouse: async ({ commit }, payload) => {
+    commit("TRACK_MOUSE", payload);
+  },
+  trackPanning: async ({ commit }, payload) => {
+    commit("TRACK_PANNING", payload);
+  },
+  trackZooming: async ({ commit }, payload) => {
+    commit("TRACK_ZOOMING", payload);
+  },
+  storeReplay: async () => {
+    const hash = await axios.post("/api/storeReplay", { replay: JSON.stringify(state.taskReplay) });
+    console.log(hash);
+  },
+  restoredFromReplay: async ({ commit }) => {
+    commit("RESTORED_FROM_REPLAY");
+  },
   fetchTaskData: async ({ commit }, payloadObject: { [key: string]: any }) => {
     const { endpoint, payload } = payloadObject;
     // TODO extract language to seperate user module
@@ -43,7 +71,7 @@ const actions = {
       const result = await axios.post("/api/fetchTaskGraph", payload);
       const { UI } = JSON.parse(result.data);
       const { topology, edges, nodes, rootNode } = UI;
-      commit("SET_PROPERTY", { path: "topology", value: new Matrix(...topology) });
+      commit("SET_PROPERTY", { path: "topology", value: topology });
       commit("SET_PROPERTY", { path: "edges", value: edges });
       commit("SET_PROPERTY", { path: "nodes", value: nodes });
       commit("SET_PROPERTY", { path: "rootNode", value: rootNode });

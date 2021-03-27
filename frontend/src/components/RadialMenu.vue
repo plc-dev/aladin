@@ -1,383 +1,192 @@
 <template>
-  <section class="menu menu--circle">
-    <input type="checkbox" id="menu__active" />
-    <label for="menu__active" class="menu__active">
-      <div class="menu__toggle">
-        <div class="icon">
-          <div class="hamburger"></div>
-        </div>
+  <div class="menu closed">
+    <div class="menuBubble" @click="openCloseHandler" @clickout="closeHandler"><p>&#9776;</p></div>
+    <div class="menuOptions">
+      <div :class="`menu__option ${option.class}`" v-for="(option, i) in options" :key="i" @click="option.handler">
+        <div class="menu__option--icon" v-html="option.icon"></div>
+        <div class="menu__option--tooltip">{{ option.label }}</div>
       </div>
-      <input type="radio" name="arrow--up" id="degree--up-0" />
-      <input type="radio" name="arrow--up" id="degree--up-1" />
-      <input type="radio" name="arrow--up" id="degree--up-2" />
-      <div class="menu__listings">
-        <ul class="circle">
-          <li>
-            <div class="placeholder">
-              <div class="upside">
-                <a href="https://codepen.io/logrithumn" class="button"><i class="fa fa-user"></i></a>
-              </div>
-            </div>
-          </li>
-          <li>
-            <div class="placeholder">
-              <div class="upside">
-                <a href="#" class="button"><i class="fa fa-cog"></i></a>
-              </div>
-            </div>
-          </li>
-          <li>
-            <div class="placeholder">
-              <div class="upside">
-                <a href="#">&nbsp;</a>
-              </div>
-            </div>
-          </li>
-          <li>
-            <div class="placeholder">
-              <div class="upside">
-                <a href="#" class="button"><i class="fa fa-commenting"></i></a>
-              </div>
-            </div>
-          </li>
-          <li>
-            <div class="placeholder">
-              <div class="upside">
-                <a href="#" class="button"><i class="fa fa-trash"></i></a>
-              </div>
-            </div>
-          </li>
-          <li>
-            <div class="placeholder">
-              <div class="upside">
-                <a href="#" class="button"><i class="fa fa-battery-4"></i></a>
-              </div>
-            </div>
-          </li>
-          <li>
-            <div class="placeholder">
-              <div class="upside">
-                <a href="#" class="button"><i class="fa fa-calendar"></i></a>
-              </div>
-            </div>
-          </li>
-          <li>
-            <div class="placeholder">
-              <div class="upside">
-                <a href="#" class="button"><i class="fa fa-cloud"></i></a>
-              </div>
-            </div>
-          </li>
-          <li>
-            <div class="placeholder">
-              <div class="upside">
-                <a href="#" class="button"><i class="fa fa-wifi"></i></a>
-              </div>
-            </div>
-          </li>
-          <li>
-            <div class="placeholder">
-              <div class="upside">
-                <a href="#" class="button"><i class="fa fa-envelope-o"></i></a>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>
-      <div class="menu__arrow menu__arrow--top">
-        <ul>
-          <li>
-            <label for="degree--up-0"><div class="arrow"></div></label>
-            <label for="degree--up-1"><div class="arrow"></div></label>
-            <label for="degree--up-2"><div class="arrow"></div></label>
-          </li>
-        </ul>
-      </div>
-    </label>
-  </section>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { onMounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
+import stores from "@/helpers/TaskGraphUtility";
+require("clickout-event");
 
 export default {
   setup() {
+    const taskStore = stores.taskStore;
+    const { store } = taskStore;
     const router = useRouter();
-    const menuItems = ["adawdwa", "sad"];
+    let isMenuOpen = false;
 
-    const onClick = () => {
-      router.push({ name: "TaskOverview" });
+    const openCloseHandler = (event) => {
+      const menuBubble = event.currentTarget;
+      if (isMenuOpen === false) {
+        menuBubble.parentNode.classList.remove("closed");
+        menuBubble.parentNode.classList.add("open");
+        menuBubble.querySelector("p").innerHTML = "&#10005;";
+      } else {
+        menuBubble.parentNode.classList.remove("open");
+        menuBubble.parentNode.classList.add("closed");
+        menuBubble.querySelector("p").innerHTML = "&#9776;";
+      }
+
+      isMenuOpen = !isMenuOpen;
     };
 
-    const menuTree = {
-      root: {
-        level: 0,
-        childs: [1, 2, 3],
+    const closeHandler = () => {
+      const menuBubble = document.querySelector(".menu");
+      menuBubble.classList.add("closed");
+      menuBubble.classList.remove("open");
+      menuBubble.querySelector("p").innerHTML = "&#9776;";
+      isMenuOpen = false;
+    };
+
+    const options = [
+      {
+        label: "Home",
+        icon: "&#127968;",
+        class: "home",
+        handler: () => {
+          router.push({ name: "TaskOverview" });
+        },
       },
-    };
+      {
+        label: "Settings",
+        icon: "&#9881;",
+        class: "settings",
+        handler: () => {
+          router.push({ name: "Settings" });
+        },
+      },
+      {
+        label: "Statistic",
+        icon: "&#128202;",
+        class: "statistics",
+        handler: () => {
+          router.push({ name: "Statistic" });
+        },
+      },
+      {
+        label: "Save replay",
+        icon: "&#128190;",
+        class: "replay",
+        handler: () => {
+          store.dispatch("storeReplay");
+        },
+      },
+    ];
 
-    return { menuItems, onClick };
+    return { openCloseHandler, options, closeHandler };
   },
 };
 </script>
 
 <style scoped>
-.icon {
+.menuBubble {
   position: absolute;
-  top: 70%;
-  left: 70%;
-  transform: translateX(-50%) translateY(-50%);
-}
-.hamburger {
-  content: " ";
-  position: relative;
-  width: 20px;
-  border: 2px solid #392338;
-  border-radius: 5px;
-  transition: all 0.333333333333333s ease;
-}
-.hamburger:after,
-.hamburger:before {
-  content: " ";
-  position: absolute;
-  left: 50%;
-  width: 100%;
-  border: 2px solid #392338;
-  border-radius: 5px;
-  transform: translateX(-50%);
-  transition-property: top, bottom, transform;
-  transition-duration: 1s, 1s, 0.25s;
-}
-.hamburger:after {
-  top: -8px;
-}
-.hamburger:before {
-  bottom: -8px;
-}
-.menu {
-  pointer-events: none;
-}
-.menu--circle {
-  position: absolute;
-  z-index: 4;
-  width: 243.33333333333334px;
-  height: 243.33333333333334px;
-}
-.menu__active {
-  position: relative;
-}
-.menu__toggle {
-  z-index: 3;
-  position: absolute;
-  top: -100px;
-  left: -100px;
-  width: 200px;
-  height: 200px;
-  background-color: grey;
+  width: 10vw;
+  height: 10vw;
+  top: -5vw;
+  left: -5vw;
+  background: linear-gradient(90deg, #57636b, #40494f);
   border-radius: 50%;
-  transition: transform 1.3s;
+  z-index: 6;
+  box-shadow: 2px 3px 9px 0px rgba(0, 0, 0, 1);
   cursor: pointer;
-  pointer-events: auto;
+  text-shadow: 2px 2px black;
+  transition: all 1s ease;
 }
-.menu__listings {
-  z-index: 2;
-  position: absolute;
-  top: -200px;
-  left: -200px;
-  width: 400px;
-  height: 400px;
-  border-radius: 50%;
-  transform: scale(0.1) rotate(150deg);
-  transition: transform 1s;
+
+.menuBubble:hover {
+  filter: brightness(85%);
+  transition: all 1s ease;
 }
-.menu__arrow {
-  visibility: hidden;
-  position: absolute;
-}
-.menu__arrow input[type="radio"] {
-  position: fixed;
-  top: -99999px;
-  left: -99999px;
-}
-.menu__arrow ul {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-.menu__arrow--top {
-  top: 0.5em;
-  left: 220px;
-}
-.menu__arrow--top .arrow {
-  transform: rotate(-45deg);
-}
-.menu__arrow--left {
-  top: 220px;
-  left: 0.5em;
-}
-.menu__arrow--left .arrow {
-  transform: rotate(-135deg);
-}
-.arrow {
-  width: 20px;
-  height: 20px;
-  border-right: 6.666666666666667px solid grey;
-  border-top: 6.666666666666667px solid grey;
-  border-radius: 3px;
-  transition: border-color 0.3s;
-  cursor: pointer;
-  pointer-events: auto;
-}
-.arrow:hover {
-  border-color: #ff947f;
-  transition: border-color 0.3s;
-}
-.circle {
+
+.menuBubble > p {
   position: relative;
-  padding: 0;
-  margin: 0;
-  height: 100%;
-  width: 100%;
-  background-color: grey;
-  border-radius: 50%;
-  transform: rotate(108deg);
-  list-style: none;
+  top: 5vw;
+  left: 5.5vw;
+  color: #f1ad2d;
+  font-size: 50px;
+  box-shadow: inset 0 -7px 5px -7px rgba(0, 0, 0, 0);
 }
-.circle li {
+
+.menuOptions {
   position: absolute;
+  top: 0vh;
+  left: 0vh;
+  height: 0vh;
+  width: 0vw;
+  z-index: 5;
+  transition-delay: 0.1s;
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.open .menuOptions {
+  position: absolute;
+  width: 20vw;
+  height: 20vh;
+  display: block;
+}
+
+.menu__option {
   top: 0;
-  right: 0;
-  width: 50%;
-  height: 50%;
-  transform-origin: 0 100%;
-}
-.circle li .placeholder {
+  left: 0;
   position: absolute;
-  left: -100%;
-  padding-top: 1.5em;
-  width: 200%;
-  height: 200%;
-  text-align: center;
-  transform: skewY(54deg) rotate(18deg);
-}
-.circle li .placeholder .upside {
-  transform: rotate(180deg);
-}
-.circle li .placeholder a {
-  text-decoration: none;
-  pointer-events: auto;
-}
-.circle li .placeholder button {
-  pointer-events: auto;
-}
-.circle li .placeholder .button {
-  font-size: 2.3em;
-  background-color: transparent;
-  border: none;
-  color: #392338;
+  display: flex;
+  font-size: 1vw;
   cursor: pointer;
+  border-radius: 50%;
+  border: 2px solid #f1ad2d;
+  background: #57636b;
+  width: 0vw;
+  height: 0vw;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  box-shadow: 2px 3px 4px 0px rgba(0, 0, 0, 1);
+  transition-delay: 0.1s;
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
-.circle li:nth-child(1) {
-  transform: rotate(0deg) skewY(-54deg);
-  background-color: #fff;
+
+.open .menu__option {
+  width: 2vw;
+  height: 2vw;
 }
-.circle li:nth-child(2) {
-  transform: rotate(36deg) skewY(-54deg);
-  background-color: #fff;
+
+.open .home {
+  top: 1vh;
+  left: 6.5vw;
 }
-.circle li:nth-child(3) {
-  transform: rotate(72deg) skewY(-54deg);
-  background-color: #fff;
+
+.open .settings {
+  top: 6vh;
+  left: 5.5vw;
+  font-size: 1.5vw;
 }
-.circle li:nth-child(4) {
-  transform: rotate(108deg) skewY(-54deg);
-  background-color: #fff;
+
+.open .statistics {
+  top: 9.5vh;
+  left: 3.5vw;
 }
-.circle li:nth-child(5) {
-  transform: rotate(144deg) skewY(-54deg);
-  background-color: #fff;
+
+.open .replay {
+  top: 12vh;
+  left: 1vw;
 }
-.circle li:nth-child(6) {
-  transform: rotate(180deg) skewY(-54deg);
-  background-color: #fff;
-}
-.circle li:nth-child(7) {
-  transform: rotate(216deg) skewY(-54deg);
-  background-color: #fff;
-}
-.circle li:nth-child(8) {
-  transform: rotate(252deg) skewY(-54deg);
-  background-color: #fff;
-}
-.circle li:nth-child(9) {
-  transform: rotate(288deg) skewY(-54deg);
-  background-color: #fff;
-}
-.circle li:nth-child(10) {
-  transform: rotate(324deg) skewY(-54deg);
-  background-color: #fff;
-}
-#menu__active {
-  position: fixed;
-  top: -99999px;
-  left: -99999px;
-}
-#menu__active:checked ~ label .menu__listings {
-  transform: rotate(10deg) scale(1);
-  transition: transform 1s;
-}
-#menu__active:checked ~ label .menu__toggle {
-  background-color: #392338;
-  transition: all 1s;
-}
-#menu__active:checked ~ label .hamburger {
-  border-color: transparent;
-  transition: border-color 0.333333333333333s;
-}
-#menu__active:checked ~ label .hamburger:after {
-  top: -2px;
-  border-color: #fff;
-  transform: translateX(-50%) rotate(45deg);
-  transition-property: top, transform;
-  transition-duration: 0.25s, 1s;
-}
-#menu__active:checked ~ label .hamburger:before {
-  bottom: -2px;
-  border-color: #fff;
-  transform: translateX(-50%) rotate(-45deg);
-  transition-property: bottom, transform;
-  transition-duration: 0.25s, 1s;
-}
-#menu__active:checked ~ label .button:hover {
-  color: #c1264e;
-}
-#menu__active:checked ~ label .menu__arrow {
-  visibility: visible;
-  transition: all 1s 1.111111111111111s;
-}
-#menu__active:checked ~ label .menu__arrow--top label {
+
+.open .menu__option--tooltip {
   display: none;
 }
-#menu__active:checked ~ label .menu__arrow--top label[for="degree--up-0"] {
+
+.menu__option:hover .menu__option--tooltip {
   display: block;
-}
-#menu__active:checked ~ label #degree--up-0:checked ~ .menu__listings {
-  transform: rotate(116deg);
-}
-#menu__active:checked ~ label #degree--up-0:checked ~ .menu__arrow--top label {
-  display: none;
-}
-#menu__active:checked ~ label #degree--up-0:checked ~ .menu__arrow--top label[for="degree--up-1"] {
-  display: block;
-}
-#menu__active:checked ~ label #degree--up-1:checked ~ .menu__listings {
-  transform: rotate(224deg);
-}
-#menu__active:checked ~ label #degree--up-1:checked ~ .menu__listings ~ .menu__arrow--top label {
-  display: none;
-}
-#menu__active:checked ~ label #degree--up-1:checked ~ .menu__listings ~ .menu__arrow--top label[for="degree--up-2"] {
-  display: block;
+  position: absolute;
+  top: 3vw;
+  left: 4vw;
 }
 </style>

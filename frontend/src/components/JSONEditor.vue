@@ -1,6 +1,6 @@
 <template>
   <div class="jsonEditor">
-    <CodeEditor :componentID="999" :storeObject="storeObject" :codeProp="code" :languageProp="'.json'" />
+    <CodeEditor :componentID="999" :storeObject="storeObject" :codeProp="code" :hideActions="true" :languageProp="'.json'" />
   </div>
 </template>
 

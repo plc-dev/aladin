@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, computed } from "vue";
+import { computed, watch } from "vue";
 import RangeFormField from "@/components/taskComponents/form/RangeFormField.vue";
 import DropdownFormField from "@/components/taskComponents/form/DropdownFormField.vue";
 import CheckboxFormField from "@/components/taskComponents/form/CheckboxFormField.vue";
@@ -42,6 +42,15 @@ export default {
     const { store, getProperty, setProperty } = props.storeObject;
     const currentNode = computed(() => store.state.currentNode);
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
+
+    const taskData = computed(() => getProperty(`taskData`));
+    watch(
+      taskData,
+      (newTaskData) => {
+        if (Object.keys(newTaskData).length) setProperty({ path: `${path}__isValid`, value: true });
+      },
+      { deep: true }
+    );
 
     const title = getProperty(`${path}__component__title`);
 
@@ -91,18 +100,30 @@ export default {
 .parameter_form {
   display: flex;
   flex-direction: column;
-  background: lightgrey;
+  background: #e8edf1;
   width: 100%;
   height: 100%;
   justify-content: space-around;
   align-items: center;
 }
 
+.parameter_form h2 {
+  color: #57636b;
+  text-shadow: 1px 1px 1px #fff;
+  padding: 10px 0;
+}
+
 .parameter_form_columns {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 50%;
+  min-height: 65%;
+  min-width: 80%;
+  box-shadow: 2px 3px 9px 0px rgba(0, 0, 0, 1);
+  background: #e8edf1;
+  filter: brightness(90%);
+  padding: 5px;
+  border-radius: 10px;
 }
 
 .parameter_fields,
@@ -117,5 +138,15 @@ export default {
 
 .parameter_labels {
   align-items: start;
+}
+
+.parameter_labels p {
+  background: #57636b;
+  border-radius: 5px;
+  padding: 5px;
+  min-width: 85%;
+  color: #fff;
+  box-shadow: 2px 3px 4px 0px rgba(0, 0, 0, 1);
+  text-shadow: 1px 1px 1px black;
 }
 </style>

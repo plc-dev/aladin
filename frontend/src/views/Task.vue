@@ -1,12 +1,16 @@
 <template>
   <div class="task">
-    <DecisionNode v-if="isDecisionNode" :storeObject="taskStore" />
-    <Canvas v-if="!isDecisionNode && isLoaded" :key="currentNode" :storeObject="taskStore" />
+    <transition name="slidedown">
+      <DecisionNode v-if="isDecisionNode" :storeObject="taskStore" :key="currentNode" />
+    </transition>
+    <transition name="slidedown">
+      <Canvas v-if="!isDecisionNode && isLoaded" :key="currentNode" :storeObject="taskStore" />
+    </transition>
   </div>
 </template>
 
 <script lang="ts">
-import { ref, computed } from "vue";
+import { onMounted, onBeforeUnmount, computed } from "vue";
 import { useRoute } from "vue-router";
 import Canvas from "@/components/Canvas.vue";
 import stores from "@/helpers/TaskGraphUtility";
@@ -32,11 +36,55 @@ export default {
 
     const isLoaded = computed(() => getProperty(`currentNode`) !== null);
 
-    if (typeof route.params.task === "string") {
+    const isReplayGraph = computed(() => getProperty("restoredFromReplay"));
+
+    if (typeof route.params.task === "string" && !isReplayGraph.value) {
       setProperty({ path: "currentTask", value: route.params.task });
       store.dispatch("fetchTaskGraph", { task: route.params.task });
     }
+
+    const throttle = 50;
+    let last = new Date().getTime();
+    const trackMouse = (event) => {
+      event.preventDefault();
+      const now = new Date().getTime();
+      const target: EventTarget = event.target;
+
+      // update only n milliseconds to not freeze the app
+      if (now - last < throttle) return;
+
+      store.dispatch("trackMouse", { x: event.pageX, y: event.pageY, timestamp: now });
+
+      last = now;
+    };
+    onMounted(() => {
+      document.addEventListener("mousemove", trackMouse);
+    });
+
+    onBeforeUnmount(() => {
+      document.removeEventListener("mousemove", trackMouse);
+    });
+
     return { currentNode, isDecisionNode, isLoaded, taskStore };
   },
 };
 </script>
+
+<style scoped>
+.slidedown-enter-active,
+.slidedown-leave-active {
+  transition: max-height 0.3s ease-in-out;
+}
+
+.slidedown-enter-to,
+.slidedown-leave-from {
+  overflow: hidden;
+  max-height: 100vh;
+}
+
+.slidedown-enter-from,
+.slidedown-leave-to {
+  overflow: hidden;
+  max-height: 0;
+}
+</style>

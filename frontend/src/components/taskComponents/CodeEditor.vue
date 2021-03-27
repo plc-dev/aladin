@@ -1,7 +1,7 @@
 <template>
   <ContextMenu :componentId="componentID" :methods="selectedMethods" :storeObject="storeObject">
     <div class="editor_wrapper">
-      <ActionButtons :actions="actions" :actionTypes="actionTypes" />
+      <ActionButtons v-if="!hideActions" :actions="actions" :actionTypes="actionTypes" />
       <div :id="`editor__${componentID}`" class="codeEditor"></div>
     </div>
   </ContextMenu>
@@ -26,6 +26,7 @@ export default {
     storeObject: Object,
     codeProp: Object,
     languageProp: String,
+    hideActions: Boolean,
   },
   components: {
     ContextMenu,

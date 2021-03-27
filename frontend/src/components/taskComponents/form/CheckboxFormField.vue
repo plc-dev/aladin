@@ -19,10 +19,27 @@ export default {
 </script>
 
 <style scoped>
-input {
+input[type="checkbox"] {
+  width: 14px !important;
+  height: 14px !important;
   margin: 5px;
-  width: 50px;
-  border-radius: 5px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -o-appearance: none;
+  appearance: none;
+  outline: 1px solid #b1b2b4;
   box-shadow: none;
+  font-size: 0.8em;
+  text-align: center;
+  line-height: 1em;
+  background: #57636b;
+}
+
+input[type="checkbox"]:checked:after {
+  text-align: center;
+  content: "✔";
+  color: #f1ad2d;
+  filter: brightness(120%);
+  background: #57636b;
 }
 </style>

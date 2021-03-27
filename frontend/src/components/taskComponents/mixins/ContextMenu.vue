@@ -1,5 +1,6 @@
 <template>
   <div class="wrapper" @clickout.prevent="closeContextMenu" @contextmenu.prevent="openContextMenu">
+    <div class="contextMenuClickable" @click.prevent="openContextMenu">...</div>
     <slot></slot>
     <div :class="`contextMenu contextMenu_${id}`">
       <div v-for="(method, name) in componentMethods" :key="name" @click="method">{{ name }}</div>
@@ -25,9 +26,8 @@ export default {
     const openContextMenu = (event) => {
       const parent = event.path.filter((n) => /vue-grid-item/.test(n.className))[0];
       const contextMenu: HTMLElement = document.querySelector(`.contextMenu_${props.componentId}`);
-      // contextMenu.style.left = `${parent.style.left.match(/\d*/)[0] - event.pageX}px`;
-      // contextMenu.style.top = `${parent.style.top.match(/\d*/)[0] - event.pageY}px`;
-      contextMenu.classList.add("open");
+      if (Array.from(contextMenu.classList).includes("open")) contextMenu.classList.remove("open");
+      else contextMenu.classList.add("open");
     };
 
     return { componentMethods: props.methods, id: props.componentId, openContextMenu, closeContextMenu };
@@ -42,9 +42,19 @@ export default {
   height: 100%;
 }
 
+.contextMenuClickable {
+  position: absolute;
+  top: -4px;
+  left: 27px;
+  transform: rotate(90deg);
+  font-size: 35px;
+  cursor: pointer;
+}
+
 .contextMenu {
   display: hidden;
-  background: lightgrey;
+  background: #57636b;
+  color: #e8edf1;
 }
 
 .contextMenu.open {
@@ -54,8 +64,8 @@ export default {
   justify-content: center;
   align-items: center;
   position: absolute;
-  bottom: 0px;
-  right: 0px;
+  top: 25px;
+  left: 35px;
   z-index: 5;
   font-size: 20px;
   cursor: pointer;

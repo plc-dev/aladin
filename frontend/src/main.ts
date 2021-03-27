@@ -5,3 +5,9 @@ import store from "./store";
 import "./registerServiceWorker";
 
 createApp(App).use(store).use(router).mount("#app");
+
+declare global {
+  interface Window {
+    panzoom: any;
+  }
+}

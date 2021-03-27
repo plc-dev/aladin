@@ -5,14 +5,14 @@
       :type="element.type"
       :value="element.initial.lowerValue"
       :min="element.min"
-      :max="element.initial.upperValue"
+      :max="element.max"
       @keyup="emitEvent"
     />
     <input
       :class="`${elementId}__initial__upperValue`"
       :type="element.type"
       :value="element.initial.upperValue"
-      :min="element.initial.lowerValue"
+      :min="element.min"
       :max="element.max"
       @keyup="emitEvent"
     />

@@ -1,7 +1,13 @@
 <template>
   <nav class="navigation">
-    <div class="traverse backward" data-direction="backward" :data-to="previous" @click="navigate"></div>
-    <div class="traverse forward" data-direction="forward" :data-to="next" @click="navigate"></div>
+    <div class="traverse backward" data-direction="backward" :data-to="previous" @click="navigate">
+      <div class="validity">&#10004;</div>
+      <p>&#9658;</p>
+    </div>
+    <div class="traverse forward" data-direction="forward" :data-to="next" @click="navigate">
+      <div class="validity">&#33;</div>
+      <p>&#9658;</p>
+    </div>
   </nav>
 </template>
 
@@ -11,49 +17,60 @@ import { useRouter } from "vue-router";
 
 export default {
   props: {
-    nextNode: Number,
     storeObject: Object,
   },
   setup(props) {
-    const { store, getProperty, setProperty } = props.storeObject;
+    const { getProperty, setProperty } = props.storeObject;
     const router = useRouter();
     const rootNode = getProperty("rootNode");
-    const currentNode = getProperty("currentNode");
-    const next = props.nextNode ? props.nextNode : getProperty("edges")[currentNode];
-    const previous = getProperty("previousNode");
+    const currentNode = computed(() => getProperty("currentNode"));
+    const next = computed(() => {
+      const edges = getProperty("edges")[currentNode.value];
+      if (edges) return edges[0];
+      return null;
+    });
+    const previous = computed(() => getProperty("previousNode"));
+    console.log(previous);
 
     const componentValidities = computed(() => {
       const edges = getProperty("edges");
-      if (edges && edges[currentNode]) {
-        if (edges[currentNode].length > 1) return [true];
-        return Object.values(getProperty(`nodes__${currentNode}__components`)).map((component: any) => component.isValid);
+      if (edges && edges[currentNode.value]) {
+        if (edges[currentNode.value].length > 1) return [true];
+        return Object.values(getProperty(`nodes__${currentNode.value}__components`)).map((component: any) => component.isValid);
       }
       return [false];
     });
 
-    const validate = () => {
-      const navForward = document.querySelector(".traverse.forward");
-      if (componentValidities.value.every((validity) => validity)) {
-        navForward.classList.remove("forbidden");
-      } else if (navForward) {
-        navForward.classList.add("forbidden");
-      }
+    const validate = (componentValidities) => {
+      const navForwards: Array<HTMLElement> = Array.from(document.querySelectorAll(".traverse.forward"));
+      navForwards.forEach((navForward) => {
+        const validityElement: HTMLElement = navForward.querySelector(".validity");
+        if (componentValidities.every((validity) => validity)) {
+          navForward.classList.remove("inValid");
+          validityElement.innerHTML = "&#10004;";
+        } else if (validityElement) {
+          navForward.classList.add("inValid");
+          validityElement.innerHTML = "&#33;";
+        }
+      });
     };
 
     onMounted(() => {
-      validate();
+      validate(componentValidities.value);
     });
 
-    watch(componentValidities, validate);
+    watch(componentValidities, (newValidities) => {
+      validate(newValidities);
+    });
 
     const navigate = (event) => {
-      const navElement = event.target;
+      const navElement = event.currentTarget;
       const { direction, to } = navElement.dataset;
 
-      if (currentNode === rootNode && direction === "backward") {
+      if (currentNode.value === rootNode.value && direction === "backward") {
         router.push({ name: "TaskOverview" });
-      } else if (!Array.from(navElement.classList).includes("forbidden")) {
-        setProperty({ path: "previousNode", value: currentNode });
+      } else if (!Array.from(navElement.classList).includes("inValid")) {
+        setProperty({ path: "previousNode", value: currentNode.value });
         setProperty({ path: "currentNode", value: to });
       }
     };
@@ -65,34 +82,62 @@ export default {
 
 <style scoped>
 .navigation {
-  width: inherit;
-  max-width: inherit;
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  z-index: 3;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
 }
 
 .traverse {
-  position: fixed;
-  height: 5vh;
-  width: inherit;
-  max-width: inherit;
+  display: flex;
+  width: 80%;
+  height: 30%;
+  align-items: center;
+  justify-content: space-around;
+  font-size: 20px;
+  border: 1px solid black;
+  background: #57636b;
+  box-shadow: 2px 3px 9px 0px rgba(0, 0, 0, 1);
+  text-shadow: 1px 1px 1px #b1b2b4;
+  font-weight: bold;
+  cursor: auto;
+  border-radius: 5px;
+}
+
+.traverse p {
+  margin-right: auto;
   cursor: pointer;
-  z-index: 1;
-  /* https://blog.prototypr.io/stunning-hover-effects-with-css-variables-f855e7b95330
-  background: radial-gradient(circle closest-side, #f32, transparent);
-  transform: translate(-50%, -50%);
-  transition: 20 .2s ease, 20 .2s ease; */
+  color: #f1ad2d;
 }
 
-.backward {
-  top: 0;
-  background: linear-gradient(0deg, transparent 0%, rgba(0, 153, 51, 0.5) 100%);
+.backward p {
+  transform: rotate(270deg);
 }
 
-.forward {
-  bottom: 0;
-  background: linear-gradient(180deg, transparent 0%, rgba(0, 153, 51, 0.5) 100%);
+.forward p {
+  transform: rotate(90deg);
 }
 
-.forbidden {
-  background: linear-gradient(180deg, transparent 0%, rgb(228, 58, 58, 0.5) 100%);
+.inValid p {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.validity {
+  margin-right: auto;
+  text-align: center;
+  width: 2vw;
+  background: green;
+}
+
+.inValid .validity {
+  background: red;
+  cursor: auto;
 }
 </style>
