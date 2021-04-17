@@ -55,7 +55,9 @@ const functionHandler = (functionType: string, subtree: IParsedTree, parsedTree:
 
     const fannedSubTree = {};
     for (let i = 0; i < length; i++) {
-        subtree;
+        Object.entries(subtree).reduce((node, [key, value]) => {
+            return node;
+        }, {} as IParsedTree);
     }
 };
 
@@ -90,7 +92,7 @@ const ASTParser = (
     abstractSyntaxTree: AbstractSyntaxTree,
     variableTable: IVariableTable,
     parsedTree: IParsedTree = { leftTerm: "", comparisonOperator: "", rightTerm: "" }
-) => {
+): IParsedTree => {
     let [operation, operand1, operand2] = abstractSyntaxTree;
 
     if (typeof operand1 === "string") {
@@ -104,7 +106,7 @@ const ASTParser = (
     const leftSubtree = ASTParser(operand1, variableTable, {});
     const rightSubtree = ASTParser(operand2, variableTable, {});
 
-    expressionHandler[operation](leftSubtree, rightSubtree, parsedTree);
+    return expressionHandler[operation](leftSubtree, rightSubtree, parsedTree);
 };
 
 const equation = {

@@ -238,6 +238,7 @@
                 "layouts": {
                     "sm": [{ "x": 12, "y": 5, "w": 2, "h": 5, "i": 2, "static": false }],
                     "md": [{ "x": 0, "y": 10, "w": 2, "h": 5, "i": 2, "static": false }],
+
                     "lg": [
                         { "x": 34, "y": 30, "w": 2, "h": 2, "i": 0, "static": false },
                         { "x": 32, "y": 30, "w": 2, "h": 2, "i": 1, "static": false },
