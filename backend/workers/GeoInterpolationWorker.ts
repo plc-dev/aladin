@@ -27,34 +27,30 @@ interface IMeasurementPoint {
     value: number;
     x: number;
     y: number;
-}
-
-interface IEdge {
-    id: number;
-    distance: number;
+    distance?: number;
 }
 
 interface IGeoInterpolationGraph {
     measurementPoints: Array<IMeasurementPoint>;
     unknownPoint: IMeasurementPoint;
-    edges: Array<IEdge>;
 }
 
-class InterpolationTaskGenerator {
+export class InterpolationTaskGenerator {
     private rng: RNG;
     constructor(private options: IGeoInterpolationOptions) {
         this.rng = new RNG(options.seed || Math.random());
     }
 
     public generateInterpolationTask() {
-        const { scale, gridRange, measurementRange, seed } = this.options;
+        const { gridRange, measurementRange, seed } = this.options;
+        const scale = 1;
 
         const grid = this.generateNoiseGrid(scale, gridRange, seed);
         const graph = this.generateGraph(grid, measurementRange);
         const dotDescription = this.generateDotDescription(graph);
         const thresholds = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1].map((v) => v * scale);
 
-        return { grid, thresholds, graph, dotDescription };
+        return { grid, thresholds, ...graph, dotDescription };
     }
 
     private generateNoiseGrid(scale: number, gridRange: Array<number>, seed: number = Math.random()) {
@@ -74,18 +70,16 @@ class InterpolationTaskGenerator {
         const columnIndices = randomSample(Object.keys(grid), measurementCount);
         const measurementPoints: Array<IMeasurementPoint> = columnIndices.map((columnIndex, i) => {
             const [rowIndex] = randomSample(Object.keys(grid[columnIndex]), 1);
-            return { id: i + 1, value: grid[columnIndex][rowIndex], x: columnIndex, y: rowIndex };
-        });
-
-        const edges = measurementPoints.map(({ id, x, y }) => {
-            const edge = {
-                id,
+            return {
+                id: i + 1,
+                value: grid[columnIndex][rowIndex],
+                x: columnIndex,
+                y: rowIndex,
                 distance: this.euclidianDistance([unknownPoint.x, unknownPoint.y], [x, y]),
             };
-            return edge;
         });
 
-        return { unknownPoint, measurementPoints, edges };
+        return { unknownPoint, measurementPoints };
     }
 
     private euclidianDistance(v1: Array<number>, v2: Array<number>) {
@@ -95,7 +89,7 @@ class InterpolationTaskGenerator {
     }
 
     private generateDotDescription(graph: IGeoInterpolationGraph) {
-        const { edges, unknownPoint, measurementPoints } = graph;
+        const { unknownPoint, measurementPoints } = graph;
 
         const nodeString = [unknownPoint, ...measurementPoints]
             .map(({ id, value, x, y }, i) =>
@@ -103,7 +97,7 @@ class InterpolationTaskGenerator {
             )
             .join(" ");
 
-        const edgeString = edges.map(({ id, distance }) => `${unknownPoint.id} -- ${id} [label="${distance}"]`).join(" ");
+        const edgeString = measurementPoints.map(({ id, distance }) => `${unknownPoint.id} -- ${id} [label="${distance}"]`).join(" ");
 
         //node ---->   width=0.05, fixedsize=true
         return `graph { 
@@ -118,8 +112,8 @@ class InterpolationTaskGenerator {
     }
 }
 
-(() => {
-    const g = new InterpolationTaskGenerator({ scale: 1, gridRange: [50, 50], measurementRange: [5, 10] });
-    const task = g.generateInterpolationTask();
-    console.dir(task, { depth: null });
-})();
+// (() => {
+//     const g = new InterpolationTaskGenerator({ scale: 1, gridRange: [50, 50], measurementRange: [5, 10] });
+//     const task = g.generateInterpolationTask();
+//     console.dir(task, { depth: null });
+// })();

@@ -4,7 +4,7 @@
       <div class="validity">&#10004;</div>
       <p>&#9658;</p>
     </div>
-    <div class="traverse forward" data-direction="forward" :data-to="next" @click="navigate">
+    <div class="traverse forward" v-if="next" data-direction="forward" :data-to="next" @click="navigate">
       <div class="validity">&#33;</div>
       <p>&#9658;</p>
     </div>
@@ -30,13 +30,13 @@ export default {
       return null;
     });
     const previous = computed(() => getProperty("previousNode"));
-    console.log(previous);
 
     const componentValidities = computed(() => {
       const edges = getProperty("edges");
       if (edges && edges[currentNode.value]) {
         if (edges[currentNode.value].length > 1) return [true];
-        return Object.values(getProperty(`nodes__${currentNode.value}__components`)).map((component: any) => component.isValid);
+        const components = getProperty(`nodes__${currentNode.value}__components`);
+        if (components) return Object.values(components).map((component: any) => component.isValid);
       }
       return [false];
     });
@@ -67,7 +67,7 @@ export default {
       const navElement = event.currentTarget;
       const { direction, to } = navElement.dataset;
 
-      if (currentNode.value === rootNode.value && direction === "backward") {
+      if (!to && direction === "backward") {
         router.push({ name: "TaskOverview" });
       } else if (!Array.from(navElement.classList).includes("inValid")) {
         setProperty({ path: "previousNode", value: currentNode.value });

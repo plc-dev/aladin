@@ -1,6 +1,32 @@
 import { createStore, createLogger } from "vuex";
 import axios from "axios";
-import { IState } from "@/interfaces/TaskGraphInterface";
+import { IState, IReplay } from "@/interfaces/TaskGraphInterface";
+
+const extractMetaInformation = (state: IState, replay: IReplay) => {
+  const calcDuration = (replay: IReplay) => {
+    const times = { start: new Date().getTime(), duration: 0, end: 0, date: "" };
+    Object.values(replay).forEach((events: Array<any>) => {
+      if (!events.length) return;
+      const firstEvent = events[0].timestamp;
+      const lastEvent = events[events.length - 1].timestamp;
+      if (firstEvent < times.start) times.start = firstEvent;
+      if (lastEvent > times.end) times.end = lastEvent;
+    });
+
+    times.duration = times.end - times.start;
+
+    times.date = new Date().toISOString();
+    return times;
+  };
+
+  const task = state.currentTask;
+  // 0 = unfinished, 1 = finished successfully, 2 finished with wrong result
+  type completionStatus = 0 | 1 | 2;
+  const completion: completionStatus = 0;
+  const { duration, date } = calcDuration(replay);
+
+  return { task, completion, date, duration };
+};
 
 const state: IState = {
   currentTask: null,
@@ -12,21 +38,32 @@ const state: IState = {
   edges: {},
   nodes: {},
   taskData: {},
-  taskReplay: { steps: [], mouse: [], panning: [], zooming: [] },
+  taskReplay: { steps: [], mouse: [], panning: [], zooming: [], meta: {} },
   restoredFromReplay: false,
 };
 const mutations = {
   SET_PROPERTY(state: IState, payload: { path: string; value: any }) {
     const { path, value } = payload;
     const splitPath = path.split("__");
-    // save state on every mutation as a side effect for task replay
-    state.taskReplay.steps.push({ timestamp: new Date().getTime(), ...payload });
 
-    const parsedPath = splitPath.reduce((parsedPath, substring) => {
-      return `${parsedPath}["${substring}"]`;
-    }, "");
-    const setState = new Function("state", "value", `state${parsedPath} = value;`);
-    setState(state, value);
+    // for debugging purposes
+    console.log(path, value);
+
+    // save state on every mutation as a side effect for task replay
+    state.taskReplay.steps.push({ timestamp: new Date().getTime(), ...JSON.parse(JSON.stringify(payload)) });
+
+    let subState = state;
+    for (let depth = 0; depth < splitPath.length; depth++) {
+      if (depth === splitPath.length - 1) subState[splitPath[depth]] = value;
+      else subState = subState[splitPath[depth]];
+    }
+
+    // old inperformant way
+    // const parsedPath = splitPath.reduce((parsedPath, substring) => {
+    //   return `${parsedPath}["${substring}"]`;
+    // }, "");
+    // const setState = new Function("state", "value", `state${parsedPath} = value;`);
+    // setState(state, value);
   },
   TRACK_MOUSE(state: IState, payload: { timestamp: string; x: number; y: number }) {
     state.taskReplay.mouse.push(payload);
@@ -52,7 +89,9 @@ const actions = {
     commit("TRACK_ZOOMING", payload);
   },
   storeReplay: async () => {
-    const hash = await axios.post("/api/storeReplay", { replay: JSON.stringify(state.taskReplay) });
+    const replay = state.taskReplay;
+    replay.meta = extractMetaInformation(state, replay);
+    const hash = await axios.post("/api/storeReplay", { replay: JSON.stringify(replay) });
     console.log(hash);
   },
   restoredFromReplay: async ({ commit }) => {
@@ -99,5 +138,5 @@ export const taskStore = createStore<IState>({
   mutations,
   actions,
   getters,
-  plugins: [createLogger()],
+  // plugins: [createLogger()],
 });

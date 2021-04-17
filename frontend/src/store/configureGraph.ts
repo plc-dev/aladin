@@ -13,6 +13,9 @@ const state: IState = {
   nodes: {
     0: {
       zoomScale: 1,
+      interjections: [
+        { method: "matrixSelfMultiplication", dependencies: { baseMatrix: "nodes__0__components__1", n: "taskData__longestPath" } },
+      ],
       layouts: {
         sm: [
           {
@@ -36,17 +39,9 @@ const state: IState = {
         ],
         lg: [
           {
-            x: 36,
-            y: 30,
-            w: 2,
-            h: 2,
-            i: 3,
-            static: false,
-          },
-          {
             x: 34,
             y: 30,
-            w: 2,
+            w: 3,
             h: 2,
             i: 1,
             static: false,
@@ -63,29 +58,28 @@ const state: IState = {
       },
       components: {
         "1": {
-          name: "Traversal",
-          type: "VisualGraphTraversal",
-          isValid: true,
-          dependencies: {
-            DOTGraph: { dotDescription: "taskData__dotDescription" },
-            VisualGraphTraversal: { nodes: "taskData__nodes", paths: "taskData__paths", dotDescription: "taskData__dotDescription" },
-          },
-          component: {
-            selectedPaths: [],
-            colorCoding: {
-              standard: "black",
-              completed: "green",
-              selected: "red",
-              partial: "blue",
-            },
-          },
-        },
-        "3": {
-          type: "PathDisplay",
-          name: "display",
+          name: "Direktbedarfsmatrix",
+          type: "MatrixMultiplication",
           isValid: false,
-          dependencies: { PathDisplay: { selectedPaths: "nodes__0__components__1__component__selectedPaths", nodes: "taskData__nodes" } },
-          component: {},
+          dependencies: { Matrix: { data: "taskData__adjacencyMatrix" } },
+          methods: { fillZeros: "Ergänze Nullen", showSolution: "Zeige Lösung", copyToClipboard: "Kopieren" },
+          component: {
+            initialize: {
+              validation: {
+                operations: [],
+                matrix1Path: "taskData__adjacencyMatrix",
+              },
+              user: {
+                operations: [{ name: "getValueInitializedMatrix", args: [null] }],
+                matrix1Path: "taskData__adjacencyMatrix",
+              },
+            },
+            userData: null,
+            validationData: null,
+            readOnly: false,
+            rowLabel: "taskData__labelVector",
+            columnLabel: "taskData__labelVector",
+          },
         },
         "4": {
           type: "BackgroundGraph",
@@ -2822,11 +2816,11 @@ const mutations = {
     const { path, value } = payload;
     const splitPath = path.split("__");
 
-    const parsedPath = splitPath.reduce((parsedPath, substring) => {
-      return `${parsedPath}["${substring}"]`;
-    }, "");
-    const setState = new Function("state", "value", `state${parsedPath} = value;`);
-    setState(state, value);
+    let subState = state;
+    for (let depth = 0; depth < splitPath.length; depth++) {
+      if (depth === splitPath.length - 1) subState[splitPath[depth]] = value;
+      else subState = subState[splitPath[depth]];
+    }
   },
 };
 const actions = {

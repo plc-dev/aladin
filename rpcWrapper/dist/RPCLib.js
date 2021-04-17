@@ -17,11 +17,22 @@ const amqplib_1 = __importDefault(require("amqplib"));
 class BrokerConnection {
     constructor(connectionString) {
         this.connectionString = connectionString;
+        this.connectionAttempts = 50;
     }
     establishConnection() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.connection = yield amqplib_1.default.connect(this.connectionString); // amqp://guest:guest@localhost:5672
-            return yield this.connection.createChannel();
+            try {
+                this.connection = yield amqplib_1.default.connect(this.connectionString); // amqp://guest:guest@localhost:5672
+                return yield this.connection.createChannel();
+            }
+            catch (error) {
+                if (this.connectionAttempts) {
+                    setTimeout(() => {
+                        this.establishConnection();
+                    }, 2000);
+                }
+                this.connectionAttempts--;
+            }
         });
     }
     tearDown() {

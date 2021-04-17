@@ -16,7 +16,9 @@ const serializedRoutes: Array<ISerializedTaskRoute> = [
         task: "gozintograph",
         name: "generateGraph",
         httpMethod: "post",
-        params: { parameters: "object" },
+        params: {
+            parameters: "object",
+        },
     },
     {
         task: "sql",
@@ -33,6 +35,12 @@ const serializedRoutes: Array<ISerializedTaskRoute> = [
     {
         task: "sql",
         name: "generateERD",
+        httpMethod: "post",
+        params: { parameters: "object" },
+    },
+    {
+        task: "geointerpolation",
+        name: "generateGeo",
         httpMethod: "post",
         params: { parameters: "object" },
     },

@@ -114,5 +114,7 @@ h2 {
   border-radius: 5px;
   border: 1px solid #57636b;
   box-shadow: 2px 3px 9px 0px rgba(0, 0, 0, 1);
+  width: 20vw;
+  height: auto;
 }
 </style>

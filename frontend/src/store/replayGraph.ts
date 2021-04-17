@@ -16,18 +16,18 @@ const emptyState = {
 
 const state: IState = {
   ...emptyState,
-  taskReplay: { steps: [] },
+  taskReplay: { steps: [], meta: [] },
 };
 const mutations = {
   async SET_PROPERTY(state: IState, payload: { path: string; value: any }) {
     let { path, value } = payload;
     const splitPath = path.split("__");
 
-    const parsedPath = splitPath.reduce((parsedPath, substring) => {
-      return `${parsedPath}["${substring}"]`;
-    }, "");
-    const setState = new Function("state", "value", `state${parsedPath} = value;`);
-    setState(state, value);
+    let subState = state;
+    for (let depth = 0; depth < splitPath.length; depth++) {
+      if (depth === splitPath.length - 1) subState[splitPath[depth]] = value;
+      else subState = subState[splitPath[depth]];
+    }
   },
 };
 const actions = {

@@ -27,15 +27,15 @@ services:
             - 80:80
             - 3000:3000
 
-    schemaspy:
-        build:
-            context: backend/services/schemaspy
-            dockerfile: schemaspy.Dockerfile
-        depends_on:
-            - postgres
-        volumes:
-            - ./backend/services/schemaspy/output:/output
-            - ./backend/services/schemaspy:/worker
+    # schemaspy:
+    #     build:
+    #         context: backend/services/schemaspy
+    #         dockerfile: schemaspy.Dockerfile
+    #     depends_on:
+    #         - postgres
+    #     volumes:
+    #         - ./backend/services/schemaspy/output:/output
+    #         - ./backend/services/schemaspy:/worker
 
     postgres:
         build:
@@ -50,19 +50,19 @@ services:
         volumes:
             - ./backend/services/postgres/data:/var/lib/postgresql/data/
 
-    mongodb:
-        build:
-            context: backend/services/mongodb
-            dockerfile: mongodb.Dockerfile
-        container_name: mongodb
-        environment:
-            MONGO_INITDB_ROOT_USERNAME: "admin"
-            MONGO_INITDB_ROOT_PASSWORD: "admin"
-        ports:
-            - "27017:27017"
-        volumes:
-            - "./backend/services/mongodb/data:/bitnami/mongodb"
-        restart: unless-stopped
+    # mongodb:
+    #     build:
+    #         context: backend/services/mongodb
+    #         dockerfile: mongodb.Dockerfile
+    #     container_name: mongodb
+    #     environment:
+    #         MONGO_INITDB_ROOT_USERNAME: "admin"
+    #         MONGO_INITDB_ROOT_PASSWORD: "admin"
+    #     ports:
+    #         - "27017:27017"
+    #     volumes:
+    #         - "./backend/services/mongodb/data:/bitnami/mongodb"
+    #     restart: unless-stopped
 
     minio:
         # build:

@@ -12,7 +12,7 @@ const storeMap = {
   configurationStore,
 };
 
-interface IStore {
+export interface IStore {
   store: Store<IState>;
   getProperty: Function;
   setProperty: Function;

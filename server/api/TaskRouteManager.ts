@@ -7,7 +7,7 @@ export type HTTPMethod = "get" | "post" | "put" | "delete";
 export type JSONTypes = "string" | "number" | "boolean" | "array" | "object" | "null";
 
 export interface ITaskParameters {
-    [key: string]: JSONTypes;
+    [key: string]: JSONTypes | Array<JSONTypes> | ITaskParameters;
 }
 
 export interface ISerializedTaskRoute {
@@ -42,6 +42,7 @@ export class TaskRouteManager {
 
     private async requestHandler(req: Request, res: Response, serializedRoute: ISerializedTaskRoute) {
         const { params, task } = serializedRoute;
+        // console.log(this.validateParameters(req, params));
         const parsedParameters = params ? this.validateParameters(req, params) : {};
         if (parsedParameters.error) {
             res.status(400).json(

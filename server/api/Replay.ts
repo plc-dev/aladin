@@ -33,6 +33,28 @@ export const replayRoutes = (router: Router, channel: Channel) => {
         }
     });
 
+    router.post("/fetchReplayOverview", async (req, res) => {
+        try {
+            const user = req.body;
+            const replayList = fs
+                .readdirSync(dir)
+                .map((fileName: string) => {
+                    const filePath = path.resolve(dir, fileName);
+                    const replay = JSON.parse(fs.readFileSync(`${filePath}`).toString());
+                    const meta = replay.meta;
+                    meta["hash"] = fileName.split(".")[0];
+                    return meta;
+                })
+                .sort((r1: { date: string }, r2: { date: string }) => Number(new Date(r1.date)) - Number(new Date(r2.date)));
+
+            console.log(replayList);
+
+            res.status(200).json(JSON.stringify({ replayList }));
+        } catch (error) {
+            res.status(400).json(JSON.stringify(error));
+        }
+    });
+
     router.post("/fetchReplay", async (req, res) => {
         try {
             const { id } = req.body;

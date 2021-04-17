@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper">
-    <ContourPlot :componentID="componentID" :storeObject="storeObject" />
+    <ContourPlot class="background" :componentID="componentID" :storeObject="storeObject" />
     <DOTGraph class="foreground" :componentID="componentID" :storeObject="storeObject" />
   </div>
 </template>

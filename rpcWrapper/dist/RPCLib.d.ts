@@ -2,6 +2,7 @@ import amqp from "amqplib";
 export declare class BrokerConnection {
     private connectionString;
     private connection;
+    private connectionAttempts;
     constructor(connectionString: string);
     establishConnection(): Promise<amqp.Channel>;
     tearDown(): void;

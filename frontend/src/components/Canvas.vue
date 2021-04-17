@@ -28,9 +28,10 @@
           drag-allow-from=".dragHandler"
           drag-ignore-from=".ignoreDrag"
           @move="setCoordinates"
-          @resize="updateDimensions"
+          @resized="updateDimensions"
           :preserveAspectRatio="true"
           :autosize="true"
+          :data-id="item.i"
         >
           <img class="dragHandler" src="/img/drag_arrow.webp" />
           <component :is="nodeComponents[item.i].type" :componentID="item.i" :storeObject="storeObject"></component>
@@ -44,6 +45,8 @@
 import { onMounted, computed, watch } from "vue";
 import { GridLayout, GridItem } from "vue-grid-layout";
 import panzoom from "@panzoom/panzoom";
+import { interjectionHandler } from "@/interjections/interjectionHandler";
+
 import MiniMap from "@/components/MiniMap.vue";
 import Matrix from "@/components/taskComponents/Matrix.vue";
 import DOTGraph from "@/components/taskComponents/DOTGraph.vue";
@@ -80,26 +83,33 @@ export default {
   },
   setup(props) {
     const { getProperty, setProperty, store } = props.storeObject;
-    const columnAmount = 60;
-    const rowHeight = 10000 / columnAmount; // (document.querySelector("html").clientWidth * 3) / columnAmount;
     const currentNode = computed(() => getProperty("currentNode"));
+    const interjections = getProperty(`nodes__${currentNode.value}__interjections`) || [];
+    // handle dynamic UI-elements which depend on the data generated at runtime
+    interjectionHandler(props.storeObject, interjections);
+
+    const columnAmount = 60;
+    const rowHeight = 10000 / columnAmount;
     const zoomScale = computed(() => getProperty("zoomScale"));
     const nodeComponents = computed(() => getProperty(`nodes__${currentNode.value}__components`));
     const layouts = computed(() => getProperty(`nodes__${currentNode.value}__layouts`));
     const layoutSize = computed(() => getProperty(`layoutSize`));
-    const currentLayout = computed({
-      get: () => {
-        const layout = getProperty(`nodes__${currentNode.value}__layouts__${layoutSize.value}`);
-        return layout;
-      },
-      set: (layout) => {
-        setProperty({ path: `nodes__${currentNode.value}__layout`, value: layout });
-      },
+    const currentLayout = computed(() => {
+      const layout = getProperty(`nodes__${currentNode.value}__layouts__${layoutSize.value}`);
+      return layout;
     });
+
+    const fixQuadraticItems = (ids: Array<number> = currentLayout.value.filter((item) => item.w === item.h).map((item) => item.i)) => {
+      setTimeout(() => {
+        ids.forEach((id) => {
+          const item: HTMLElement = document.querySelector(`.vue-grid-item[data-id="${id}"]`);
+          item.style.height = item.style.width;
+        });
+      }, 75);
+    };
 
     let panzoomInstance = null;
     onMounted(() => {
-      // - (viewwidth|viewheight * (n-1)), where n is the vw/vh specified in the zoomWrappers css
       panzoomInstance = panzoom(document.querySelector(".zoomWrapper"), {
         excludeClass: "vue-grid-item",
         canvas: true,
@@ -115,9 +125,10 @@ export default {
         const scale = panzoomInstance.getScale();
         setProperty({ path: "zoomScale", value: scale });
         store.dispatch("trackZooming", { scale, timestamp: new Date().getTime(), x: event.clientX, y: event.clientY });
+        fixQuadraticItems();
       });
 
-      document.querySelector(".canvas").addEventListener("click", (event) => {
+      document.querySelector(".canvas").addEventListener("click", (event: MouseEvent) => {
         const grid = event.target as HTMLElement;
         if (Array.from(grid.classList).includes("grid")) {
           const pan = panzoomInstance.getPan();
@@ -125,18 +136,20 @@ export default {
         }
       });
 
-      // TODO remove hack for activating reactivity + add proper eventlisteners for resize and moving grid items
+      // TODO remove hack for activating reactivity
       setProperty({ path: "zoomScale", value: 1 });
+
+      fixQuadraticItems();
     });
     const updateDimensions = (id, gridWidth, gridHeight) => {
       const path = `nodes__${currentNode.value}__layouts__${layoutSize.value}`;
       const layout = getProperty(path);
       const index = layout.findIndex((item) => item.i == id);
-      setProperty({ path: `${path}__${index}`, value: { ...layout[index], w: gridWidth, h: gridHeight } });
+      // setProperty({ path: `${path}__${index}`, value: { ...layout[index], w: gridWidth, h: gridHeight } });
+      // https://github.com/jbaysolutions/vue-grid-layout/issues/575
+      // window.dispatchEvent(new Event("resize"));
+      fixQuadraticItems();
     };
-    watch(currentNode, () => {
-      currentLayout.value = getProperty(`nodes__${currentNode.value}__layouts__${layoutSize.value}`);
-    });
 
     let timer;
     const setCoordinates = (i, x, y) => {
@@ -152,6 +165,7 @@ export default {
 
         const path = `nodes__${currentNode.value}__layouts__${layoutSize.value}`;
         setProperty({ path, value: movedLayout });
+        fixQuadraticItems();
       }, 100);
     };
 
@@ -225,6 +239,10 @@ export default {
   background-origin: content-box;
   box-sizing: border-box;
   cursor: pointer;
+}
+
+.vue-grid-item.vue-grid-placeholder {
+  background: grey !important;
 }
 </style>
 

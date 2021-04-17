@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { computed, watch } from "vue";
+import { computed, watch, ref } from "vue";
 import RangeFormField from "@/components/taskComponents/form/RangeFormField.vue";
 import DropdownFormField from "@/components/taskComponents/form/DropdownFormField.vue";
 import CheckboxFormField from "@/components/taskComponents/form/CheckboxFormField.vue";
@@ -57,13 +57,26 @@ export default {
     const elements = computed(() => getProperty(`${path}__component__form`));
 
     const updateElement = (event) => {
-      const { className, value, type, checked } = event.target;
+      const { classList, value, type, checked } = event.target;
+      const className = classList[0];
       const payload = type === "checkbox" ? checked : value;
       const elementPath = `${path}__component__form__${className}`;
       setProperty({ path: elementPath, value: payload });
+      updateActions();
     };
 
-    const actions = computed(() => getProperty(`${path}__component__actions`));
+    let actions = ref(getProperty(`${path}__component__actions`));
+
+    const updateActions = () => {
+      actions.value = actions.value.map((action) => {
+        const valid = action.dependsOn.every((fieldId) => {
+          const formfield: HTMLInputElement = document.querySelector(`input[class^="${fieldId}"]`);
+          return !Array.from(formfield.classList).includes("invalid");
+        });
+        action.disabled = valid ? false : true;
+        return action;
+      });
+    };
 
     const preparePayload = (instruction) => {
       const parameters: { [key: string]: any } = Object.entries(elements.value).reduce(

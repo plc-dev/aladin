@@ -31,7 +31,6 @@ export default {
       }).renderDot(description);
     };
     watch(dotDescription, () => {
-      console.log(dotDescription.value);
       renderGraph(dotDescription.value);
     });
     onMounted(() => {

@@ -2,6 +2,7 @@ import { RPCConsumer } from "rabbitmq-rpc-wrapper";
 import amqp, { Channel } from "amqplib";
 import { GozintographGenerator } from "./graphLib/generators/gozintographGenerator";
 import { sqlQueryGenerator, sqlQueryValidator, importDatabase } from "./workers/SQLTaskWorker";
+import { InterpolationTaskGenerator } from "./workers/GeoInterpolationWorker";
 import { PostgresWorker } from "./workers/PostgresWorker";
 import { PgClient } from "./database/postgres/postgresDAO";
 import { MinioClientWrapper } from "./database/minio/minioDAO";
@@ -13,6 +14,7 @@ const generators: { [key: string]: any } = {
     sqlQueryGenerator: sqlQueryGenerator,
     sqlQueryValidator: sqlQueryValidator,
     importDatabase: importDatabase,
+    InterpolationTaskGenerator: InterpolationTaskGenerator,
 };
 
 // load environment variables
@@ -31,11 +33,36 @@ interface ISerializedQueues {
     };
 }
 
+const asyncSleep = async (fn: Function, timeOut: number = 2000): Promise<any> => {
+    return new Promise((resolve) => {
+        // wait 3s before calling fn(par)
+        setTimeout(() => resolve(fn()), timeOut);
+    });
+};
+
+let retries = 50;
+const establishBrokerConnection = async (): Promise<{ connection: any; channel: Channel }> => {
+    let connection;
+    let channel: Channel;
+    try {
+        connection = await amqp.connect("amqp://guest:guest@rabbitmq:5672"); //process.env.brokerConnection
+        channel = await connection.createChannel();
+    } catch (error) {
+        if (retries) {
+            retries--;
+            return await asyncSleep(establishBrokerConnection);
+        } else {
+            throw new Error(error);
+        }
+    }
+
+    return { connection, channel };
+};
+
 (async () => {
     try {
         // start rabbitmq
-        const connection = await amqp.connect("amqp://guest:guest@rabbitmq:5672"); //process.env.brokerConnection
-        const channel: Channel = await connection.createChannel();
+        const { channel } = await establishBrokerConnection();
 
         // initialize db
         // Set up mongoDB
@@ -122,6 +149,25 @@ interface ISerializedQueues {
                     },
                 },
             },
+            geointerpolationTask: {
+                minConsumers: 1,
+                consumerInstructions: {
+                    generateGeo: {
+                        dependencies: ["InterpolationTaskGenerator"],
+                        body: `async (taskDescription) => {
+                            let result = {};
+                            try {
+                                const g = new InterpolationTaskGenerator(taskDescription.parameters);
+                                result = g.generateInterpolationTask();
+                            } catch (error) {
+                                console.error(error);
+                                result = error;
+                            }
+                            return result;
+                        }`,
+                    },
+                },
+            },
         };
 
         for (let queue in queues) {
@@ -146,5 +192,6 @@ interface ISerializedQueues {
     } catch (error) {
         console.log(error);
     } finally {
+        console.log("backend booted");
     }
 })();

@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "run": "ts-node workers/SQLTaskWorker.ts",
+        "run": "ts-node orchestrator.ts",
+        "dev": "ts-node-dev --transpile-only --poll --respawn orchestrator.ts",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [],
@@ -24,12 +25,14 @@
         "mongoose": "^5.11.5",
         "node": "^15.3.0",
         "pg": "^8.5.1",
-        "rabbitmq-rpc-wrapper": "^0.2.3",
+        "rabbitmq-rpc-wrapper": "^0.2.5",
         "randexp": "^0.5.3",
         "seedrandom": "^3.0.5",
         "simplex-noise": "^2.4.0",
         "ts-node": "^9.1.0",
+        "ts-node-dev": "^1.1.6",
         "tslint": "^6.1.3",
         "typescript": "^4.1.2"
-    }
+    },
+    "devDependencies": {}
 }
