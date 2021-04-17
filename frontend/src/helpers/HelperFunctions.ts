@@ -25,4 +25,20 @@ const isEqualArrayContent = (arr1: Array<string | number>, arr2: Array<string | 
   return true;
 };
 
-export { isEqualArrayContent };
+const delay = (label: string, callback: Function, time: number = 500) => {
+  if (typeof window.delayed_methods == "undefined") {
+    window.delayed_methods = {};
+  }
+  window.delayed_methods[label] = Date.now();
+  const t = window.delayed_methods[label];
+  setTimeout(function () {
+    if (window.delayed_methods[label] != t) {
+      return;
+    } else {
+      window.delayed_methods[label] = "";
+      callback();
+    }
+  }, time);
+};
+
+export { isEqualArrayContent, delay };

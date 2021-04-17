@@ -1,6 +1,13 @@
 <template>
   <div class="actions">
-    <Button v-for="(action, i) in actions" :key="i" :data="{ name: 'id', value: i }" :label="action.label" :callback="handleAction" />
+    <Button
+      v-for="(action, i) in actions"
+      :class="{ disabled: action.disabled }"
+      :key="i"
+      :data="{ name: 'id', value: i }"
+      :label="action.label"
+      :callback="action.disabled ? () => {} : handleAction"
+    />
   </div>
 </template>
 
@@ -44,5 +51,12 @@ export default {
   align-items: center;
   width: 10vw;
   height: 10vh;
+  cursor: default;
+  opacity: 1;
+}
+
+.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 </style>

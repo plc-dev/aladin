@@ -35,7 +35,18 @@ export default {
   align-items: center;
   height: 8vw;
   width: 8vw;
-  background: grey;
+  background: #57636b;
   border-radius: 50%;
+  color: #e8edf1;
+  text-decoration: none;
+  box-shadow: 2px 3px 9px 0px rgba(0, 0, 0, 1);
+  text-shadow: 1px 1px 1px #b1b2b4;
+  transition: all 1s ease;
+}
+
+.taskOverview_taskNode:hover {
+  filter: brightness(85%);
+  transition: all 1s ease;
+  color: #f1ad2d;
 }
 </style>

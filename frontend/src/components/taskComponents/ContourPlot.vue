@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { onMounted, computed } from "vue";
+import { onMounted, computed, watch } from "vue";
 import * as d3 from "d3";
 import * as hsv from "d3-hsv";
 
@@ -13,25 +13,29 @@ export default {
     storeObject: Object,
   },
   setup(props) {
-    const { getProperty } = props.storeObject;
+    const { getProperty, setProperty } = props.storeObject;
     const currentNode = computed(() => getProperty("currentNode"));
 
     const dependencyPath = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__dependencies`);
-    const data = computed(() => {
+
+    const grid = computed(() => getProperty(dependencyPath.ContourPlot.grid));
+
+    let data = {};
+    const fetchData = () => {
       const { grid, thresholds } = dependencyPath.ContourPlot;
       const gridDependency = getProperty(grid);
       const tresholdsDependency = getProperty(thresholds);
-      if (!gridDependency || !tresholdsDependency) return { values: [], rows: 0, columns: 0, thresholds };
+      if (!gridDependency || !tresholdsDependency) return { values: [], rows: 1, columns: 1, thresholds: [] };
       return {
         values: gridDependency.reduce((flattened, row) => [...flattened, ...row], []),
         rows: gridDependency.length,
         columns: gridDependency[0].length,
         thresholds: tresholdsDependency,
       };
-    });
+    };
 
     const prepareData = () => {
-      const { values, columns, rows } = data.value;
+      const { values, columns, rows } = data;
       const contours = d3.contours().size([columns, rows]);
 
       const interpolateTerrain = () => {
@@ -47,10 +51,8 @@ export default {
 
     const genSvg = () => {
       const { color, contours } = prepareData();
-      const { values, thresholds, columns, rows } = data.value;
+      const { values, thresholds, columns, rows } = data;
       const path = d3.geoPath();
-
-      console.log(path);
 
       const svg = d3
         .select(".contourPlot")
@@ -62,13 +64,20 @@ export default {
 
       for (const threshold of thresholds) {
         const geoJson = contours.contour(values, threshold);
-        console.log(geoJson);
         g.append("path").attr("d", path(geoJson)).attr("fill", color(threshold));
       }
       return svg.node();
     };
 
     onMounted(() => {
+      data = fetchData();
+      genSvg();
+    });
+
+    watch(grid, () => {
+      data = fetchData();
+      const parent = document.querySelector(".contourPlot");
+      parent.removeChild(parent.firstChild);
       genSvg();
     });
 

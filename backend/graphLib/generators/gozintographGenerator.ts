@@ -45,6 +45,11 @@ export class GozintographGenerator extends GraphGenerator {
         this.graph.createValueVector();
         this.graph.createLabelVector();
         this.graph.dotDescription = this.generateDOTDescription();
+        this.graph.longestPath = this.graph.paths.reduce((longestPath, path) => {
+            const pathLength = path.length;
+            if (pathLength > longestPath) longestPath = pathLength;
+            return longestPath;
+        }, 0);
         return this.graph;
     }
 

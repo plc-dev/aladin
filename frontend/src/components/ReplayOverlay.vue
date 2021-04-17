@@ -41,6 +41,7 @@ export default {
     const calcDuration = (replayGraph) => {
       const times = { start: new Date().getTime(), duration: 0, end: 0 };
       Object.values(replayGraph).forEach((events: Array<any>) => {
+        if (!events.length) return;
         const firstEvent = events[0].timestamp;
         const lastEvent = events[events.length - 1].timestamp;
         if (firstEvent < times.start) times.start = firstEvent;
@@ -224,6 +225,7 @@ export default {
         if (property === "taskReplay") {
           const timeCorrectedReplay = Object.entries(propertyValue).reduce(
             (timeCorrectedReplay, [eventType, eventValues]: [string, Array<any>]) => {
+              if (eventType === "meta") return timeCorrectedReplay;
               const timeCorrectedValues = eventValues.map((event) => {
                 const current = new Date().getTime();
                 const offset = current - event.timestamp;

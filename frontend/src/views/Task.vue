@@ -3,9 +3,7 @@
     <transition name="slidedown">
       <DecisionNode v-if="isDecisionNode" :storeObject="taskStore" :key="currentNode" />
     </transition>
-    <transition name="slidedown">
-      <Canvas v-if="!isDecisionNode && isLoaded" :key="currentNode" :storeObject="taskStore" />
-    </transition>
+    <Canvas v-if="!isDecisionNode && isLoaded" :key="currentNode" :storeObject="taskStore" />
   </div>
 </template>
 
@@ -28,6 +26,7 @@ export default {
 
     const route = useRoute();
     const currentNode = computed(() => getProperty("currentNode"));
+
     const isDecisionNode = computed(() => {
       const edges = getProperty(`edges__${currentNode.value}`);
       if (edges) return edges.length > 1;

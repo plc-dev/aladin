@@ -2,12 +2,22 @@ import amqp from "amqplib";
 
 export class BrokerConnection {
     private connection: amqp.Connection;
+    private connectionAttempts: number = 50;
 
     constructor(private connectionString: string) {}
 
     public async establishConnection() {
-        this.connection = await amqp.connect(this.connectionString); // amqp://guest:guest@localhost:5672
-        return await this.connection.createChannel();
+        try {
+            this.connection = await amqp.connect(this.connectionString); // amqp://guest:guest@localhost:5672
+            return await this.connection.createChannel();
+        } catch (error) {
+            if (this.connectionAttempts) {
+                setTimeout(() => {
+                    this.establishConnection();
+                }, 2000);
+            }
+            this.connectionAttempts--;
+        }
     }
 
     public tearDown() {

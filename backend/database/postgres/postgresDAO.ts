@@ -5,12 +5,38 @@ dotenv.config({ path: __dirname + "./../../.env" });
 export class PgClient {
     private connectionString: string = "postgresql://admin:admin@postgres:5432/"; //`${process.env.postgresConnection}/`;
     private pool: Pool;
+    private connectionAttempts: number = 50;
 
     constructor(dbName?: string) {
         if (!dbName) dbName = "aladin";
         this.connectionString += dbName;
+        try {
+            this.connect();
+        } catch (error) {
+            if (this.connectionAttempts) {
+                setTimeout(() => {
+                    this.connect();
+                }, 2000);
+                this.connectionAttempts--;
+            } else {
+                throw new Error(error);
+            }
+        }
+    }
 
-        this.pool = new Pool({ connectionString: this.connectionString });
+    private connect() {
+        try {
+            this.pool = new Pool({ connectionString: this.connectionString });
+        } catch (error) {
+            if (this.connectionAttempts) {
+                setTimeout(() => {
+                    this.connect();
+                }, 2000);
+                this.connectionAttempts--;
+            } else {
+                throw new Error(error);
+            }
+        }
     }
 
     public async queryDB(query: string): Promise<Array<any>> {

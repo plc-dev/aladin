@@ -1,14 +1,14 @@
 <template>
   <ContextMenu :componentId="id" :methods="selectedMethods" :storeObject="storeObject">
     <table :id="`matrix_${id}`" class="matrix">
-      <tr v-if="columnLabel.length">
+      <tr v-if="columnLabel && columnLabel.length">
         <p class="placeholder">&nbsp;</p>
         <th v-for="(label, i) in columnLabel" :key="i">
           <p class="matrix_label">{{ label }}</p>
         </th>
       </tr>
       <tr v-for="(row, i) in userData" :key="i">
-        <th v-if="rowLabel.length">
+        <th v-if="rowLabel && rowLabel.length">
           <p class="matrix_label">{{ rowLabel[i] }}</p>
         </th>
         <td class="matrix_element" v-for="(element, j) in userData[i]" :key="j">
@@ -28,9 +28,9 @@
 </template>
 
 <script lang="ts">
-import { onMounted, computed, watch, ComputedRef } from "vue";
+import { onMounted, computed, watch } from "vue";
 import { Matrix } from "@/helpers/LinearAlgebra";
-import { IMatrixInstruction } from "@/interfaces/MatrixInterface";
+import { IMatrixInstruction } from "@/interfaces/componentInterfaces/MatrixInterface";
 import ContextMenu from "@/components/taskComponents/mixins/ContextMenu.vue";
 
 export default {
@@ -63,8 +63,17 @@ export default {
       Object.entries(instructions).forEach(([name, instructions]) => {
         const strip = (v) => JSON.parse(JSON.stringify(v));
         const { matrix1Path, matrix2Path, operations } = instructions;
-        const matrix1 = new Matrix(...strip(getProperty(`${matrix1Path}`)));
-        const matrix2 = matrix2Path ? new Matrix(...strip(getProperty(`${matrix2Path}`))) : null;
+        let matrix1Data = strip(getProperty(`${matrix1Path}`));
+        if (matrix1Data.length == 1) matrix1Data[0].map((scalar) => [scalar]);
+        const matrix1 = new Matrix(...matrix1Data);
+
+        let matrix2 = null;
+        if (matrix2Path) {
+          let matrix2Data = strip(getProperty(`${matrix2Path}`));
+          if (matrix2Data.length == 1) matrix2Data = matrix2Data[0].map((scalar) => [scalar]);
+          matrix2 = new Matrix(...matrix2Data);
+        }
+
         const resultMatrix = operations.reduce((result, operation) => {
           const { name, args } = JSON.parse(JSON.stringify(operation));
           if (args.includes("matrix2")) return matrix1[name](matrix2);
@@ -87,8 +96,10 @@ export default {
 
     const loadData = (path) => {
       const data = getProperty(path);
-      if (data) return data;
-      else return [];
+      if (data) {
+        if (data.length > 1) return data;
+        return data[0].map((scalar) => [scalar]);
+      } else return [];
     };
     const userData = computed(() => loadData(`${componentPath}__userData`));
     const validationData = computed(() => loadData(`${componentPath}__validationData`));
@@ -156,7 +167,10 @@ export default {
         const solution = JSON.parse(JSON.stringify(getProperty(`${componentPath}__validationData`)));
         setProperty({ path: `${componentPath}__userData`, value: solution });
       },
-      copyToClipboard: () => {},
+      copyToClipboard: () => {
+        const csv = userData.value.map((row) => row.join(";") + ";").join("\n");
+        window.navigator.clipboard.writeText(csv);
+      },
     };
     const selectedMethods = () => {
       return Object.entries(getProperty(`nodes__${currentNode.value}__components__${props.componentID}__methods`)).reduce(
@@ -191,6 +205,7 @@ input::-webkit-inner-spin-button {
   min-height: 100%;
   height: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .matrix .matrix_element {

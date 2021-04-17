@@ -1,0 +1,130 @@
+{
+    "API": [
+        {
+            "task": "geointerpolation",
+            "name": "generateGeo",
+            "httpMethod": "post",
+            "params": { "parameters": "object" }
+        }
+    ],
+    "Worker": {
+        "geointerpolationTask": {
+            "minConsumers": 1,
+            "consumerInstructions": {
+                "generateGeo": {
+                    "dependencies": ["InterpolationTaskGenerator"],
+                    "body": "async (taskDescription) => { let result = {}; try { result = await importDatabase(taskDescription); } catch (error) { console.error(error); result = error; } return result; }"
+                }
+            }
+        }
+    },
+    "UI": {
+        "taskData": {},
+        "rootNode": 0,
+        "topology": [[0, null, null]],
+        "edges": {
+            "0": []
+        },
+        "currentNode": 0,
+        "nodes": {
+            "0": {
+                "zoomScale": 1,
+                "layouts": {
+                    "sm": [{ "x": 12, "y": 5, "w": 2, "h": 5, "i": 1, "static": false }],
+                    "md": [{ "x": 0, "y": 10, "w": 2, "h": 5, "i": 1, "static": false }],
+                    "lg": [
+                        { "x": 32, "y": 29, "w": 2, "h": 2, "i": 0, "static": false },
+                        { "x": 34, "y": 29, "w": 2, "h": 2, "i": 1, "static": false },
+                        { "x": 36, "y": 29, "w": 2, "h": 2, "i": 2, "static": false }
+                    ]
+                },
+                "components": {
+                    "0": {
+                        "type": "BackgroundGraph",
+                        "name": "perlin",
+                        "isValid": false,
+                        "dependencies": {
+                            "ContourPlot": { "grid": "taskData__grid", "thresholds": "taskData__thresholds" },
+                            "DOTGraph": { "dotDescription": "taskData__dotDescription" }
+                        }
+                    },
+                    "1": {
+                        "type": "TaskConfiguration",
+                        "name": "Konfiguration",
+                        "isValid": true,
+                        "component": {
+                            "title": "Parameter Konfiguration",
+                            "actions": [
+                                {
+                                    "instruction": "generateGeo",
+                                    "type": "fetchData",
+                                    "label": "Generieren!"
+                                }
+                            ],
+                            "form": {
+                                "scale": {
+                                    "formType": "RangeFormField",
+                                    "label": "Skala",
+                                    "initial": {
+                                        "lowerValue": 0,
+                                        "upperValue": 1
+                                    },
+                                    "boundaries": { "min": 0, "max": 1 },
+                                    "presets": {
+                                        "easy": 1,
+                                        "medium": 1,
+                                        "hard": 1
+                                    }
+                                },
+                                "gridRange": {
+                                    "formType": "RangeFormField",
+                                    "label": "Raster",
+                                    "type": "number",
+                                    "initial": {
+                                        "lowerValue": 50,
+                                        "upperValue": 50
+                                    },
+                                    "boundaries": { "min": 2, "max": 1000 },
+                                    "presets": {
+                                        "easy": 50,
+                                        "medium": 100,
+                                        "hard": 500
+                                    }
+                                },
+                                "measurementRange": {
+                                    "formType": "RangeFormField",
+                                    "label": "Anzahl Messungen",
+                                    "type": "number",
+                                    "initial": {
+                                        "lowerValue": 5,
+                                        "upperValue": 10
+                                    },
+                                    "boundaries": { "min": 1, "max": 100 },
+                                    "presets": {
+                                        "easy": 5,
+                                        "medium": 20,
+                                        "hard": 50
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "2": {
+                        "type": "Output",
+                        "name": "Messungen",
+                        "isValid": true,
+                        "dependencies": {
+                            "Output": {
+                                "serverOutput": "taskData__measurementPoints",
+                                "validOutput": "taskData__measurementPoints"
+                            }
+                        },
+                        "component": {
+                            "header": "Messpunkte"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

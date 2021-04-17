@@ -89,4 +89,5 @@ export class MultiDiGraph extends Graph {}
 
 export class DAG extends DiGraph {
     topology: Array<Array<INode["id"]>>;
+    longestPath?: number;
 }
