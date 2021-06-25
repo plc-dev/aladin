@@ -1,19 +1,25 @@
 <template>
   <div class="settings">
     <Equation />
-    <p class="tex" style="text-align: center">`z = \frac{\sum_{i} \frac{v\_i}{w\_i}}{\sum_{i} \frac{1}{w\_i^{p}}}`</p>
+    <p class="tex" style="text-align: center">`z = \frac{\sum_{i=1}^{n} \frac{v\_i}{w\_i}}{\sum_{i=1}^{n} \frac{1}{w\_i^{p}}}`</p>
 
     <button @click="execute">stuff</button>
+
+    <Modal :show="true">
+      <template #header>woot</template>
+      <template #body>sup</template>
+    </Modal>
   </div>
 </template>
 
 <script lang="ts">
 import Equation from "@/components/taskComponents/math/Equation.vue";
+import Modal from "@/components/Modal.vue";
 import { mathlex } from "@/helpers/FormulaGenerator";
 
 export default {
   name: "Settings",
-  components: { Equation },
+  components: { Equation, Modal },
   setup() {
     const equation = {};
 

@@ -3,6 +3,7 @@ import amqp, { Channel } from "amqplib";
 import { GozintographGenerator } from "./graphLib/generators/gozintographGenerator";
 import { sqlQueryGenerator, sqlQueryValidator, importDatabase } from "./workers/SQLTaskWorker";
 import { InterpolationTaskGenerator } from "./workers/GeoInterpolationWorker";
+import { ShortestPathTaskGenerator } from "./workers/MunkeltWorker";
 import { PostgresWorker } from "./workers/PostgresWorker";
 import { PgClient } from "./database/postgres/postgresDAO";
 import { MinioClientWrapper } from "./database/minio/minioDAO";
@@ -15,6 +16,7 @@ const generators: { [key: string]: any } = {
     sqlQueryValidator: sqlQueryValidator,
     importDatabase: importDatabase,
     InterpolationTaskGenerator: InterpolationTaskGenerator,
+    ShortestPathTaskGenerator: ShortestPathTaskGenerator,
 };
 
 // load environment variables
@@ -159,6 +161,25 @@ const establishBrokerConnection = async (): Promise<{ connection: any; channel: 
                             try {
                                 const g = new InterpolationTaskGenerator(taskDescription.parameters);
                                 result = g.generateInterpolationTask();
+                            } catch (error) {
+                                console.error(error);
+                                result = error;
+                            }
+                            return result;
+                        }`,
+                    },
+                },
+            },
+            shortestpathTask: {
+                minConsumers: 1,
+                consumerInstructions: {
+                    generateSP: {
+                        dependencies: ["ShortestPathTaskGenerator"],
+                        body: `async (taskDescription) => {
+                            let result = {};
+                            try {
+                                const g = new ShortestPathTaskGenerator(taskDescription.parameters);
+                                result = g.generateShortestPathTask();
                             } catch (error) {
                                 console.error(error);
                                 result = error;

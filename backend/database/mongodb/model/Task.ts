@@ -19,7 +19,6 @@ module.exports = (mongoose: Mongoose) => {
         queue: {
             type: {
                 minConsumers: Number,
-                consumerInstructions: 
             },
             required: true,
         },

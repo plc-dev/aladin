@@ -44,6 +44,12 @@ const serializedRoutes: Array<ISerializedTaskRoute> = [
         httpMethod: "post",
         params: { parameters: "object" },
     },
+    {
+        task: "shortestpath",
+        name: "generateSP",
+        httpMethod: "post",
+        params: { parameters: "object" },
+    },
 ];
 
 (async () => {

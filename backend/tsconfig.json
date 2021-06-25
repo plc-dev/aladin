@@ -7,7 +7,9 @@
         "moduleResolution": "node",
         "sourceMap": true,
         "outDir": "dist",
+        "downlevelIteration": true,
         "baseUrl": ".",
+        "skipLibCheck": true,
         "paths": {
             "*": [
                 "node_modules/*"
@@ -16,5 +18,9 @@
     },
     "include": [
         "."
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts",
     ]
 }

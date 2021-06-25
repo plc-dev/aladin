@@ -3,7 +3,7 @@
     <h2>{{ title }}</h2>
     <div class="parameter_form_columns">
       <div class="parameter_labels">
-        <p v-for="(element, key) in elements" :key="key">{{ element.label }}</p>
+        <p v-for="(element, key) in elements" :key="key" v-html="element.label" />
       </div>
       <div class="parameter_fields">
         <component
@@ -25,6 +25,7 @@ import { computed, watch, ref } from "vue";
 import RangeFormField from "@/components/taskComponents/form/RangeFormField.vue";
 import DropdownFormField from "@/components/taskComponents/form/DropdownFormField.vue";
 import CheckboxFormField from "@/components/taskComponents/form/CheckboxFormField.vue";
+import ValueFormField from "@/components/taskComponents/form/ValueFormField.vue";
 import ActionButtons from "@/components/taskComponents/mixins/ActionButtons.vue";
 
 export default {
@@ -36,6 +37,7 @@ export default {
     RangeFormField,
     DropdownFormField,
     CheckboxFormField,
+    ValueFormField,
     ActionButtons,
   },
   setup(props) {
@@ -84,6 +86,7 @@ export default {
           const { formType, initial } = parameter;
           let payload = { ...parameters, [name]: initial };
           if (formType === "RangeFormField") payload[name] = [initial.lowerValue, initial.upperValue];
+          if (formType === "ValueFormField") payload[name] = parameter.value;
           return payload;
         },
         {}

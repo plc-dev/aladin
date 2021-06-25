@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { delay } from "@/helpers/HelperFunctions.ts";
 
 export default {

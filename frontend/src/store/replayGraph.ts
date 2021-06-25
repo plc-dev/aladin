@@ -3,6 +3,7 @@ import axios from "axios";
 import { IState } from "@/interfaces/TaskGraphInterface";
 
 const emptyState = {
+  isLoading: false,
   currentTask: null,
   layoutSize: "lg",
   currentNode: null,

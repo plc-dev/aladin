@@ -1,9 +1,12 @@
 <template>
   <div class="task">
+    <transition name="fade">
+      <LoadingSpinner v-if="isLoading" />
+    </transition>
     <transition name="slidedown">
       <DecisionNode v-if="isDecisionNode" :storeObject="taskStore" :key="currentNode" />
     </transition>
-    <Canvas v-if="!isDecisionNode && isLoaded" :key="currentNode" :storeObject="taskStore" />
+    <Canvas v-if="!isDecisionNode && !isLoading" :key="currentNode" :storeObject="taskStore" />
   </div>
 </template>
 
@@ -13,12 +16,14 @@ import { useRoute } from "vue-router";
 import Canvas from "@/components/Canvas.vue";
 import stores from "@/helpers/TaskGraphUtility";
 import DecisionNode from "@/components/DecisionNode.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
 export default {
   name: "Task",
   components: {
     Canvas,
     DecisionNode,
+    LoadingSpinner,
   },
   setup() {
     const taskStore = stores.taskStore;
@@ -33,7 +38,7 @@ export default {
       return false;
     });
 
-    const isLoaded = computed(() => getProperty(`currentNode`) !== null);
+    const isLoading = computed(() => getProperty(`isLoading`));
 
     const isReplayGraph = computed(() => getProperty("restoredFromReplay"));
 
@@ -64,7 +69,7 @@ export default {
       document.removeEventListener("mousemove", trackMouse);
     });
 
-    return { currentNode, isDecisionNode, isLoaded, taskStore };
+    return { currentNode, isDecisionNode, taskStore, isLoading };
   },
 };
 </script>
@@ -85,5 +90,15 @@ export default {
 .slidedown-leave-to {
   overflow: hidden;
   max-height: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

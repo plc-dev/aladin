@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, computed, ref, defineComponent, watch } from "vue";
+import { onMounted, computed, watch } from "vue";
 import { graphviz } from "d3-graphviz";
 
 export default {

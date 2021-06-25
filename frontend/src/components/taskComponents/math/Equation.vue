@@ -8,140 +8,43 @@
 
 <script lang="ts">
 import Term from "@/components/taskComponents/math/Term.vue";
+import { formulaGenerator } from "@/helpers/FormulaGenerator";
+import { computed, onMounted, provide } from "vue";
 
 export default {
   name: "Equation",
   components: {
     Term,
   },
-  setup() {
-    const comparisonOperator = "=";
+  props: {
+    componentID: Number,
+    storeObject: Object,
+  },
+  setup(props) {
+    const { store, getProperty, setProperty } = props.storeObject;
+    provide("store", store);
+    provide("getProperty", getProperty);
+    provide("setProperty", setProperty);
 
-    const leftTerm = [
-      {
-        type: "radical",
-        slots: [
-          { name: "index", terms: [{ type: "scalar", value: 3 }] },
-          { name: "radicand", terms: [{ type: "scalar", value: 20 }] },
-        ],
-      },
-    ];
+    const currentNode = computed(() => store.state.currentNode);
+    const path = `nodes__${currentNode.value}__components__${props.componentID}`;
 
-    const rightTerm = [
-      {
-        type: "fraction",
-        slots: [
-          {
-            name: "numerator",
-            terms: [
-              {
-                type: "BaseOperation",
-                options: { operation: "+" },
-                slots: [
-                  {
-                    name: "firstOperand",
-                    terms: [
-                      {
-                        type: "fraction",
-                        slots: [
-                          { name: "numerator", terms: [{ type: "scalar", value: 12 }] },
-                          {
-                            name: "denominator",
-                            terms: [
-                              {
-                                type: "power",
-                                slots: [
-                                  { name: "base", terms: [{ type: "scalar", value: 350 }] },
-                                  {
-                                    name: "exponent",
-                                    terms: [
-                                      {
-                                        type: "power",
-                                        slots: [
-                                          { name: "base", terms: [{ type: "scalar", value: 350 }] },
-                                          { name: "exponent", terms: [{ type: "scalar", value: 2 }] },
-                                        ],
-                                      },
-                                    ],
-                                  },
-                                ],
-                              },
-                            ],
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    name: "secondOperand",
-                    terms: [
-                      {
-                        type: "fraction",
-                        slots: [
-                          { name: "numerator", terms: [{ type: "scalar", value: 12 }] },
-                          {
-                            name: "denominator",
-                            terms: [
-                              {
-                                type: "power",
-                                slots: [
-                                  { name: "base", terms: [{ type: "scalar", value: 350 }] },
-                                  {
-                                    name: "exponent",
-                                    terms: [
-                                      {
-                                        type: "fraction",
-                                        slots: [
-                                          { name: "numerator", terms: [{ type: "scalar", value: 500 }] },
-                                          { name: "denominator", terms: [{ type: "scalar", value: 500 }] },
-                                        ],
-                                      },
-                                    ],
-                                  },
-                                ],
-                              },
-                            ],
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            name: "denominator",
-            terms: [
-              {
-                type: "fraction",
-                slots: [
-                  { name: "numerator", terms: [{ type: "scalar", value: 1 }] },
-                  {
-                    name: "denominator",
-                    terms: [
-                      {
-                        type: "power",
-                        slots: [
-                          { name: "base", terms: [{ type: "scalar", value: 350 }] },
-                          { name: "exponent", terms: [{ type: "scalar", value: 2 }] },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ];
+    const dependencies = getProperty(`${path}__dependencies`);
+    const variableTable = computed(() => {
+      const variables = dependencies.Equation.variables;
+      const variableTable = Object.entries(variables).reduce((variableTable, [variableName, variablePath]) => {
+        variableTable[variableName] = getProperty(variablePath);
+        return variableTable;
+      }, {});
+      return variableTable;
+    });
 
-    const formula = {
-      leftTerm,
-      comparisonOperator,
-      rightTerm,
-    };
+    const formula = computed(() => getProperty(`${path}__component__formula`) || "");
+    const texFormula = computed(() => getProperty(`${path}__component__texFormula`) || "");
+    const { aladin, latex, sage } = formulaGenerator(formula.value, variableTable.value, texFormula.value);
+    const { leftTerm, rightTerm, comparisonOperator } = aladin;
+
+    setProperty({ path: `${path}__component__tex`, value: latex });
 
     return { leftTerm, rightTerm, comparisonOperator };
   },
@@ -151,6 +54,7 @@ export default {
 <style scoped>
 .equation {
   display: flex;
+  overflow-x: scroll;
   width: 100%;
   align-items: center;
   justify-content: center;

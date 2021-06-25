@@ -85,6 +85,7 @@ interface INodes {
 }
 
 interface IState {
+  isLoading: boolean;
   previousNode: number;
   rootNode: number;
   currentTask: string;

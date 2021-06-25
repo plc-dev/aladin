@@ -302,7 +302,7 @@ class QueryGenerator {
         const columnsPerTable = this.joinInstructionToColumns(joinInstruction);
         const { tables, columns } = this.destructureColumnsPerTable(columnsPerTable);
 
-        const sampledColumn: IOrderByColumn = randomSample(columns, 1, this.rng)[0];
+        const sampledColumn: IOrderByColumn = randomSample(columns, 1, true, this.rng)[0] as unknown as IOrderByColumn;
 
         sampledColumn["orderBy"] = this.rng.coinFlip() ? "ASC" : "DESC";
 
@@ -348,14 +348,14 @@ class QueryGenerator {
     }
 
     private async generateHavingClause(joinInstruction: IJoinInstruction): Promise<IHavingClause> {
-        const [aggregateType] = randomSample(this.aggregateTypes, 1, this.rng);
+        const [aggregateType] = randomSample(this.aggregateTypes, 1, true, this.rng);
         const columnsPerTable = this.joinInstructionToColumns(joinInstruction);
 
         const { tables, columns } = this.destructureColumnsPerTable(columnsPerTable);
         const numberColumns = columns.filter((column) => column.type === "number");
         if (!numberColumns.length) return null;
 
-        const sampledColumns: Array<IDestructuredColumn> = randomSample(numberColumns, 1, this.rng).map((column) => ({
+        const sampledColumns: Array<IDestructuredColumn> = randomSample(numberColumns, 1, true, this.rng).map((column) => ({
             ...column,
             aggregation: aggregateType,
         }));
@@ -430,8 +430,8 @@ class QueryGenerator {
     }
 
     private stringConstraint(valueList: Array<string>): IConstraint {
-        const [operator] = randomSample(this.textOperators, 1, this.rng);
-        let [value] = randomSample(valueList, 1, this.rng);
+        const [operator] = randomSample(this.textOperators, 1, true, this.rng);
+        let [value] = randomSample(valueList, 1, true, this.rng);
 
         if (/LIKE/.test(operator)) {
             let start = this.rng.intBetween(0, value.length - 1);
@@ -452,7 +452,7 @@ class QueryGenerator {
     }
 
     private numericConstraint(valueList: Array<number>): IConstraint {
-        let [operator] = randomSample(this.numericOperators, 1, this.rng);
+        let [operator] = randomSample(this.numericOperators, 1, true, this.rng);
         const min = Math.min(...valueList);
         const max = Math.max(...valueList);
         const uniqueValues = [...new Set(valueList)];
@@ -461,18 +461,20 @@ class QueryGenerator {
             [operator] = randomSample(
                 this.numericOperators.filter((operator) => operator != "BETWEEN"),
                 1,
+                true,
                 this.rng
             );
         } else if (operator === "BETWEEN") {
-            const values = randomSample(uniqueValues, 2, this.rng);
+            const values = randomSample(uniqueValues, 2, true, this.rng);
             return { values, operator };
         }
 
-        const values = randomSample(uniqueValues, 1, this.rng);
+        const values = randomSample(uniqueValues, 1, true, this.rng);
         if ((operator === "<" || ">") && (values[0] === min || values[0] === max || min === max)) {
             [operator] = randomSample(
                 this.numericOperators.filter((operator) => operator != "<" && operator != ">"),
                 1,
+                true,
                 this.rng
             );
         }
@@ -488,7 +490,7 @@ class QueryGenerator {
         const { tables, columns } = this.destructureColumnsPerTable(columnsPerTable);
 
         if (n > columns.length - 1) n = columns.length - 1;
-        const sampledColumns = randomSample(columns, n, this.rng);
+        const sampledColumns = randomSample(columns, n, true, this.rng);
 
         const sampledColumnsPerTable = this.restructureColumnsPerTable({ tables, columns: sampledColumns });
         return sampledColumnsPerTable;
@@ -568,13 +570,13 @@ class QueryGenerator {
         if (!tableList.length) {
             const path: Array<IEdge> = [];
             const tableNames = Object.keys(this.parsedMetaData.tables);
-            const table = randomSample(tableNames, 1, this.rng)[0];
+            const table = randomSample(tableNames, 1, true, this.rng)[0];
             return { table, path };
         } else {
             const [table, paths] = tableList[tableIndex];
             const pathIndex = this.rng.intBetween(0, paths.length - 1);
             const path = paths[pathIndex].map((edge) => {
-                const joinType = randomSample(this.joinTypes, 1, this.rng)[0];
+                const joinType = randomSample(this.joinTypes as Array<JoinType>, 1, true, this.rng)[0];
                 return { ...edge, type: joinType };
             });
             return { table, path };

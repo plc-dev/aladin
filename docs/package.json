@@ -1,0 +1,19 @@
+{
+  "name": "ALADIN",
+  "version": "0.0.1",
+  "description": "Generator for tasks and solutions in computer science and adjacend disciplines",
+  "main": "index.js",
+  "authors": {
+    "name": "Paul Christ",
+    "email": "paul.l.christ@web.de"
+  },
+  "repository": "https://github.com/plc-dev/aladin/ALADIN",
+  "scripts": {
+    "dev": "vuepress dev src",
+    "build": "vuepress build src"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "vuepress": "^1.5.3"
+  }
+}

@@ -59,6 +59,10 @@ import Output from "@/components/taskComponents/Output.vue";
 import Dropdown from "@/components/taskComponents/Dropdown.vue";
 import ContourPlot from "@/components/taskComponents/ContourPlot.vue";
 import BackgroundGraph from "@/components/taskComponents/BackgroundGraph.vue";
+import Equation from "@/components/taskComponents/math/Equation.vue";
+import TexDisplay from "@/components/taskComponents/math/TexDisplay.vue";
+import DijkstraTable from "@/components/taskComponents/dijkstra/DijkstraTable.vue";
+import DijkstraGraph from "@/components/taskComponents/dijkstra/DijkstraGraph.vue";
 
 export default {
   name: "Canvas",
@@ -77,6 +81,10 @@ export default {
     Output,
     Dropdown,
     PathDisplay,
+    Equation,
+    TexDisplay,
+    DijkstraTable,
+    DijkstraGraph,
   },
   props: {
     storeObject: Object,

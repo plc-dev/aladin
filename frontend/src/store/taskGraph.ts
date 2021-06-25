@@ -29,6 +29,7 @@ const extractMetaInformation = (state: IState, replay: IReplay) => {
 };
 
 const state: IState = {
+  isLoading: false,
   currentTask: null,
   layoutSize: "lg",
   currentNode: null,
@@ -42,6 +43,12 @@ const state: IState = {
   restoredFromReplay: false,
 };
 const mutations = {
+  RESET(state: IState) {
+    Object.keys(state.taskData).forEach((key) => delete state.taskData[key]);
+  },
+  TOGGLE_LOADING(state: IState) {
+    state.isLoading = !state.isLoading;
+  },
   SET_PROPERTY(state: IState, payload: { path: string; value: any }) {
     const { path, value } = payload;
     const splitPath = path.split("__");
@@ -107,6 +114,8 @@ const actions = {
   },
   fetchTaskGraph: async ({ commit }, payload: { task: string }) => {
     try {
+      commit("TOGGLE_LOADING");
+      commit("RESET");
       const result = await axios.post("/api/fetchTaskGraph", payload);
       const { UI } = JSON.parse(result.data);
       const { topology, edges, nodes, rootNode } = UI;
@@ -115,8 +124,10 @@ const actions = {
       commit("SET_PROPERTY", { path: "nodes", value: nodes });
       commit("SET_PROPERTY", { path: "rootNode", value: rootNode });
       commit("SET_PROPERTY", { path: "currentNode", value: rootNode });
+      commit("TOGGLE_LOADING");
     } catch (error) {
       console.log(error);
+      commit("TOGGLE_LOADING");
     }
   },
   setPropertyFromPath: async ({ commit }, payload: { path: string; value: any }) => {

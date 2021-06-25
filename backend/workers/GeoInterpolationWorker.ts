@@ -50,7 +50,24 @@ export class InterpolationTaskGenerator {
         const dotDescription = this.generateDotDescription(graph);
         const thresholds = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1].map((v) => v * scale);
 
-        return { grid, thresholds, ...graph, dotDescription };
+        const p = 2;
+
+        const { distances, values } = graph.measurementPoints.reduce(
+            (filtered, point) => {
+                filtered.distances.push(point.distance);
+                filtered.values.push(point.value);
+                return filtered;
+            },
+            { distances: [], values: [] }
+        );
+
+        const result = () => {
+            const nominator = distances.reduce((result, distance, i) => result + values[i] / (distance ^ p), 0);
+            const denominator = distances.reduce((result, distance) => result + 1 / (distance ^ p), 0);
+            return nominator / denominator;
+        };
+
+        return { grid, thresholds, ...graph, dotDescription, p, distances, values, n: distances.length, result: result() };
     }
 
     private generateNoiseGrid(scale: number, gridRange: Array<number>, seed: number = Math.random()) {
@@ -63,19 +80,19 @@ export class InterpolationTaskGenerator {
         const [measurementMin, measurementMax] = measurementRange;
         const measurementCount = this.rng.intBetween(measurementMin, measurementMax);
 
-        const [x] = randomSample(Object.keys(grid), 1);
-        const [y] = randomSample(Object.keys(grid[x]), 1);
+        const [x] = randomSample(grid.keys(), 1, true);
+        const [y] = randomSample(grid[x].keys(), 1, true);
         const unknownPoint: IMeasurementPoint = { id: 0, x, y, value: grid[x][y] };
 
-        const columnIndices = randomSample(Object.keys(grid), measurementCount);
+        const columnIndices = randomSample(grid.keys(), measurementCount, true);
         const measurementPoints: Array<IMeasurementPoint> = columnIndices.map((columnIndex, i) => {
-            const [rowIndex] = randomSample(Object.keys(grid[columnIndex]), 1);
+            const [rowIndex] = randomSample(grid[columnIndex].keys(), 1, true);
             return {
                 id: i + 1,
-                value: grid[columnIndex][rowIndex],
+                value: parseFloat(grid[columnIndex][rowIndex].toFixed(2)),
                 x: columnIndex,
                 y: rowIndex,
-                distance: this.euclidianDistance([unknownPoint.x, unknownPoint.y], [x, y]),
+                distance: this.euclidianDistance([unknownPoint.x, unknownPoint.y], [columnIndex, rowIndex]),
             };
         });
 
@@ -85,7 +102,8 @@ export class InterpolationTaskGenerator {
     private euclidianDistance(v1: Array<number>, v2: Array<number>) {
         const [x1, y1] = v1;
         const [x2, y2] = v2;
-        return parseFloat(Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2)).toFixed(2));
+        const distance = parseFloat(Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2)).toFixed(2));
+        return distance;
     }
 
     private generateDotDescription(graph: IGeoInterpolationGraph) {
