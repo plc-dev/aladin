@@ -35,13 +35,6 @@ export default {
     });
     onMounted(() => {
       renderGraph(dotDescription.value);
-      const pollForGraph = setInterval(() => {
-        let background = document.querySelector(".dotGraph polygon");
-        if (background) {
-          clearInterval(pollForGraph);
-          background.setAttribute("fill", "transparent");
-        }
-      }, 50);
     });
     return {};
   },

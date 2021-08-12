@@ -8,7 +8,8 @@ const interjectionMap = {
 
 export const interjectionHandler = async (storeObject: IStore, interjections: Array<IInterjection>) => {
   for (let interjection of interjections) {
-    const { method, dependencies } = interjection;
+    const { method, dependencies, applied } = interjection;
+    if (applied) continue;
     if (Reflect.has(interjectionMap, method)) {
       await interjectionMap[method](storeObject, dependencies);
     } else {
@@ -20,4 +21,19 @@ export const interjectionHandler = async (storeObject: IStore, interjections: Ar
       }
     }
   }
+};
+
+export const getCurrentTaskNode = (storeObject: IStore) => {
+  const { getProperty } = storeObject;
+
+  const currentNode = getProperty(`currentNode`);
+  const nodePath = `nodes__${currentNode}`;
+
+  return getProperty(nodePath);
+};
+
+export const cloneComponent = (storeObject: IStore, dependency: string) => {
+  const { getProperty } = storeObject;
+
+  JSON.parse(JSON.stringify(getProperty(dependency)));
 };

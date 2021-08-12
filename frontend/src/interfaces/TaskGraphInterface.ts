@@ -71,6 +71,7 @@ export interface IReplay {
 export interface IInterjection {
   dependencies: { [dependencyName: string]: taskGraphPath | number };
   method: string;
+  applied?: boolean;
 }
 
 interface INodes {

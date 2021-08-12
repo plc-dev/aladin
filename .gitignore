@@ -26,3 +26,4 @@ backend/services/maxima/*
 backend/services/schemaspy/*
 !backend/services/schemaspy/schemaspy.Dockerfile
 server/tempReplayStorage/*
+*workspace.code-workspace

@@ -31,6 +31,18 @@ export default {
     });
     const previous = computed(() => getProperty("previousNode"));
 
+    const findPrevious = (to: number) => {
+      const edges: { [id: number]: Array<number> } = getProperty("edges");
+
+      const previousId = Object.entries(edges).reduce((previousId, [nodeId, toIds]) => {
+        console.error(to, toIds, toIds.includes(to));
+        if (toIds.includes(to)) previousId = parseInt(nodeId);
+        return previousId;
+      }, -1);
+
+      return previousId;
+    };
+
     const componentValidities = computed(() => {
       const edges = getProperty("edges");
       if (edges && edges[currentNode.value]) {
@@ -67,10 +79,12 @@ export default {
       const navElement = event.currentTarget;
       const { direction, to } = navElement.dataset;
 
+      const previousId = findPrevious(parseInt(to));
+
       if (!to && direction === "backward") {
         router.push({ name: "TaskOverview" });
       } else if (!Array.from(navElement.classList).includes("inValid")) {
-        setProperty({ path: "previousNode", value: currentNode.value });
+        setProperty({ path: "previousNode", value: previousId });
         setProperty({ path: "currentNode", value: to });
       }
     };

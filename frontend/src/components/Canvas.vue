@@ -1,6 +1,8 @@
 <template>
   <div class="canvas">
     <Navigation :storeObject="storeObject" />
+    <Hint :storeObject="storeObject" />
+
     <div class="zoomWrapper">
       <grid-layout
         class="grid"
@@ -48,10 +50,12 @@ import panzoom from "@panzoom/panzoom";
 import { interjectionHandler } from "@/interjections/interjectionHandler";
 
 import MiniMap from "@/components/MiniMap.vue";
+import Navigation from "@/components/Navigation.vue";
+import Hint from "@/components/Hint.vue";
+
 import Matrix from "@/components/taskComponents/Matrix.vue";
 import DOTGraph from "@/components/taskComponents/DOTGraph.vue";
 import TaskConfiguration from "@/components/taskComponents/TaskConfiguration.vue";
-import Navigation from "@/components/Navigation.vue";
 import VisualGraphTraversal from "@/components/taskComponents/VisualGraphTraversal.vue";
 import PathDisplay from "@/components/taskComponents/PathDisplay.vue";
 import CodeEditor from "@/components/taskComponents/CodeEditor.vue";
@@ -70,6 +74,7 @@ export default {
     BackgroundGraph,
     ContourPlot,
     MiniMap,
+    Hint,
     Matrix,
     DOTGraph,
     TaskConfiguration,

@@ -50,6 +50,7 @@ export class GozintographGenerator extends GraphGenerator {
             if (pathLength > longestPath) longestPath = pathLength;
             return longestPath;
         }, 0);
+        this.graph.solution = this.calculateSolution(this.graph.adjacencyMatrix);
         return this.graph;
     }
 
@@ -204,6 +205,45 @@ export class GozintographGenerator extends GraphGenerator {
             ${topologyString}
             }
         `;
+    }
+
+    private calculateSolution(matrix: Array<Array<number>>): Array<Array<number>> {
+        const transpose = (matrix: Array<Array<number>>) =>
+            matrix[0].map((element, elementIndex) => matrix.map((row) => row[elementIndex]));
+        const sum = (list: Array<number>): number => list.reduce((sum, element) => (sum += element), 0);
+        const matmul = (m1: Array<Array<number>>, m2: Array<Array<number>>) =>
+            m1.map((row) => transpose(m2).map((column) => sum(row.map((element, elementIndex) => element * column[elementIndex]))));
+        const matadd = (m1: Array<Array<number>>, m2: Array<Array<number>>) =>
+            m1.map((row, i) => row.map((element, j) => (m2[i][j] += element)));
+        const unity = (matrix: Array<Array<number>>) => {
+            return matrix.reduce((unityMatrix, rows, i) => {
+                const unityRow = rows.reduce((unityRow, row, j) => {
+                    unityRow[j] = i === j ? 1 : 0;
+                    return unityRow;
+                }, []);
+                unityMatrix.push(unityRow);
+                return unityMatrix;
+            }, [] as Array<Array<number>>);
+        };
+
+        let current = matrix;
+        let result = matrix;
+        for (let i = 1; i < this.graph.longestPath; i++) {
+            result = matmul(current, result);
+            result = matadd(current, result);
+        }
+        result = matadd(result, unity(matrix));
+
+        const resultVector = result.reduce((vector, row) => {
+            const scalar = row.reduce((scalar, element, i) => {
+                scalar += element * (this.graph.valueVector[0][i] as unknown as number);
+                return scalar;
+            }, 0);
+            vector.push(scalar);
+            return vector;
+        }, [] as Array<number>);
+
+        return [resultVector];
     }
 }
 

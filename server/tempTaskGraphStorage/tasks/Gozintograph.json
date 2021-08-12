@@ -63,6 +63,14 @@
                         { "x": 34, "y": 30, "w": 2, "h": 2, "i": 1, "static": false }
                     ]
                 },
+                "hints": {
+                    "active": false,
+                    "current": 0,
+                    "descriptions": [
+                        "Bestimme anhand der Parameter die Komplexität des zu generierenden Gozintographen. <br> Je größer der Graph und je mehr Kanten dieser enthält, desto schwieriger wird es diesen im Folgenden zu lösen! <br><br> Du kannst beliebig viele Graphen generieren bis du einen gefunden hast der dir gefällt.",
+                        "Viel Erfolg! <br><br> <img width=\"100px;\" height=\"100px\"; src=\"https://images.emojiterra.com/twitter/512px/1f340.png\" />"
+                    ]
+                },
                 "components": {
                     "0": {
                         "type": "DOTGraph",
@@ -210,11 +218,11 @@
                             "initialize": {
                                 "validation": {
                                     "operations": [],
-                                    "matrix1Path": "taskData__adjacencyMatrix"
+                                    "paths": ["taskData__adjacencyMatrix"]
                                 },
                                 "user": {
                                     "operations": [{ "name": "getValueInitializedMatrix", "args": [null] }],
-                                    "matrix1Path": "taskData__adjacencyMatrix"
+                                    "paths": ["taskData__adjacencyMatrix"]
                                 }
                             },
                             "userData": null,
@@ -256,11 +264,11 @@
                             "initialize": {
                                 "validation": {
                                     "operations": [],
-                                    "matrix1Path": "taskData__adjacencyMatrix"
+                                    "paths": ["taskData__adjacencyMatrix"]
                                 },
                                 "user": {
                                     "operations": [],
-                                    "matrix1Path": "taskData__adjacencyMatrix"
+                                    "paths": ["taskData__adjacencyMatrix"]
                                 }
                             },
                             "userData": null,
@@ -280,11 +288,11 @@
                             "initialize": {
                                 "validation": {
                                     "operations": [{ "name": "getIdentity", "args": [null] }],
-                                    "matrix1Path": "taskData__adjacencyMatrix"
+                                    "paths": ["taskData__adjacencyMatrix"]
                                 },
                                 "user": {
                                     "operations": [{ "name": "getIdentity", "args": [null] }],
-                                    "matrix1Path": "taskData__adjacencyMatrix"
+                                    "paths": ["taskData__adjacencyMatrix"]
                                 }
                             },
                             "userData": null,
@@ -303,17 +311,15 @@
                         "component": {
                             "initialize": {
                                 "validation": {
-                                    "operations": [{ "name": "subtract", "args": ["matrix2"] }],
-                                    "matrix1Path": "nodes__3__components__1__component__validationData",
-                                    "matrix2Path": "taskData__adjacencyMatrix"
+                                    "operations": [{ "name": "subtract", "args": ["chain"] }],
+                                    "paths": ["nodes__3__components__1__component__validationData", "taskData__adjacencyMatrix"]
                                 },
                                 "user": {
                                     "operations": [
-                                        { "name": "subtract", "args": ["matrix2"] },
+                                        { "name": "subtract", "args": ["chain"] },
                                         { "name": "getValueInitializedMatrix", "args": [null] }
                                     ],
-                                    "matrix1Path": "nodes__3__components__1__component__validationData",
-                                    "matrix2Path": "taskData__adjacencyMatrix"
+                                    "paths": ["nodes__3__components__1__component__validationData", "taskData__adjacencyMatrix"]
                                 }
                             },
                             "userData": null,
@@ -347,11 +353,11 @@
                             "initialize": {
                                 "validation": {
                                     "operations": [],
-                                    "matrix1Path": "nodes__3__components__2__component__validationData"
+                                    "paths": ["nodes__3__components__2__component__validationData"]
                                 },
                                 "user": {
                                     "operations": [],
-                                    "matrix1Path": "nodes__3__components__2__component__validationData"
+                                    "paths": ["nodes__3__components__2__component__validationData"]
                                 }
                             },
                             "userData": null,
@@ -371,14 +377,14 @@
                             "initialize": {
                                 "validation": {
                                     "operations": [{ "name": "getInverse", "args": [] }],
-                                    "matrix1Path": "nodes__3__components__2__component__validationData"
+                                    "paths": ["nodes__3__components__2__component__validationData"]
                                 },
                                 "user": {
                                     "operations": [
                                         { "name": "getInverse", "args": [] },
                                         { "name": "getValueInitializedMatrix", "args": [null] }
                                     ],
-                                    "matrix1Path": "nodes__3__components__2__component__validationData"
+                                    "paths": ["nodes__3__components__2__component__validationData"]
                                 }
                             },
                             "userData": null,
@@ -404,7 +410,7 @@
                 },
                 "components": {
                     "0": {
-                        "name": "Ergebnis",
+                        "name": "Inverse Matrix",
                         "type": "Matrix",
                         "isValid": true,
                         "dependencies": { "Matrix": { "data": "nodes__4__components__1__component__validationData" } },
@@ -413,12 +419,11 @@
                             "initialize": {
                                 "validation": {
                                     "operations": [],
-                                    "matrix1Path": "nodes__4__components__1__component__validationData"
+                                    "paths": ["nodes__4__components__1__component__validationData"]
                                 },
                                 "user": {
                                     "operations": [],
-                                    "matrix1Path": "nodes__4__components__1__component__validationData",
-                                    "matrix2Path": "taskData__adjacencyMatrix"
+                                    "paths": ["nodes__4__components__1__component__validationData"]
                                 }
                             },
                             "userData": null,
@@ -438,11 +443,11 @@
                             "initialize": {
                                 "validation": {
                                     "operations": [],
-                                    "matrix1Path": "taskData__valueVector"
+                                    "paths": ["taskData__valueVector"]
                                 },
                                 "user": {
                                     "operations": [],
-                                    "matrix1Path": "taskData__valueVector"
+                                    "paths": ["taskData__valueVector"]
                                 }
                             },
                             "userData": null,
@@ -461,13 +466,187 @@
                         "component": {
                             "initialize": {
                                 "validation": {
-                                    "operations": [{ "name": "multiply", "args": ["matrix2"] }],
-                                    "matrix1Path": "nodes__5__components__0__component__validationData",
-                                    "matrix2Path": "nodes__5__components__1__component__validationData"
+                                    "operations": [{ "name": "multiply", "args": ["chain"] }],
+                                    "paths": [
+                                        "nodes__5__components__0__component__validationData",
+                                        "nodes__5__components__1__component__validationData"
+                                    ]
                                 },
                                 "user": {
                                     "operations": [{ "name": "getValueInitializedMatrix", "args": [null] }],
-                                    "matrix1Path": "taskData__valueVector"
+                                    "paths": ["taskData__valueVector"]
+                                }
+                            },
+                            "userData": null,
+                            "validationData": null,
+                            "readOnly": false,
+                            "rowLabel": "taskData__labelVector",
+                            "columnLabel": ""
+                        }
+                    }
+                }
+            },
+            "6": {
+                "zoomScale": 1,
+                "layouts": {
+                    "sm": [{ "x": 12, "y": 5, "w": 2, "h": 5, "i": 2, "static": false }],
+                    "md": [{ "x": 0, "y": 10, "w": 2, "h": 5, "i": 2, "static": false }],
+                    "lg": [
+                        { "x": 32, "y": 30, "w": 2, "h": 2, "i": 0, "static": false },
+                        { "x": 34, "y": 30, "w": 2, "h": 2, "i": 1, "static": false }
+                    ]
+                },
+                "components": {
+                    "0": {
+                        "name": "Direktbedarfsmatrix",
+                        "type": "Matrix",
+                        "isValid": false,
+                        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
+                        "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
+                        "component": {
+                            "initialize": {
+                                "validation": {
+                                    "operations": [],
+                                    "paths": ["taskData__adjacencyMatrix"]
+                                },
+                                "user": {
+                                    "operations": [{ "name": "getValueInitializedMatrix", "args": [null] }],
+                                    "paths": ["taskData__adjacencyMatrix"]
+                                }
+                            },
+                            "userData": null,
+                            "validationData": null,
+                            "readOnly": false,
+                            "rowLabel": "taskData__labelVector",
+                            "columnLabel": "taskData__labelVector"
+                        }
+                    },
+                    "1": {
+                        "type": "DOTGraph",
+                        "name": "Gozintograph",
+                        "isValid": true,
+                        "dependencies": { "DOTGraph": { "dotDescription": "taskData__dotDescription" } },
+                        "component": {}
+                    }
+                }
+            },
+            "7": {
+                "zoomScale": 1,
+                "layouts": {
+                    "sm": [
+                        { "x": 32, "y": 30, "w": 2, "h": 2, "i": 0, "static": false },
+                        { "x": 34, "y": 30, "w": 2, "h": 2, "i": 1, "static": false },
+                        { "x": 36, "y": 28, "w": 1, "h": 2, "i": 2, "static": false },
+                        { "x": 36, "y": 30, "w": 1, "h": 2, "i": 3, "static": false }
+                    ],
+                    "md": [
+                        { "x": 32, "y": 30, "w": 2, "h": 2, "i": 0, "static": false },
+                        { "x": 34, "y": 30, "w": 2, "h": 2, "i": 1, "static": false },
+                        { "x": 36, "y": 28, "w": 1, "h": 2, "i": 2, "static": false },
+                        { "x": 36, "y": 30, "w": 1, "h": 2, "i": 3, "static": false }
+                    ],
+                    "lg": [
+                        { "x": 32, "y": 30, "w": 2, "h": 2, "i": 0, "static": false },
+                        { "x": 34, "y": 30, "w": 2, "h": 2, "i": 1, "static": false },
+                        { "x": 36, "y": 28, "w": 1, "h": 2, "i": 2, "static": false },
+                        { "x": 36, "y": 30, "w": 1, "h": 2, "i": 3, "static": false }
+                    ]
+                },
+                "interjections": [
+                    {
+                        "method": "matrixSelfMultiplication",
+                        "dependencies": { "baseMatrix": "nodes__7__components__0", "n": "taskData__longestPath" },
+                        "applied": false
+                    }
+                ],
+                "components": {
+                    "0": {
+                        "name": "Direktbedarfsmatrix",
+                        "type": "Matrix",
+                        "isValid": true,
+                        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
+                        "methods": { "copyToClipboard": "Kopieren" },
+                        "component": {
+                            "initialize": {
+                                "validation": {
+                                    "operations": [],
+                                    "paths": ["taskData__adjacencyMatrix"]
+                                },
+                                "user": {
+                                    "operations": [],
+                                    "paths": ["taskData__adjacencyMatrix"]
+                                }
+                            },
+                            "userData": null,
+                            "validationData": null,
+                            "readOnly": true,
+                            "rowLabel": "taskData__labelVector",
+                            "columnLabel": "taskData__labelVector"
+                        }
+                    },
+                    "1": {
+                        "name": "Einheitsmatrix",
+                        "type": "Matrix",
+                        "isValid": true,
+                        "dependencies": { "Matrix": { "data": "taskData__adjacencyMatrix" } },
+                        "methods": { "copyToClipboard": "Kopieren" },
+                        "component": {
+                            "initialize": {
+                                "validation": {
+                                    "operations": [{ "name": "getIdentity", "args": [null] }],
+                                    "paths": ["taskData__adjacencyMatrix"]
+                                },
+                                "user": {
+                                    "operations": [{ "name": "getIdentity", "args": [null] }],
+                                    "paths": ["taskData__adjacencyMatrix"]
+                                }
+                            },
+                            "userData": null,
+                            "validationData": null,
+                            "readOnly": true,
+                            "rowLabel": "taskData__labelVector",
+                            "columnLabel": "taskData__labelVector"
+                        }
+                    },
+                    "2": {
+                        "name": "Primärbedarfsvektor",
+                        "type": "Matrix",
+                        "isValid": true,
+                        "dependencies": { "Matrix": { "data": "taskData__valueVector", "label": "taskData__labelVector" } },
+                        "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
+                        "component": {
+                            "initialize": {
+                                "validation": {
+                                    "operations": [],
+                                    "paths": ["taskData__valueVector"]
+                                },
+                                "user": {
+                                    "operations": [],
+                                    "paths": ["taskData__valueVector"]
+                                }
+                            },
+                            "userData": null,
+                            "validationData": null,
+                            "readOnly": true,
+                            "rowLabel": "taskData__labelVector",
+                            "columnLabel": ""
+                        }
+                    },
+                    "3": {
+                        "name": "Sekundärbedarfsvektor",
+                        "type": "Matrix",
+                        "isValid": false,
+                        "dependencies": { "Matrix": { "data": "taskData__valueVector", "label": "taskData__labelVector" } },
+                        "methods": { "fillZeros": "Ergänze Nullen", "showSolution": "Zeige Lösung", "copyToClipboard": "Kopieren" },
+                        "component": {
+                            "initialize": {
+                                "validation": {
+                                    "operations": [],
+                                    "paths": ["taskData__solution"]
+                                },
+                                "user": {
+                                    "operations": [{ "name": "getValueInitializedMatrix", "args": [null] }],
+                                    "paths": ["taskData__valueVector"]
                                 }
                             },
                             "userData": null,
@@ -536,11 +715,11 @@
                             "initialize": {
                                 "validation": {
                                     "operations": [],
-                                    "matrix1Path": "taskData__valueVector"
+                                    "paths": ["taskData__valueVector"]
                                 },
                                 "user": {
                                     "operations": [],
-                                    "matrix1Path": "taskData__valueVector"
+                                    "paths": ["taskData__valueVector"]
                                 }
                             },
                             "userData": null,
@@ -551,7 +730,7 @@
                         }
                     },
                     "3": {
-                        "name": "Primärbedarfsvektor",
+                        "name": "Sekundärbedarfsvektor",
                         "type": "Matrix",
                         "isValid": false,
                         "dependencies": { "Matrix": { "data": "taskData__valueVector", "label": "taskData__labelVector" } },
@@ -560,11 +739,11 @@
                             "initialize": {
                                 "validation": {
                                     "operations": [],
-                                    "matrix1Path": "taskData__valueVector"
+                                    "paths": ["taskData__solution"]
                                 },
                                 "user": {
                                     "operations": [{ "name": "getValueInitializedMatrix", "args": [null] }],
-                                    "matrix1Path": "taskData__valueVector"
+                                    "paths": ["taskData__valueVector"]
                                 }
                             },
                             "userData": null,

@@ -3,8 +3,7 @@ import { Matrix } from "@/helpers/LinearAlgebra";
 
 interface IMatrixInstruction {
   operations: Array<string>;
-  matrix1Path: string;
-  matrix2Path?: string | null;
+  paths: Array<string>;
 }
 
 interface IMatrixComponent extends IComponent {
