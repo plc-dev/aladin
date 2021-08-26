@@ -30,7 +30,6 @@ export default {
       const edges: { [id: number]: Array<number> } = getProperty("edges");
 
       const previousId = Object.entries(edges).reduce((previousId, [nodeId, toIds]) => {
-        console.error(to, toIds, toIds.includes(to));
         if (toIds.includes(to)) previousId = parseInt(nodeId);
         return previousId;
       }, -1);

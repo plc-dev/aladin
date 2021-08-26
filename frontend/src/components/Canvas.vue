@@ -97,9 +97,10 @@ export default {
   setup(props) {
     const { getProperty, setProperty, store } = props.storeObject;
     const currentNode = computed(() => getProperty("currentNode"));
-    const interjections = getProperty(`nodes__${currentNode.value}__interjections`) || [];
+    const interjectionPath = `nodes__${currentNode.value}__interjections`;
+    const interjections = getProperty(interjectionPath) || [];
     // handle dynamic UI-elements which depend on the data generated at runtime
-    interjectionHandler(props.storeObject, interjections);
+    interjectionHandler(props.storeObject, interjections, interjectionPath);
 
     const columnAmount = 60;
     const rowHeight = 10000 / columnAmount;

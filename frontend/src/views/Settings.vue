@@ -15,7 +15,7 @@
 <script lang="ts">
 import Equation from "@/components/taskComponents/math/Equation.vue";
 import Modal from "@/components/Modal.vue";
-import { mathlex } from "@/helpers/FormulaGenerator";
+import { mathlex } from "@/interjections/FormulaGenerator";
 
 export default {
   name: "Settings",

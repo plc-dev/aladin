@@ -41,4 +41,16 @@ const delay = (label: string, callback: Function, time: number = 500) => {
   }, time);
 };
 
-export { isEqualArrayContent, delay };
+/** creates a throttled version of the passed Function with a default of 50 ms */
+const throttle = (func: Function, timeFrame: number = 50) => {
+  let lastTime = 0;
+  return function () {
+    let now = Date.now();
+    if (now - lastTime >= timeFrame) {
+      func();
+      lastTime = now;
+    }
+  };
+};
+
+export { isEqualArrayContent, delay, throttle };

@@ -408,6 +408,21 @@
                         { "x": 34, "y": 31, "w": 1, "h": 2, "i": 2, "static": false }
                     ]
                 },
+                "modals": [
+                    {
+                        "type": "success",
+                        "trigger": {
+                            "type": "completion",
+                            "component": "nodes__5__components__2__userData"
+                        },
+                        "content": {
+                            "header": "",
+                            "body": "",
+                            "footer": ""
+                        },
+                        "active": false
+                    }
+                ],
                 "components": {
                     "0": {
                         "name": "Inverse Matrix",

@@ -1,3 +1,6 @@
+import { IStore } from "@/helpers/TaskGraphUtility";
+import { IFormulaGenerator } from "@/interfaces/interjectionInterfaces/formulaGeneratorInterface";
+
 const mathlex = window.MathLex;
 
 // const syntaxTree = mathlex.parse("z = sum(v_i/w_i^p,i)/sum(1/w_i^p ,i)");
@@ -14,7 +17,25 @@ interface IExpressionHandler {
   [key: string]: Function;
 }
 
-const formulaGenerator = (formula: string, variableTable: IVariableTable, texFormula: string = "") => {
+// TODO restructure without relying on global variable
+var decimals = 2;
+const roundValue = (value: any) => parseFloat(parseFloat((value as unknown) as string).toFixed(decimals));
+
+const formulaGenerator = (storeObject: IStore, dependencies: IFormulaGenerator["dependencies"], component_id: string = "0") => {
+  const { getProperty, setProperty } = storeObject;
+  const currentNode = getProperty(`currentNode`);
+
+  decimals = getProperty(dependencies.decimals);
+  const formula = getProperty(dependencies.formula) || "";
+  const texFormula = getProperty(dependencies.texFormula) || "";
+  const variableTable: IVariableTable = Object.entries(getProperty(dependencies.variables)).reduce(
+    (variableTable, [variableName, variablePath]) => {
+      variableTable[variableName] = getProperty(variablePath);
+      return variableTable;
+    },
+    {}
+  );
+
   const abstractSyntaxTree = mathlex.parse(formula);
   const tex = mathlex.parse(texFormula);
   const latex = mathlex.render(tex, "latex");
@@ -22,14 +43,23 @@ const formulaGenerator = (formula: string, variableTable: IVariableTable, texFor
   const ast = ASTParser(abstractSyntaxTree, variableTable);
   const aladin = replaceVariables(ast, variableTable);
 
-  return { latex, sage, abstractSyntaxTree, aladin };
+  setProperty({ path: `nodes__${currentNode}__components__${component_id}__component__tex`, value: latex });
+  setProperty({ path: `nodes__${currentNode}__components__${component_id}__component__sage`, value: sage });
+  setProperty({ path: `nodes__${currentNode}__components__${component_id}__component__aladinAST`, value: aladin });
+  setProperty({ path: `nodes__${currentNode}__components__${component_id}__component__AST`, value: ast });
 };
 
 const replaceVariables = (subtree: IParsedTree, variableTable: IVariableTable, index: number = null) => {
   const keys = Object.keys(subtree);
   if (keys.includes("type") && subtree.type === "variable") {
-    const value = subtree.index ? variableTable[subtree.name][index] : variableTable[subtree.name];
-    subtree = [{ type: "scalar", value }];
+    let value;
+    if (subtree.index) {
+      value = variableTable[subtree.name][index];
+      subtree = [{ type: "scalar", value: roundValue(value), userValue: "", valueType: "variable" }];
+    } else {
+      value = variableTable[subtree.name];
+      subtree = [{ type: "scalar", value: roundValue(value), userValue: "", valueType: "variableConstant" }];
+    }
   }
   const extractNested = (keys: Array<string>): IParsedTree | null => {
     const nestedKeys = ["slots", "terms", "rightTerm", "leftTerm"];
@@ -55,7 +85,15 @@ const replaceVariables = (subtree: IParsedTree, variableTable: IVariableTable, i
 // ExpressionHandlers
 const negativeHandler = (operator: string, leftSubtree: IParsedTree, rightSubtree: IParsedTree) => {
   // TODO: handle case when Negative wraps non-scalar
-  return [{ type: "scalar", value: `(- ${leftSubtree})`, datatype: rightSubtree }];
+  return [
+    {
+      type: "scalar",
+      value: `(- ${roundValue(leftSubtree)})`,
+      datatype: rightSubtree,
+      userValue: "",
+      valueType: "constant",
+    },
+  ];
 };
 const exponentHandler = (operator: string, leftSubtree: IParsedTree, rightSubtree: IParsedTree) => {
   return [
@@ -198,7 +236,9 @@ const ASTParser = (abstractSyntaxTree: AbstractSyntaxTree, variableTable: IVaria
   let [operation, operand1, operand2] = abstractSyntaxTree;
 
   if (typeof operand1 === "string") {
-    if (operation === "Literal") return [{ type: "scalar", value: operand2, datatype: operand1 }];
+    if (operation === "Literal") {
+      return [{ type: "scalar", value: roundValue(operand2), datatype: operand1, userValue: "", valueType: "constant" }];
+    }
     if (operation === "Variable") return [{ type: "variable", name: operand1 }];
   }
   if (operation === "Function") {

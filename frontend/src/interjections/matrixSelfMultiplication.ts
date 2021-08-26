@@ -3,7 +3,11 @@ import { ILayouts, IComponent } from "@/interfaces/TaskGraphInterface";
 import { IMatrixSelfMultiplication } from "@/interfaces/interjectionInterfaces/matrixSelfMultiplicationInterface";
 import { getCurrentTaskNode } from "@/interjections/interjectionHandler";
 
-export const matrixSelfMultiplication = (storeObject: IStore, dependencies: IMatrixSelfMultiplication["dependencies"]) => {
+export const matrixSelfMultiplication = (
+  storeObject: IStore,
+  dependencies: IMatrixSelfMultiplication["dependencies"],
+  component_id: string = ""
+) => {
   const { getProperty, setProperty, store } = storeObject;
 
   const taskNode = getCurrentTaskNode(storeObject);

@@ -1,5 +1,5 @@
 <template>
-  <div class="hint" v-if="hints.descriptions.length">
+  <div class="hint" v-if="hints.descriptions.length" @clickout="closeHandler">
     <img class="lightBulb off" :src="lightBulbSource" @click="lightSwitch" />
 
     <div class="hintText closed">
@@ -18,7 +18,7 @@ import { ref, computed } from "vue";
 
 export default {
   name: "Hint",
-  props: { componentID: Number, storeObject: Object },
+  props: { storeObject: Object },
   setup(props) {
     const { store, getProperty, setProperty } = props.storeObject;
     const currentNode = store.state.currentNode;
@@ -63,11 +63,18 @@ export default {
       setProperty({ path: `nodes__${currentNode}__hints__current`, value: newHintIndex });
     };
 
+    const closeHandler = () => {
+      document.querySelector(".lightBulb.on").classList.remove("on");
+      document.querySelector(".hintText").classList.add("closed");
+      lightBulbSource.value = "/img/lightbulb.png";
+    };
+
     return {
       hints,
       lightBulbSource,
       lightSwitch,
       hintHandler,
+      closeHandler,
     };
   },
 };

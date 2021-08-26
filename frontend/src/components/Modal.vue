@@ -1,40 +1,36 @@
 <template>
-  <div class="modal" @clickout="closeHandler" v-if="showModal">
+  <div class="modal" @clickout="closeHandler" v-if="modal.active">
     <div class="closeModal" @click="closeHandler">X</div>
-    <div class="modal__header">
-      <slot name="header">Insert Header here</slot>
-    </div>
-    <div class="modal__body">
-      <slot name="body">Insert Body here</slot>
-    </div>
+    <div class="modal__header"></div>
+    <div class="modal__body"></div>
     <div class="modal__footer">
-      <slot name="footer">
-        <Button :label="'Ok'" />
-      </slot>
+      <Button v-for="(button, i) in modal.content.footer" :key="i" :label="button.label" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { ref } from "vue";
+import { computed } from "vue";
 import Button from "@/components/Button.vue";
 
 export default {
   name: "Modal",
-  props: {
-    show: Boolean,
-  },
+  props: { storeObject: Object, modalIndex: Number },
   components: {
     Button,
   },
   setup(props) {
-    let showModal = ref(props.show);
+    const { store, getProperty, setProperty } = props.storeObject;
+    const currentNode = store.state.currentNode;
+
+    const modalPath = `nodes__${currentNode}__modals__${props.modalIndex}`;
+    const modal = computed(() => getProperty(modalPath));
 
     const closeHandler = () => {
-      showModal.value = false;
+      setProperty({ path: `${modalPath}__active`, value: !modal.value.active });
     };
 
-    return { closeHandler, showModal };
+    return { closeHandler, modal };
   },
 };
 </script>
