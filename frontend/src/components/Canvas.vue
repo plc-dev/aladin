@@ -52,6 +52,7 @@ import { interjectionHandler } from "@/interjections/interjectionHandler";
 import MiniMap from "@/components/MiniMap.vue";
 import Navigation from "@/components/Navigation.vue";
 import Hint from "@/components/Hint.vue";
+import TextArea from "@/components/TextArea.vue";
 
 import Matrix from "@/components/taskComponents/Matrix.vue";
 import DOTGraph from "@/components/taskComponents/DOTGraph.vue";
@@ -90,6 +91,7 @@ export default {
     TexDisplay,
     DijkstraTable,
     DijkstraGraph,
+    TextArea,
   },
   props: {
     storeObject: Object,
