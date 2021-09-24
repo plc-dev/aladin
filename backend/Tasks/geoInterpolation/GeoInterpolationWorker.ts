@@ -1,5 +1,5 @@
 const NoiseGenerator = require("simplex-noise");
-import { RNG, randomSample } from "../helpers/NumberGenerators";
+import { RNG, randomSample } from "../../helpers/NumberGenerators";
 
 const generateNoise = (gridX: number, gridY: number, scale: number, seed: number): Array<Array<number>> => {
     const noiseGenerator = new NoiseGenerator(seed);

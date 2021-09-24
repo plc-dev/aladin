@@ -1,5 +1,11 @@
 import amqp from "amqplib";
 
+const asyncSleep = async (fn: Function, timeOut: number = 2000): Promise<any> => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(fn()), timeOut);
+    });
+};
+
 export class BrokerConnection {
     private connection: amqp.Connection;
     private connectionAttempts: number = 50;
@@ -12,11 +18,11 @@ export class BrokerConnection {
             return await this.connection.createChannel();
         } catch (error) {
             if (this.connectionAttempts) {
-                setTimeout(() => {
-                    this.establishConnection();
-                }, 2000);
+                this.connectionAttempts--;
+                return await asyncSleep(this.establishConnection);
+            } else {
+                throw new Error(error);
             }
-            this.connectionAttempts--;
         }
     }
 

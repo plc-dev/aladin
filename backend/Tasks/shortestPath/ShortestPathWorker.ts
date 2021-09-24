@@ -1,4 +1,4 @@
-import { RNG, randomSample } from "../helpers/NumberGenerators";
+import { RNG, randomSample } from "../../helpers/NumberGenerators";
 
 const combinations = (values: Array<any>, combinationLength: number = 2) => {
     const combinations: Array<Array<any>> = [];

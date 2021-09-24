@@ -18,7 +18,7 @@ export default {
     const value = computed(() => getProperty(path));
 
     const update = (event) => {
-      const textarea: HTMLElement = event.currentTarget;
+      const textarea: HTMLInputElement = event.currentTarget;
       setProperty({ path, value: textarea.value });
     };
 

@@ -1,6 +1,6 @@
-import { RNG, randomSample, minMaxScaler } from "../helpers/NumberGenerators";
+import { RNG, randomSample, minMaxScaler } from "../../helpers/NumberGenerators";
 import { graphviz } from "@hpcc-js/wasm";
-import { generateMatrix } from "../helpers/DataStructures";
+import { generateMatrix } from "../../helpers/DataStructures";
 
 const combinations = (values: Array<any>, combinationLength: number = 2) => {
     const combinations: Array<Array<any>> = [];

@@ -72,3 +72,9 @@ export function randomSample<T>(iterable: Iterable<T>, n: number, replace?: bool
 export function minMaxScaler(measurementMin: number, measurementMax: number, targetMin: number, targetMax: number): Function {
     return (value: number): number => ((value - measurementMin) / (measurementMax - measurementMin)) * (targetMax - targetMin) + targetMin;
 }
+
+export function range(min: number, max: number) {
+    return Array(max - min)
+        .fill(0)
+        .map((e) => min++);
+}

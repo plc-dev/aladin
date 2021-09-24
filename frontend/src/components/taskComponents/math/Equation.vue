@@ -45,7 +45,7 @@ export default {
     watch(
       aladinAST,
       () => {
-        validate();
+        setTimeout(validate, 50);
       },
       { deep: true }
     );

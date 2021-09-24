@@ -3,33 +3,32 @@ const path = require("path");
 import { Router } from "express";
 
 function readTasks(dir: string) {
-    const tasks: { [key: string]: { API: object; Worker: object; UI: { [key: string]: object } } } = {};
+    const tasks: { [key: string]: { API: object; Worker: object; UI: { [key: string]: object }; name: string } } = {};
     fs.readdirSync(dir).forEach((filename: string) => {
         const name: string = path.parse(filename).name.toLowerCase();
         const filepath = path.resolve(dir, filename);
-        console.log(filepath);
-        const task: { API: object; Worker: object; UI: { [key: string]: object } } = JSON.parse(fs.readFileSync(filepath));
+        const task: { API: object; Worker: object; UI: { [key: string]: object }; name: string } = JSON.parse(fs.readFileSync(filepath));
+        task["name"] = path.parse(filename).name;
         tasks[name] = task;
     });
     return tasks;
 }
 
-const tasks: { [key: string]: { API: object; Worker: object; UI: { [key: string]: any } } } = readTasks(
+const tasks: { [key: string]: { API: object; Worker: object; UI: { [key: string]: any }; name: string } } = readTasks(
     `${__dirname}/../tempTaskGraphStorage/tasks`
 );
 
-const taskParts = Object.entries(tasks).reduce(
+export const taskParts = Object.entries(tasks).reduce(
     (taskParts, [name, task]) => {
-        taskParts.API.push(task.API);
+        const api = task.API as Array<any>;
+        taskParts.API = [...taskParts.API, ...api];
         taskParts.Worker = { ...taskParts.Worker, ...task.Worker };
-        taskParts.UI[name] = task.API;
         return taskParts;
     },
-    ({
+    {
         API: [],
         Worker: [],
-        UI: {},
-    } as unknown) as { API: any[]; Worker: object; UI: { [key: string]: any } }
+    } as unknown as { API: any[]; Worker: object }
 );
 
 export const taskGraph = (router: Router) => {
@@ -37,6 +36,24 @@ export const taskGraph = (router: Router) => {
         try {
             const task = req.body.task.toLowerCase();
             res.status(200).json(JSON.stringify(tasks[task]));
+        } catch (error) {
+            res.status(400).json(JSON.stringify(error));
+        }
+    });
+
+    router.post("/fetchTasks", async (req, res) => {
+        try {
+            const names = Object.values(tasks).map((task) => task.name);
+            res.status(200).json(JSON.stringify(names));
+        } catch (error) {
+            res.status(400).json(JSON.stringify(error));
+        }
+    });
+
+    router.post("/fetchWorkerConfig", async (req, res) => {
+        try {
+            const workerConfigs = taskParts.Worker;
+            res.status(200).json(JSON.stringify(workerConfigs));
         } catch (error) {
             res.status(400).json(JSON.stringify(error));
         }

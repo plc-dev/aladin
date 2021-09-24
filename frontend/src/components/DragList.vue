@@ -63,7 +63,7 @@ export default {
     //       },
     //     });
 
-    const drag = ref(false);
+    const drag = ref(true);
     const enabled = ref(true);
 
     const dragOptions = {

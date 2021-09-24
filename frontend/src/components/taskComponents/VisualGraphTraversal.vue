@@ -19,8 +19,8 @@ export default {
     // TODO refactor component and remove implicit side effects/pass arguments explicitly
 
     const { getProperty, setProperty } = props.storeObject;
-    const currentNode = computed(() => getProperty("currentNode"));
-    const path = `nodes__${currentNode.value}__components__${props.componentID}`;
+    const currentNode = getProperty("currentNode");
+    const path = `nodes__${currentNode}__components__${props.componentID}`;
 
     const dependencies = getProperty(`${path}__dependencies`);
     const dependency = computed(() => {
@@ -67,7 +67,8 @@ export default {
     let currentPaths = [];
     let completedCount = 0;
     const handleSelectedPath = (event) => {
-      const { nodes, paths, reoccurringEdges, reverseEdges } = dependency.value;
+      const { paths, reoccurringEdges, reverseEdges } = dependency.value;
+      let nodes = Object.values(dependency.value.nodes) as Array<any>;
       const edge = event.currentTarget;
       const { complete, parentNode, childNode, weight } = unwrapEdgeElement(edge);
 

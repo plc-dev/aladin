@@ -14,7 +14,7 @@
         },
         {
             "task": "sql",
-            "name": "importDatabase",
+            "name": "generateERD",
             "httpMethod": "post",
             "params": { "parameters": "object" }
         }
@@ -61,6 +61,31 @@
                         { "x": 36, "y": 31, "w": 2, "h": 2, "i": 4, "static": false }
                     ]
                 },
+                "hints": {
+                    "active": false,
+                    "current": 0,
+                    "descriptions": [
+                        "Generiere eine beliebige SQL-Abfrage. <br>Ermittle nun anhand der Aufgabenstellung und des Datenbankdiagramms die nötigen Felder, Tabellen und Joins um die Abfrage zu bilden. <br>Trage das Statement in das Code-Widget ein und klicke auf 'Ausführen' um das Ergebnis zu überprüfen."
+                    ]
+                },
+                "modals": [
+                    {
+                        "trigger": {
+                            "type": "success"
+                        },
+                        "content": {
+                            "header": "Herzlichen Glückwunsch!",
+                            "body": "Sie haben die Aufgabe erfolgreich gelöst!",
+                            "footer": {
+                                "buttons": [
+                                    { "type": "close", "label": "Zurück", "parameters": {} },
+                                    { "type": "route", "label": "Zur Übersicht", "parameters": { "route": "TaskOverview" } }
+                                ]
+                            }
+                        },
+                        "active": false
+                    }
+                ],
                 "components": {
                     "0": {
                         "type": "DOTGraph",
@@ -80,16 +105,7 @@
                                     "instruction": "generateQuery",
                                     "type": "fetchData",
                                     "label": "Generieren!",
-                                    "dependsOn": [
-                                        "schema",
-                                        "joinRange",
-                                        "columnRange",
-                                        "constraintRange",
-                                        "allowAggregates",
-                                        "forceHavingClause",
-                                        "orderBy",
-                                        "seed"
-                                    ]
+                                    "dependsOn": ["joinRange", "columnRange", "constraintRange"]
                                 }
                             ],
                             "form": {
@@ -97,16 +113,9 @@
                                     "formType": "DropdownFormField",
                                     "label": "Datenbank",
                                     "type": "string",
+                                    "description": "Zur Verfügung stehende Datenbanken",
                                     "initial": "northwind",
-                                    "options": [
-                                        "northwind",
-                                        "northwinds",
-                                        "northwinde",
-                                        "northwinda",
-                                        "northwindy",
-                                        "northwindq",
-                                        "northwinde"
-                                    ],
+                                    "options": ["northwind"],
                                     "presets": {
                                         "easy": "northwind",
                                         "medium": "northwind",
@@ -117,10 +126,12 @@
                                     "formType": "RangeFormField",
                                     "label": "Anzahl Joins",
                                     "type": "number",
+                                    "description": "Bestimmt die Anzahl an Joins",
                                     "initial": {
                                         "lowerValue": 0,
                                         "upperValue": 2
                                     },
+                                    "step": 1,
                                     "boundaries": { "min": 0, "max": 5 },
                                     "presets": {
                                         "easy": 0,
@@ -132,10 +143,12 @@
                                     "formType": "RangeFormField",
                                     "label": "Anzahl Spalten",
                                     "type": "number",
+                                    "description": "Bestimmt die Anzahl an Spalten",
                                     "initial": {
                                         "lowerValue": 1,
                                         "upperValue": 4
                                     },
+                                    "step": 1,
                                     "boundaries": { "min": 1, "max": 5 },
                                     "presets": {
                                         "easy": 1,
@@ -147,10 +160,12 @@
                                     "formType": "RangeFormField",
                                     "label": "Anzahl Bedingungen",
                                     "type": "number",
+                                    "description": "Bestimmt die Anzahl an Bedingungen",
                                     "initial": {
                                         "lowerValue": 0,
                                         "upperValue": 3
                                     },
+                                    "step": 1,
                                     "boundaries": { "min": 0, "max": 6 },
                                     "presets": {
                                         "easy": 0,
@@ -162,6 +177,7 @@
                                     "formType": "CheckboxFormField",
                                     "label": "Aggregat",
                                     "type": "checkbox",
+                                    "description": "Bestimmt ob Aggregationen generiert werden",
                                     "initial": false,
                                     "presets": {
                                         "easy": false,
@@ -173,6 +189,7 @@
                                     "formType": "CheckboxFormField",
                                     "label": "Having-Clause",
                                     "type": "checkbox",
+                                    "description": "Bestimmt ob eine Having Clause generiert wird",
                                     "initial": false,
                                     "presets": {
                                         "easy": false,
@@ -184,6 +201,7 @@
                                     "formType": "CheckboxFormField",
                                     "label": "OrderBy",
                                     "type": "checkbox",
+                                    "description": "Bestimmt ob ein Order By Statement generiert wird",
                                     "initial": true,
                                     "presets": {
                                         "easy": true,
@@ -195,6 +213,7 @@
                                     "formType": "ValueFormField",
                                     "label": "Seed",
                                     "type": "text",
+                                    "description": "Setze einen beliebigen Wert um die Generierung deterministisch und reproduzierbar zu machen",
                                     "value": "",
                                     "presets": {
                                         "easy": "",
@@ -235,7 +254,9 @@
                         "type": "Output",
                         "name": "SQL-Output",
                         "isValid": false,
-                        "dependencies": { "Output": { "serverOutput": "taskData__userResult", "validOutput": "isMatchingResult" } },
+                        "dependencies": {
+                            "Output": { "serverOutput": "taskData__userResult", "validOutput": "taskData__isMatchingResult" }
+                        },
                         "component": {
                             "header": "SQL-Rückgabe"
                         }

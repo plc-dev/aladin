@@ -64,6 +64,7 @@ export default {
     };
 
     const closeHandler = () => {
+      if (!document.querySelector(".lightBulb.on")) return;
       document.querySelector(".lightBulb.on").classList.remove("on");
       document.querySelector(".hintText").classList.add("closed");
       lightBulbSource.value = "/img/lightbulb.png";

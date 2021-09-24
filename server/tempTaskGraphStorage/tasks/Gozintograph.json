@@ -1,17 +1,21 @@
 {
-    "API": {
-        "task": "gozintograph",
-        "name": "generateGraph",
-        "httpMethod": "post",
-        "params": { "parameters": "object" }
-    },
+    "API": [
+        {
+            "task": "gozintograph",
+            "name": "generateGraph",
+            "httpMethod": "post",
+            "params": {
+                "parameters": "object"
+            }
+        }
+    ],
     "Worker": {
-        "gozintoGraphTask": {
+        "gozintographTask": {
             "minConsumers": 1,
             "consumerInstructions": {
                 "generateGraph": {
-                    "dependencies": ["GozintographGenerator"],
-                    "body": "async (taskDescription) => { const g = new GozintographGenerator(taskDescription.parameters); return g.generateGraph();}"
+                    "dependencies": ["GozintographTaskGenerator"],
+                    "body": "async (taskDescription) => {let result = {};try { const g = new GozintographTaskGenerator();  result = g.generateTask(taskDescription.parameters); } catch (error) { console.error(error); result = error;} return result; }"
                 }
             }
         }
@@ -90,30 +94,30 @@
                                     "instruction": "generateGraph",
                                     "type": "fetchData",
                                     "label": "Generieren!",
-                                    "dependsOn": ["depth", "weight", "width", "value", "edgeDensity"]
+                                    "dependsOn": ["nodeAmount", "edgeWeightRange", "nodeValueRange", "edgeDensity"]
                                 }
                             ],
                             "form": {
-                                "depth": {
-                                    "formType": "RangeFormField",
+                                "nodeAmount": {
+                                    "formType": "ValueFormField",
                                     "label": "Graphentiefe",
                                     "type": "number",
-                                    "initial": {
-                                        "lowerValue": 2,
-                                        "upperValue": 4
-                                    },
-                                    "boundaries": { "min": 1, "max": 10 },
                                     "step": 1,
+                                    "boundaries": { "min": 5, "max": 30 },
+                                    "description": "Setze einen beliebigen Wert um die Generierung deterministisch und reproduzierbar zu machen",
+                                    "value": 10,
+                                    "validate": false,
                                     "presets": {
-                                        "easy": 2,
-                                        "medium": 3,
-                                        "hard": 5
+                                        "easy": 5,
+                                        "medium": 10,
+                                        "hard": 20
                                     }
                                 },
-                                "weight": {
+                                "edgeWeightRange": {
                                     "formType": "RangeFormField",
-                                    "label": "Graphengewichte",
+                                    "label": "Kantengewichte",
                                     "type": "number",
+                                    "description": "Bestimmt den Wertebereich der Kantengewichte",
                                     "boundaries": { "min": 1, "max": 200 },
                                     "step": 1,
                                     "initial": {
@@ -126,25 +130,11 @@
                                         "hard": 5
                                     }
                                 },
-                                "width": {
-                                    "formType": "RangeFormField",
-                                    "label": "Graphenbreite",
-                                    "type": "number",
-                                    "boundaries": { "min": 1, "max": 10 },
-                                    "initial": {
-                                        "lowerValue": 2,
-                                        "upperValue": 4
-                                    },
-                                    "presets": {
-                                        "easy": 2,
-                                        "medium": 3,
-                                        "hard": 5
-                                    }
-                                },
-                                "value": {
+                                "nodeValueRange": {
                                     "formType": "RangeFormField",
                                     "label": "Knotenwerte",
                                     "type": "number",
+                                    "description": "Bestimmt den Wertebereich der Knotenwerte",
                                     "boundaries": { "min": 1, "max": 200 },
                                     "step": 1,
                                     "initial": {
@@ -158,19 +148,31 @@
                                     }
                                 },
                                 "edgeDensity": {
-                                    "formType": "RangeFormField",
+                                    "formType": "ValueFormField",
                                     "label": "Kantendichte",
                                     "type": "number",
                                     "step": 0.01,
                                     "boundaries": { "min": 0, "max": 1 },
-                                    "initial": {
-                                        "lowerValue": 0.2,
-                                        "upperValue": 0.2
-                                    },
+                                    "description": "Setze einen beliebigen Wert um die Generierung deterministisch und reproduzierbar zu machen",
+                                    "value": 0.3,
+                                    "validate": false,
                                     "presets": {
-                                        "easy": 2,
-                                        "medium": 3,
-                                        "hard": 5
+                                        "easy": 0.2,
+                                        "medium": 0.3,
+                                        "hard": 0.5
+                                    }
+                                },
+                                "seed": {
+                                    "formType": "ValueFormField",
+                                    "label": "Seed",
+                                    "type": "text",
+                                    "description": "Setze einen beliebigen Wert um die Generierung deterministisch und reproduzierbar zu machen",
+                                    "value": "",
+                                    "validate": false,
+                                    "presets": {
+                                        "easy": "",
+                                        "medium": "",
+                                        "hard": ""
                                     }
                                 }
                             }
@@ -205,6 +207,13 @@
                     "lg": [
                         { "x": 32, "y": 30, "w": 2, "h": 2, "i": 0, "static": false },
                         { "x": 34, "y": 30, "w": 2, "h": 2, "i": 1, "static": false }
+                    ]
+                },
+                "hints": {
+                    "active": false,
+                    "current": 0,
+                    "descriptions": [
+                        "Lese zunächst die Direktbedarfsmatrix aus dem Graphen ab. Diese entspricht der <a target=\"_blank\" href=\"https://de.wikipedia.org/wiki/Adjazenzmatrix\">Adjazenzmatrix</a>."
                     ]
                 },
                 "components": {
@@ -252,6 +261,11 @@
                         { "x": 32, "y": 30, "w": 2, "h": 2, "i": 1, "static": false },
                         { "x": 36, "y": 30, "w": 2, "h": 2, "i": 2, "static": false }
                     ]
+                },
+                "hints": {
+                    "active": false,
+                    "current": 0,
+                    "descriptions": ["Bilde nun die Differenz aus der Einheitsmatrix und der Adjazenzmatrix."]
                 },
                 "components": {
                     "0": {
@@ -342,6 +356,11 @@
                         { "x": 34, "y": 30, "w": 2, "h": 2, "i": 1, "static": false }
                     ]
                 },
+                "hints": {
+                    "active": false,
+                    "current": 0,
+                    "descriptions": ["In diesem Schritt muss das Inverse der zuvor berechneten Matrix gebildet werden."]
+                },
                 "components": {
                     "0": {
                         "name": "Ergebnis",
@@ -408,17 +427,27 @@
                         { "x": 34, "y": 31, "w": 1, "h": 2, "i": 2, "static": false }
                     ]
                 },
+                "hints": {
+                    "active": false,
+                    "current": 0,
+                    "descriptions": [
+                        "Zuletzt wird die Gesamtbedarfsmatrix mit dem Primärbedarfsvektor multipliziert um den Sekundärbedarfsvektor zu bilden."
+                    ]
+                },
                 "modals": [
                     {
-                        "type": "success",
                         "trigger": {
-                            "type": "completion",
-                            "component": "nodes__5__components__2__userData"
+                            "type": "success"
                         },
                         "content": {
-                            "header": "",
-                            "body": "",
-                            "footer": ""
+                            "header": "Herzlichen Glückwunsch!",
+                            "body": "Sie haben die Aufgabe erfolgreich gelöst!",
+                            "footer": {
+                                "buttons": [
+                                    { "type": "close", "label": "Zurück", "parameters": {} },
+                                    { "type": "route", "label": "Zur Übersicht", "parameters": { "route": "TaskOverview" } }
+                                ]
+                            }
                         },
                         "active": false
                     }
@@ -511,6 +540,13 @@
                         { "x": 34, "y": 30, "w": 2, "h": 2, "i": 1, "static": false }
                     ]
                 },
+                "hints": {
+                    "active": false,
+                    "current": 0,
+                    "descriptions": [
+                        "Lese zunächst die Direktbedarfsmatrix aus dem Graphen ab. Diese entspricht der <a target=\"_blank\" href=\"https://de.wikipedia.org/wiki/Adjazenzmatrix\">Adjazenzmatrix</a>."
+                    ]
+                },
                 "components": {
                     "0": {
                         "name": "Direktbedarfsmatrix",
@@ -567,11 +603,36 @@
                         { "x": 36, "y": 30, "w": 1, "h": 2, "i": 3, "static": false }
                     ]
                 },
+                "hints": {
+                    "active": false,
+                    "current": 0,
+                    "descriptions": [
+                        "Multipliziere gegebenfalls die dargestellten Direktbedarfsmatrizen in Reihenfolge auf. Addiere anschließend die n'ten Direktbedarfsmatrizen mit der Einheitsmatrix, um die Gesamtbedarfsmatrix zu erhalten.<br> Multipliziere diese daraufhin mit dem Primärbedarfsvektor um den Sekundärbedarfsvektor zu erhalten."
+                    ]
+                },
                 "interjections": [
                     {
                         "method": "matrixSelfMultiplication",
                         "dependencies": { "baseMatrix": "nodes__7__components__0", "n": "taskData__longestPath" },
                         "applied": false
+                    }
+                ],
+                "modals": [
+                    {
+                        "trigger": {
+                            "type": "success"
+                        },
+                        "content": {
+                            "header": "Herzlichen Glückwunsch!",
+                            "body": "Sie haben die Aufgabe erfolgreich gelöst!",
+                            "footer": {
+                                "buttons": [
+                                    { "type": "close", "label": "Zurück", "parameters": {} },
+                                    { "type": "route", "label": "Zur Übersicht", "parameters": { "route": "TaskOverview" } }
+                                ]
+                            }
+                        },
+                        "active": false
                     }
                 ],
                 "components": {
@@ -686,6 +747,32 @@
                         { "x": 32, "y": 32, "w": 4, "h": 2, "i": 4, "static": false }
                     ]
                 },
+                "hints": {
+                    "active": false,
+                    "current": 0,
+                    "descriptions": [
+                        "Finde zunächst alle Pfade des Graphen, indem du die jeweiligen Kanten des Graphen anklickst. <br> Du hast alle Pfade gefunden, wenn alle Kanten grün sind.",
+                        "<br>Bilde nun die Zwischensummen für jeden Knoten, indem du entgegen der Kantenrichtung die Bedarfe mit den Kantengewichten multiplizierst. <br>Als Gedankenstütze kannst du die Zwischenprodukte innerhalb des Textfelds aufschreiben. <br> Übertrage zuletzt die errechneten Werte der jeweiligen Knoten in den Sekundärbedarfsvektor."
+                    ]
+                },
+                "modals": [
+                    {
+                        "trigger": {
+                            "type": "success"
+                        },
+                        "content": {
+                            "header": "Herzlichen Glückwunsch!",
+                            "body": "Sie haben die Aufgabe erfolgreich gelöst!",
+                            "footer": {
+                                "buttons": [
+                                    { "type": "close", "label": "Zurück", "parameters": {} },
+                                    { "type": "route", "label": "Zur Übersicht", "parameters": { "route": "TaskOverview" } }
+                                ]
+                            }
+                        },
+                        "active": false
+                    }
+                ],
                 "components": {
                     "0": {
                         "name": "Traversal",
@@ -712,7 +799,7 @@
                     "1": {
                         "type": "PathDisplay",
                         "name": "display",
-                        "isValid": false,
+                        "isValid": true,
                         "dependencies": {
                             "PathDisplay": {
                                 "selectedPaths": "nodes__8__components__0__component__selectedPaths",

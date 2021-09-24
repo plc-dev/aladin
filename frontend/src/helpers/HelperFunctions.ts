@@ -41,16 +41,46 @@ const delay = (label: string, callback: Function, time: number = 500) => {
   }, time);
 };
 
-/** creates a throttled version of the passed Function with a default of 50 ms */
-const throttle = (func: Function, timeFrame: number = 50) => {
-  let lastTime = 0;
-  return function () {
-    let now = Date.now();
-    if (now - lastTime >= timeFrame) {
-      func();
-      lastTime = now;
-    }
+/**
+ * throttle decorator/HOF
+ * use to limit high frequency events
+ * e.g. mousemove-event
+ */
+export function throttle(callback: Function, interval: number = 50) {
+  let enableHandler = true;
+  return function (...args) {
+    if (!enableHandler) return;
+
+    enableHandler = false;
+    callback.apply(this, args);
+    setTimeout(() => (enableHandler = true), interval);
   };
+}
+
+/**
+ * debounce decorator/HOF
+ * use to stop the handling of the event if there are too many events in a given interval
+ * e.g. key-events on autocomplete-fields
+ */
+export function debounce(callback: Function, interval: number = 150) {
+  let debounceTimeoutId;
+
+  return function (...args) {
+    clearTimeout(debounceTimeoutId);
+    debounceTimeoutId = setTimeout(() => callback.apply(this, args), interval);
+  };
+}
+
+const pollGraphRender = (selector, fn) => {
+  let nodes = document.querySelectorAll(selector);
+  const pollGraph = setInterval(() => {
+    nodes = document.querySelectorAll(selector);
+
+    if (nodes.length) {
+      clearInterval(pollGraph);
+      fn();
+    }
+  }, 500);
 };
 
-export { isEqualArrayContent, delay, throttle };
+export { isEqualArrayContent, delay, pollGraphRender };

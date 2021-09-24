@@ -11,6 +11,8 @@
 
 <script lang="ts">
 import { onMounted, ref } from "vue";
+import { evaluateValue } from "./validation";
+import { delay } from "@/helpers/HelperFunctions.ts";
 
 export default {
   name: "RangeFormField",
@@ -20,8 +22,18 @@ export default {
   },
   setup(props, { emit }) {
     const emitEvent = (event) => {
-      emit("updateElement", event);
+      delay(
+        "formFill",
+        () => {
+          evaluateValue(props);
+          emit("updateElement", event);
+        },
+        500
+      );
     };
+    onMounted(() => {
+      evaluateValue(props);
+    });
 
     return { emitEvent };
   },

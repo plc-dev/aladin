@@ -3,7 +3,14 @@ import { reactive } from "vue";
 import axios from "axios";
 
 const state: IState = {
-  taskList: reactive([{ name: "Gozintograph" }, { name: "SQL" }, { name: "GeoInterpolation" }, { name: "ShortestPath" }]),
+  taskList: reactive([
+    { name: "Gozintograph" },
+    { name: "SQL" },
+    { name: "GeoInterpolation" },
+    { name: "ShortestPath" },
+    { name: "EPK" },
+    { name: "Scheduling" },
+  ]),
 };
 const mutations = {};
 const actions = {

@@ -1,17 +1,17 @@
 {
     "API": [
         {
-            "task": "shortestPath",
+            "task": "shortestpath",
             "name": "generateSP",
             "httpMethod": "post",
             "params": { "parameters": "object" }
         }
     ],
     "Worker": {
-        "shortestPathTask": {
+        "shortestpathTask": {
             "minConsumers": 1,
             "consumerInstructions": {
-                "generateGeo": {
+                "generateSP": {
                     "dependencies": ["ShortestPathTaskGenerator"],
                     "body": "async (taskDescription) => { let result = {}; try { const g = new ShortestPathTaskGenerator(taskDescription.parameters); result = g.generateShortestPathTask(); } catch (error) { console.error(error); result = error; } return result; }"
                 }
@@ -65,8 +65,9 @@
                                 "nodeRange": {
                                     "formType": "RangeFormField",
                                     "label": "Knotenanzahl",
+                                    "description": "Bestimmt die Anzahl an Knoten",
                                     "initial": {
-                                        "lowerValue": 3,
+                                        "lowerValue": 5,
                                         "upperValue": 10
                                     },
                                     "boundaries": { "min": 3, "max": 50 },
@@ -80,8 +81,9 @@
                                     "formType": "RangeFormField",
                                     "label": "&Oslash; Knotengrad",
                                     "type": "number",
+                                    "description": "Bestimmt den durchschnittlichen Grad an Kanten je Knoten",
                                     "initial": {
-                                        "lowerValue": 1,
+                                        "lowerValue": 3,
                                         "upperValue": 5
                                     },
                                     "boundaries": { "min": 1, "max": 30 },
@@ -96,6 +98,7 @@
                                     "label": "Zielknoten",
                                     "type": "checkbox",
                                     "initial": false,
+                                    "description": "Bestimmt ob ein Zielknoten generiert wird oder nicht",
                                     "presets": {
                                         "easy": false,
                                         "medium": true,
@@ -106,7 +109,9 @@
                                     "formType": "ValueFormField",
                                     "label": "Seed",
                                     "type": "text",
+                                    "description": "Setze einen beliebigen Wert um die Generierung deterministisch und reproduzierbar zu machen",
                                     "value": "",
+                                    "validate": false,
                                     "presets": {
                                         "easy": "",
                                         "medium": "",

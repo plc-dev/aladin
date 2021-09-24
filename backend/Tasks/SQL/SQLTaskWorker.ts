@@ -1,7 +1,8 @@
-import { MinioClientWrapper } from "../database/minio/minioDAO";
-import { PgClient } from "../database/postgres/postgresDAO";
-import { templateString, toPascalCase } from "../helpers/helperFunctions";
-import { RNG, randomSample } from "../helpers/NumberGenerators";
+import { MinioClientWrapper } from "../../database/minio/minioDAO";
+import { PgClient } from "../../database/postgres/postgresDAO";
+import { templateString, toPascalCase } from "../../helpers/helperFunctions";
+import { RNG, randomSample } from "../../helpers/NumberGenerators";
+import { errorCodes } from "./pgErrorCodes";
 
 const minioClient = new MinioClientWrapper();
 const SQL_TASK_DB = "test";
@@ -1267,16 +1268,19 @@ export const sqlQueryValidator = async (taskDescription: SQLTaskValidationDescri
 
     const sqlTaskClient = new PgClient(SQL_TASK_DB);
     let userResult;
+    let isMatchingResult: boolean = false;
     try {
         // setting schema to be able to access the proper tables - postgres-specific, default is 'public'
         // avoids having to prefix every table with the schema as a user
         await sqlTaskClient.queryDB(`SET search_path TO '${schema}';`);
         userResult = await sqlTaskClient.queryDB(query);
+        isMatchingResult = fuzzyEqual(parsedExpectedResult, userResult, allowedDeviation);
     } catch (error) {
-        userResult = error;
+        const { code, position, severity } = error as { code: string; position: string; severity: string };
+        userResult = `${severity} @ position ${position}: ${errorCodes[code]}`;
+    } finally {
+        return { isMatchingResult, userResult };
     }
-    const isMatchingResult: boolean = fuzzyEqual(parsedExpectedResult, userResult, allowedDeviation);
-    return { isMatchingResult, userResult };
 };
 
 export const importDatabase = async (taskDescription: {}) => {

@@ -14,6 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPCConsumer = exports.RPCProducer = exports.BrokerConnection = void 0;
 const amqplib_1 = __importDefault(require("amqplib"));
+const asyncSleep = (fn, timeOut = 2000) => __awaiter(void 0, void 0, void 0, function* () {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(fn()), timeOut);
+    });
+});
 class BrokerConnection {
     constructor(connectionString) {
         this.connectionString = connectionString;
@@ -27,9 +32,10 @@ class BrokerConnection {
             }
             catch (error) {
                 if (this.connectionAttempts) {
-                    setTimeout(() => {
-                        this.establishConnection();
-                    }, 2000);
+                    return yield asyncSleep(this.establishConnection);
+                    // setTimeout(() => {
+                    //     this.establishConnection();
+                    // }, 2000);
                 }
                 this.connectionAttempts--;
             }

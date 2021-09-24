@@ -13,7 +13,7 @@
             "consumerInstructions": {
                 "generateGeo": {
                     "dependencies": ["InterpolationTaskGenerator"],
-                    "body": "async (taskDescription) => { let result = {}; try { result = await importDatabase(taskDescription); } catch (error) { console.error(error); result = error; } return result; }"
+                    "body": "async (taskDescription) => { let result = {}; try { const g = new InterpolationTaskGenerator(taskDescription.parameters); result = g.generateInterpolationTask(); } catch (error) { console.error(error); result = error; } return result; }"
                 }
             }
         }
@@ -67,6 +67,7 @@
                                 "scale": {
                                     "formType": "RangeFormField",
                                     "label": "Skala",
+                                    "description": "Bestimmt den Wertebereich der Skala",
                                     "initial": {
                                         "lowerValue": 0,
                                         "upperValue": 1
@@ -82,6 +83,7 @@
                                     "formType": "RangeFormField",
                                     "label": "Raster",
                                     "type": "number",
+                                    "description": "Bestimmt den Wertebereich des Rasters",
                                     "initial": {
                                         "lowerValue": 50,
                                         "upperValue": 50
@@ -97,6 +99,7 @@
                                     "formType": "RangeFormField",
                                     "label": "Anzahl Messungen",
                                     "type": "number",
+                                    "description": "Bestimmt den Wertebereich der Messanzahl",
                                     "initial": {
                                         "lowerValue": 5,
                                         "upperValue": 10
@@ -112,7 +115,9 @@
                                     "formType": "ValueFormField",
                                     "label": "Seed",
                                     "type": "text",
+                                    "description": "Setze einen beliebigen Wert um die Generierung deterministisch und reproduzierbar zu machen",
                                     "value": "",
+                                    "validate": false,
                                     "presets": {
                                         "easy": "",
                                         "medium": "",
@@ -149,6 +154,13 @@
                         { "x": 32, "y": 30, "w": 3, "h": 2, "i": 2, "static": false }
                     ]
                 },
+                "hints": {
+                    "active": false,
+                    "current": 0,
+                    "descriptions": [
+                        "Löse die dargestellte Interpolationsgleichung indem du die Messpunkte in die Formelfelder überträgst und ausrechnest."
+                    ]
+                },
                 "interjections": [
                     {
                         "method": "formulaGenerator",
@@ -160,6 +172,24 @@
                         },
                         "applied": false,
                         "component_id": 0
+                    }
+                ],
+                "modals": [
+                    {
+                        "trigger": {
+                            "type": "success"
+                        },
+                        "content": {
+                            "header": "Herzlichen Glückwunsch!",
+                            "body": "Sie haben die Aufgabe erfolgreich gelöst!",
+                            "footer": {
+                                "buttons": [
+                                    { "type": "close", "label": "Zurück", "parameters": {} },
+                                    { "type": "route", "label": "Zur Übersicht", "parameters": { "route": "TaskOverview" } }
+                                ]
+                            }
+                        },
+                        "active": false
                     }
                 ],
                 "components": {
