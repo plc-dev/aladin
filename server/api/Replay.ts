@@ -45,9 +45,7 @@ export const replayRoutes = (router: Router, channel: Channel) => {
                     meta["hash"] = fileName.split(".")[0];
                     return meta;
                 })
-                .sort((r1: { date: string }, r2: { date: string }) => Number(new Date(r1.date)) - Number(new Date(r2.date)));
-
-            console.log(replayList);
+                .sort((r1: { date: string }, r2: { date: string }) => Number(new Date(r2.date)) - Number(new Date(r1.date)));
 
             res.status(200).json(JSON.stringify({ replayList }));
         } catch (error) {

@@ -5,9 +5,9 @@
     <div class="termWrapper" v-for="(term, i) in terms" :key="i">
       <div v-if="term.bracket" class="bracket open">(</div>
 
-      <component :options="term.options" :is="term.type" :value="term.value">
+      <component :options="term.options" :is="term.type" :value="term.value" :term="term" :path="path">
         <template v-for="(slot, j) in term.slots" v-slot:[slot.name] :key="j">
-          <Term v-if="term.type !== 'scalar'" :terms="slot.terms"></Term>
+          <Term v-if="term.type !== 'scalar'" :terms="slot.terms" :path="`${path}__slots__${j}__terms__0`"></Term>
         </template>
       </component>
 
@@ -36,6 +36,7 @@ export default {
   },
   props: {
     terms: [Array, Object],
+    path: String,
   },
   setup() {
     return {};

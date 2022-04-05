@@ -1,10 +1,9 @@
 .vscode
 */.vscode
-*/node_modules
+**/dist
+**node_modules
 */.DS_Store
 */.env
-.vscode
-*/.vscode
 databases
 backend/services/minio/*
 !backend/services/minio/minio.Dockerfile
@@ -27,3 +26,4 @@ backend/services/maxima/*
 backend/services/schemaspy/*
 !backend/services/schemaspy/schemaspy.Dockerfile
 server/tempReplayStorage/*
+*workspace.code-workspace

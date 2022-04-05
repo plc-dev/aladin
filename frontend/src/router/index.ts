@@ -23,7 +23,12 @@ const routes = [
   {
     path: "/editor",
     name: "Editor",
-    component: () => import(/* webpackChunkName: "settings" */ "@/views/Configurator.vue"),
+    component: () => import(/* webpackChunkName: "configurator" */ "@/views/Configurator.vue"),
+  },
+  {
+    path: "/replays",
+    name: "Replays",
+    component: () => import(/* webpackChunkName: "replayoverview" */ "@/views/ReplayOverview.vue"),
   },
   {
     path: "/replays",
@@ -33,7 +38,12 @@ const routes = [
   {
     path: "/replay/:id",
     name: "Replay",
-    component: () => import(/* webpackChunkName: "settings" */ "@/views/Replay.vue"),
+    component: () => import(/* webpackChunkName: "replay" */ "@/views/Replay.vue"),
+  },
+  {
+    path: "/test",
+    name: "Test",
+    component: () => import(/* webpackChunkName: "test" */ "@/views/Test.vue"),
   },
 ];
 

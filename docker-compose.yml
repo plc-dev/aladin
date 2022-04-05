@@ -7,7 +7,6 @@ services:
         container_name: web-server
         depends_on:
             - rabbitmq
-            - backend
             - postgres
         volumes:
             - ./server:/server
@@ -36,6 +35,8 @@ services:
     #     volumes:
     #         - ./backend/services/schemaspy/output:/output
     #         - ./backend/services/schemaspy:/worker
+    #     tty: true
+    #     command: tail -f /dev/null
 
     postgres:
         build:
@@ -103,6 +104,8 @@ services:
             context: backend
             dockerfile: orchestrator.Dockerfile
         depends_on:
+            - reverse-proxy
+            - web-server
             - rabbitmq
             - postgres
         container_name: backend

@@ -1,20 +1,39 @@
 import { RPCConsumer } from "rabbitmq-rpc-wrapper";
 import amqp, { Channel } from "amqplib";
+<<<<<<< HEAD
+import { GozintographTaskGenerator } from "./Tasks/gozintograph/Task";
+import { sqlQueryGenerator, sqlQueryValidator, importDatabase, fetchERD } from "./Tasks/SQL/SQLTaskWorker";
+import { InterpolationTaskGenerator } from "./Tasks/geoInterpolation/GeoInterpolationWorker";
+import { ShortestPathTaskGenerator } from "./Tasks/shortestPath/MunkeltWorker";
+=======
 import { GozintographGenerator } from "./graphLib/generators/gozintographGenerator";
 import { sqlQueryGenerator, sqlQueryValidator, importDatabase } from "./workers/SQLTaskWorker";
 import { InterpolationTaskGenerator } from "./workers/GeoInterpolationWorker";
+>>>>>>> origin/master
 import { PostgresWorker } from "./workers/PostgresWorker";
+import { EPKTaskGenerator } from "./Tasks/EPK/EPKTask";
+import { SchedulingTaskGenerator } from "./Tasks/scheduling/Task";
 import { PgClient } from "./database/postgres/postgresDAO";
 import { MinioClientWrapper } from "./database/minio/minioDAO";
+import axios from "axios";
+
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 // TODO generalize generators into serialisable functions
 const generators: { [key: string]: any } = {
-    GozintographGenerator: GozintographGenerator,
+    GozintographTaskGenerator: GozintographTaskGenerator,
     sqlQueryGenerator: sqlQueryGenerator,
     sqlQueryValidator: sqlQueryValidator,
     importDatabase: importDatabase,
+<<<<<<< HEAD
+    fetchERD: fetchERD,
     InterpolationTaskGenerator: InterpolationTaskGenerator,
+    ShortestPathTaskGenerator: ShortestPathTaskGenerator,
+    EPKTaskGenerator: EPKTaskGenerator,
+    SchedulingTaskGenerator: SchedulingTaskGenerator,
+=======
+    InterpolationTaskGenerator: InterpolationTaskGenerator,
+>>>>>>> origin/master
 };
 
 // load environment variables
@@ -35,7 +54,10 @@ interface ISerializedQueues {
 
 const asyncSleep = async (fn: Function, timeOut: number = 2000): Promise<any> => {
     return new Promise((resolve) => {
+<<<<<<< HEAD
+=======
         // wait 3s before calling fn(par)
+>>>>>>> origin/master
         setTimeout(() => resolve(fn()), timeOut);
     });
 };
@@ -85,90 +107,8 @@ const establishBrokerConnection = async (): Promise<{ connection: any; channel: 
         // https://stackoverflow.com/questions/37581644/start-docker-container-from-another-application-in-another-docker-container
 
         // template and configure dockerfiles https://www.datanovia.com/en/courses/docker-compose-wait-for-dependencies/
-        const queues: ISerializedQueues = {
-            gozintographTask: {
-                minConsumers: 1,
-                consumerInstructions: {
-                    generateGraph: {
-                        dependencies: ["GozintographGenerator"],
-                        body: `async (taskDescription) => {
-                            let result = {};
-                            try {
-                                const g = new GozintographGenerator(taskDescription.parameters); 
-                                result = g.generateGraph();
-                            } catch (error) {
-                                console.error(error);
-                                result = error;
-                            }
-                            return result;
-                        }`,
-                    },
-                },
-            },
-            sqlTask: {
-                minConsumers: 1,
-                consumerInstructions: {
-                    generateQuery: {
-                        dependencies: ["sqlQueryGenerator"],
-                        body: `async (taskDescription) => {
-                            let result = {};
-                            try {
-                                result = await sqlQueryGenerator(taskDescription);
-                            } catch (error) {
-                                console.error(error);
-                                result = error;
-                            }
-                            return result;
-                        }`,
-                    },
-                    validateQuery: {
-                        dependencies: ["sqlQueryValidator"],
-                        body: `async (taskDescription) => {
-                            let result = {};
-                            try {
-                                result = await sqlQueryValidator(taskDescription);
-                            } catch (error) {
-                                console.error(error);
-                                result = error;
-                            }
-                            return result;
-                        }`,
-                    },
-                    importDatabase: {
-                        dependencies: ["importDatabase"],
-                        body: `async (taskDescription) => {
-                            let result = {};
-                            try {
-                                result = await importDatabase(taskDescription);
-                            } catch (error) {
-                                console.error(error);
-                                result = error;
-                            }
-                            return result;
-                        }`,
-                    },
-                },
-            },
-            geointerpolationTask: {
-                minConsumers: 1,
-                consumerInstructions: {
-                    generateGeo: {
-                        dependencies: ["InterpolationTaskGenerator"],
-                        body: `async (taskDescription) => {
-                            let result = {};
-                            try {
-                                const g = new InterpolationTaskGenerator(taskDescription.parameters);
-                                result = g.generateInterpolationTask();
-                            } catch (error) {
-                                console.error(error);
-                                result = error;
-                            }
-                            return result;
-                        }`,
-                    },
-                },
-            },
-        };
+        const response = await asyncSleep(async () => await axios.post(`http://reverse-proxy:3000/api/fetchWorkerConfig`, {}));
+        const queues: ISerializedQueues = JSON.parse(response.data);
 
         for (let queue in queues) {
             const queueConfig = queues[queue];

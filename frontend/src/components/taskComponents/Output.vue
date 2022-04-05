@@ -44,7 +44,7 @@ export default {
 
     const serverOutput = computed(() => {
       let serverOutput = getProperty(dependencyPath.value.Output.serverOutput);
-      if (!serverOutput) serverOutput = "";
+      if (!serverOutput || (Array.isArray(serverOutput) && !serverOutput.length)) serverOutput = "";
       return serverOutput;
     });
 

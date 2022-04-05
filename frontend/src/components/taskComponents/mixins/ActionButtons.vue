@@ -15,7 +15,7 @@
 import Button from "@/components/Button.vue";
 
 export default {
-  name: "CodeEditor",
+  name: "ActionButtons",
   props: {
     actionTypes: Object,
     actions: Array,

@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, computed, ref, defineComponent, watch } from "vue";
+import { onMounted, computed, watch } from "vue";
 import { graphviz } from "d3-graphviz";
 
 export default {
@@ -35,13 +35,6 @@ export default {
     });
     onMounted(() => {
       renderGraph(dotDescription.value);
-      const pollForGraph = setInterval(() => {
-        let background = document.querySelector(".dotGraph polygon");
-        if (background) {
-          clearInterval(pollForGraph);
-          background.setAttribute("fill", "transparent");
-        }
-      }, 50);
     });
     return {};
   },

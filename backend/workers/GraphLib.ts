@@ -242,7 +242,7 @@ const generateGraph = (verticeAmount: number, edgeAmount: number): Graph => {
     }
 
     for (let i = 0; i < edgeAmount; i++) {
-        const [parentIndex, childIndex] = randomSample([...Array(verticeAmount).keys()], 2);
+        const [parentIndex, childIndex] = randomSample([...Array(verticeAmount).keys()] as Array<number>, 2, true);
         const parent = graph.getVertex(parentIndex);
         const child = graph.getVertex(childIndex);
         graph.addEdge([parent, child]);

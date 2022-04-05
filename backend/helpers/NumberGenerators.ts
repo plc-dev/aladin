@@ -31,24 +31,50 @@ export const statefulCounter = (start: number = 0): Generator => {
     return counter();
 };
 
-export const randomSample = (array: Array<any>, n: number, rng?: RNG) => {
-    const clonedArray = JSON.parse(JSON.stringify(array));
-    if (n > clonedArray.length - 1) throw new Error("Samplesize is greater than number of elements in the given array.");
-
+// https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+export function shuffle<T>(iterable: Iterable<T>, rng?: RNG): Array<T> {
     if (!rng) rng = new RNG();
 
-    function* elementGenerator() {
-        let stopCondition = 0;
-        while (stopCondition < n) {
-            stopCondition++;
-            const index = rng.intBetween(0, clonedArray.length - 1);
-            yield clonedArray.splice(index, 1)[0];
+    const array = [...iterable];
+    let j, x;
+
+    for (let i = array.length - 1; i > 0; i--) {
+        j = rng.intBetween(0, i);
+        x = array[i];
+        array[i] = array[j];
+        array[j] = x;
+    }
+    return array;
+}
+
+export function randomSample<T>(iterable: Iterable<T>, n: number, replace: true, rng?: RNG): Array<T>;
+export function randomSample<T>(iterable: Iterable<T>, n: number, replace: false, rng?: RNG): IterableIterator<Array<T>>;
+export function randomSample<T>(iterable: Iterable<T>, n: number, replace?: boolean, rng?: RNG): IterableIterator<Array<T>>;
+export function randomSample<T>(iterable: Iterable<T>, n: number, replace?: boolean, rng?: RNG): IterableIterator<Array<T>> | Array<T> {
+    if (!rng) rng = new RNG();
+
+    const array = shuffle(iterable, rng);
+    if (n > array.length) throw new Error(`Samplesize is greater than number of elements in the given array.\n${n}\n${array}`);
+
+    function* elementGenerator(): IterableIterator<Array<T>> {
+        while (array.length) {
+            yield array.splice(0, n);
         }
     }
 
-    const elements = [];
-    for (let element of elementGenerator()) {
-        elements.push(element);
+    if (replace) {
+        return elementGenerator().next().value;
     }
-    return elements;
-};
+
+    return elementGenerator();
+}
+
+export function minMaxScaler(measurementMin: number, measurementMax: number, targetMin: number, targetMax: number): Function {
+    return (value: number): number => ((value - measurementMin) / (measurementMax - measurementMin)) * (targetMax - targetMin) + targetMin;
+}
+
+export function range(min: number, max: number) {
+    return Array(max - min)
+        .fill(0)
+        .map((e) => min++);
+}

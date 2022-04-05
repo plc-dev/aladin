@@ -146,7 +146,7 @@ export default {
       });
     };
 
-    const convertPxToTimestamp = (px) => {
+    const convertPxToTimestamp = (px: number): number => {
       const timestamp = (px / barSize) * duration + start;
       return timestamp;
     };
@@ -322,6 +322,7 @@ export default {
 }
 
 .fakeCursor {
+  display: none;
   position: absolute;
   top: 50%;
   left: 50%;

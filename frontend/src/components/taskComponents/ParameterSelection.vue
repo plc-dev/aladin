@@ -3,7 +3,7 @@
     <h2>{{ title }}</h2>
     <div class="parameter_form_columns">
       <div class="parameter_labels">
-        <p v-for="(element, key) in elements" :key="key">{{ element.label }}</p>
+        <p v-for="(element, key) in elements" :key="key" v-html="element.label" v-tooltip.left-center="element.description || ''" />
       </div>
       <div class="parameter_fields">
         <component
@@ -13,6 +13,8 @@
           :key="key"
           :element="element"
           :elementId="key"
+          :storeObject="storeObject"
+          :componentID="componentID"
         />
       </div>
     </div>
@@ -25,6 +27,8 @@ import { computed, watch, ref } from "vue";
 import RangeFormField from "@/components/taskComponents/form/RangeFormField.vue";
 import DropdownFormField from "@/components/taskComponents/form/DropdownFormField.vue";
 import CheckboxFormField from "@/components/taskComponents/form/CheckboxFormField.vue";
+import ValueFormField from "@/components/taskComponents/form/ValueFormField.vue";
+import DualSlider from "@/components/taskComponents/form/DualSlider.vue";
 import ActionButtons from "@/components/taskComponents/mixins/ActionButtons.vue";
 
 export default {
@@ -36,12 +40,14 @@ export default {
     RangeFormField,
     DropdownFormField,
     CheckboxFormField,
+    ValueFormField,
+    DualSlider,
     ActionButtons,
   },
   setup(props) {
     const { store, getProperty, setProperty } = props.storeObject;
-    const currentNode = computed(() => store.state.currentNode);
-    const path = `nodes__${currentNode.value}__components__${props.componentID}`;
+    const currentNode = store.state.currentNode;
+    const path = `nodes__${currentNode}__components__${props.componentID}`;
 
     const taskData = computed(() => getProperty(`taskData`));
     watch(
@@ -84,6 +90,7 @@ export default {
           const { formType, initial } = parameter;
           let payload = { ...parameters, [name]: initial };
           if (formType === "RangeFormField") payload[name] = [initial.lowerValue, initial.upperValue];
+          if (formType === "ValueFormField") payload[name] = parameter.value;
           return payload;
         },
         {}
@@ -97,8 +104,9 @@ export default {
 
     const currentTask = computed(() => getProperty("currentTask"));
 
-    const fetchData = (instruction) =>
+    const fetchData = (instruction) => {
       store.dispatch("fetchTaskData", { payload: preparePayload(instruction), endpoint: `${currentTask.value}/${instruction}` });
+    };
 
     const actionTypes = {
       fetchData,
@@ -134,7 +142,6 @@ export default {
   min-width: 80%;
   box-shadow: 2px 3px 9px 0px rgba(0, 0, 0, 1);
   background: #e8edf1;
-  filter: brightness(90%);
   padding: 5px;
   border-radius: 10px;
 }

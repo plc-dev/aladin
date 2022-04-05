@@ -43,8 +43,10 @@ export default {
     const currentNode = computed(() => store.state.currentNode);
     const componentPath = `nodes__${currentNode.value}__components__${props.componentID}__component`;
 
-    const dependencies = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__dependencies`);
-    const dependency = computed(() => getProperty(dependencies.Matrix.data));
+    const dependencyPaths = getProperty(`nodes__${currentNode.value}__components__${props.componentID}__dependencies`);
+    const dependencies = computed(() =>
+      Object.entries(dependencyPaths.Matrix).map(([dependency, dependencyPath]) => getProperty(dependencyPath))
+    );
 
     const isReadOnly = getProperty(`${componentPath}__readOnly`);
     const instructions = getProperty(`${componentPath}__initialize`);
@@ -59,40 +61,55 @@ export default {
       else return [];
     });
 
-    const initialize = (instructions: IMatrixInstruction) => {
+    const initialize = async (instructions: IMatrixInstruction) => {
       Object.entries(instructions).forEach(([name, instructions]) => {
-        const strip = (v) => JSON.parse(JSON.stringify(v));
-        const { matrix1Path, matrix2Path, operations } = instructions;
-        let matrix1Data = strip(getProperty(`${matrix1Path}`));
-        if (matrix1Data.length == 1) matrix1Data[0].map((scalar) => [scalar]);
-        const matrix1 = new Matrix(...matrix1Data);
-
-        let matrix2 = null;
-        if (matrix2Path) {
-          let matrix2Data = strip(getProperty(`${matrix2Path}`));
-          if (matrix2Data.length == 1) matrix2Data = matrix2Data[0].map((scalar) => [scalar]);
-          matrix2 = new Matrix(...matrix2Data);
+        // TODO: change replay functionality for stepping in task to apply incremental changes behind loading screen
+        // fix for presentation; REMOVE AFTERWARDS
+        if (name === "user" && getProperty("restoredFromReplay")) {
+          return;
         }
 
-        const resultMatrix = operations.reduce((result, operation) => {
+        const strip = (v) => JSON.parse(JSON.stringify(v));
+        const { paths, operations } = instructions;
+
+        let delay = false;
+        const matrices = paths.map((path) => {
+          let matrix = strip(getProperty(`${path}`));
+          // need to wait for components to be computed fully, before initializing depending component
+          if (matrix === null) {
+            delay = true;
+            return new Matrix(...[[]]);
+          }
+
+          if (matrix.length == 1) matrix = matrix[0].map((scalar) => [scalar]);
+          return new Matrix(...matrix);
+        });
+
+        if (delay) return;
+
+        const resultMatrix = operations.reduce((result, operation, i) => {
           const { name, args } = JSON.parse(JSON.stringify(operation));
-          if (args.includes("matrix2")) return matrix1[name](matrix2);
-          return matrix1[name](...args);
-        }, matrix1);
+          if (args.includes("chain")) return result[name](matrices[i + 1]);
+          return result[name](...args);
+        }, matrices[0]);
         setProperty({ path: `${componentPath}__${name}Data`, value: resultMatrix.getRows() });
       });
     };
 
-    onMounted(() => {
-      if ((dependency.value && !userData.value) || !userData.value.length) {
+    onMounted(async () => {
+      if ((dependencies.value && !userData.value) || !userData.value.length) {
         initialize(instructions);
       }
       validateMatrix();
     });
 
-    watch(dependency, () => {
-      initialize(instructions);
-    });
+    watch(
+      dependencies,
+      async () => {
+        initialize(instructions);
+      },
+      { deep: true }
+    );
 
     const loadData = (path) => {
       const data = getProperty(path);
@@ -121,12 +138,11 @@ export default {
             isValid = false;
             return;
           }
-          if (!value) {
+          if (value === null || value === "") {
             element.classList.remove("valid");
             element.classList.remove("invalid");
-            return false;
-          }
-          if (validationData.value[i][j] == value) {
+            isValid = false;
+          } else if (validationData.value[i][j] == value) {
             element.classList.remove("invalid");
             element.classList.add("valid");
             return;
@@ -219,19 +235,19 @@ input::-webkit-inner-spin-button {
   position: absolute;
   width: 100%;
   min-height: 100%;
-  font-size: 150%;
+  font-size: 130%;
   text-align: center;
 }
 
 th {
   min-height: 100%;
-  border: 1px solid black;
+  border: 2px solid black;
   background: #57636b;
   color: #b1b2b4;
 }
 
 .matrix_label {
-  font-size: 150%;
+  font-size: 130%;
   width: 100%;
   text-align: center;
 }
@@ -242,5 +258,9 @@ th {
 
 .invalid {
   background: red;
+}
+
+input[disabled] {
+  background: lightgrey;
 }
 </style>

@@ -33,8 +33,8 @@ export default {
     const path = `nodes__${currentNode.value}__components__${props.componentID}`;
 
     const dependencies = getProperty(`${path}__dependencies`);
-    const nodesById: object = getProperty(dependencies.PathDisplay.nodes);
-    const nodes = Object.values(nodesById).reduce((nodes, node) => {
+    const nodes: object = getProperty(dependencies.PathDisplay.nodes);
+    const nodesById = Object.values(nodes).reduce((nodes, node) => {
       if (Object.keys(node).includes("label")) nodes[node.label] = node;
       return nodes;
     }, {});

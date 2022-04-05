@@ -1,6 +1,12 @@
 <template>
   <div class="canvas">
     <Navigation :storeObject="storeObject" />
+    <Hint :storeObject="storeObject" />
+
+    <div class="modals">
+      <Modal v-for="(modal, i) in modals" :key="i" :storeObject="storeObject" :modalIndex="i" />
+    </div>
+
     <div class="zoomWrapper">
       <grid-layout
         class="grid"
@@ -42,16 +48,20 @@
 </template>
 
 <script lang="ts">
-import { onMounted, computed, watch } from "vue";
+import { onMounted, computed } from "vue";
 import { GridLayout, GridItem } from "vue-grid-layout";
 import panzoom from "@panzoom/panzoom";
 import { interjectionHandler } from "@/interjections/interjectionHandler";
 
 import MiniMap from "@/components/MiniMap.vue";
+import Navigation from "@/components/Navigation.vue";
+import Hint from "@/components/Hint.vue";
+import TextArea from "@/components/TextArea.vue";
+import Modal from "@/components/Modal.vue";
+
 import Matrix from "@/components/taskComponents/Matrix.vue";
 import DOTGraph from "@/components/taskComponents/DOTGraph.vue";
 import TaskConfiguration from "@/components/taskComponents/TaskConfiguration.vue";
-import Navigation from "@/components/Navigation.vue";
 import VisualGraphTraversal from "@/components/taskComponents/VisualGraphTraversal.vue";
 import PathDisplay from "@/components/taskComponents/PathDisplay.vue";
 import CodeEditor from "@/components/taskComponents/CodeEditor.vue";
@@ -59,6 +69,13 @@ import Output from "@/components/taskComponents/Output.vue";
 import Dropdown from "@/components/taskComponents/Dropdown.vue";
 import ContourPlot from "@/components/taskComponents/ContourPlot.vue";
 import BackgroundGraph from "@/components/taskComponents/BackgroundGraph.vue";
+import Equation from "@/components/taskComponents/math/Equation.vue";
+import TexDisplay from "@/components/taskComponents/math/TexDisplay.vue";
+import DijkstraTable from "@/components/taskComponents/dijkstra/DijkstraTable.vue";
+import DijkstraGraph from "@/components/taskComponents/dijkstra/DijkstraGraph.vue";
+import PlanGraph from "@/components/taskComponents/scheduling/PlanGraph.vue";
+import EditableGraph from "@/components/taskComponents/EditableGraph.vue";
+import GanttDiagram from "@/components/taskComponents/scheduling/GanttDiagram.vue";
 
 export default {
   name: "Canvas",
@@ -66,6 +83,7 @@ export default {
     BackgroundGraph,
     ContourPlot,
     MiniMap,
+    Hint,
     Matrix,
     DOTGraph,
     TaskConfiguration,
@@ -77,29 +95,48 @@ export default {
     Output,
     Dropdown,
     PathDisplay,
+    Equation,
+    TexDisplay,
+    DijkstraTable,
+    DijkstraGraph,
+    TextArea,
+    Modal,
+    PlanGraph,
+    EditableGraph,
+    GanttDiagram,
   },
   props: {
     storeObject: Object,
   },
   setup(props) {
     const { getProperty, setProperty, store } = props.storeObject;
-    const currentNode = computed(() => getProperty("currentNode"));
-    const interjections = getProperty(`nodes__${currentNode.value}__interjections`) || [];
-    // handle dynamic UI-elements which depend on the data generated at runtime
-    interjectionHandler(props.storeObject, interjections);
+    const currentNode = getProperty("currentNode");
 
+    // handle dynamic UI-elements which depend on the data generated at runtime
+    const interjectionPath = `nodes__${currentNode}__interjections`;
+    const interjections = getProperty(interjectionPath) || [];
+    interjectionHandler(props.storeObject, interjections, interjectionPath);
+
+    console.warn(store);
+
+    // load modals
+    const modals = getProperty(`nodes__${currentNode}__modals`);
+
+    // init layout
     const columnAmount = 60;
     const rowHeight = 10000 / columnAmount;
     const zoomScale = computed(() => getProperty("zoomScale"));
-    const nodeComponents = computed(() => getProperty(`nodes__${currentNode.value}__components`));
-    const layouts = computed(() => getProperty(`nodes__${currentNode.value}__layouts`));
+    const nodeComponents = computed(() => getProperty(`nodes__${currentNode}__components`));
+    const layouts = computed(() => getProperty(`nodes__${currentNode}__layouts`));
     const layoutSize = computed(() => getProperty(`layoutSize`));
     const currentLayout = computed(() => {
-      const layout = getProperty(`nodes__${currentNode.value}__layouts__${layoutSize.value}`);
+      const layout = getProperty(`nodes__${currentNode}__layouts__${layoutSize.value}`);
       return layout;
     });
 
+    // setup callbacks for grid functionalities (zoom, pan, drag, resize)
     const fixQuadraticItems = (ids: Array<number> = currentLayout.value.filter((item) => item.w === item.h).map((item) => item.i)) => {
+      if (!document.querySelector(".contourPlot")) return;
       setTimeout(() => {
         ids.forEach((id) => {
           const item: HTMLElement = document.querySelector(`.vue-grid-item[data-id="${id}"]`);
@@ -136,13 +173,19 @@ export default {
         }
       });
 
+      document.querySelector(".canvas").addEventListener("panzoompan", (event: MouseEvent) => {
+        if (event.target !== document.querySelector(".vue-grid-layout.grid")) {
+          return;
+        }
+      });
+
       // TODO remove hack for activating reactivity
       setProperty({ path: "zoomScale", value: 1 });
 
       fixQuadraticItems();
     });
     const updateDimensions = (id, gridWidth, gridHeight) => {
-      const path = `nodes__${currentNode.value}__layouts__${layoutSize.value}`;
+      const path = `nodes__${currentNode}__layouts__${layoutSize.value}`;
       const layout = getProperty(path);
       const index = layout.findIndex((item) => item.i == id);
       // setProperty({ path: `${path}__${index}`, value: { ...layout[index], w: gridWidth, h: gridHeight } });
@@ -163,7 +206,7 @@ export default {
           return node;
         });
 
-        const path = `nodes__${currentNode.value}__layouts__${layoutSize.value}`;
+        const path = `nodes__${currentNode}__layouts__${layoutSize.value}`;
         setProperty({ path, value: movedLayout });
         fixQuadraticItems();
       }, 100);
@@ -179,6 +222,7 @@ export default {
       rowHeight,
       setCoordinates,
       layoutSize,
+      modals,
     };
   },
 };

@@ -46,6 +46,22 @@ interface IAction {
   parameters?: { [parameter: string]: taskGraphPath };
 }
 
+interface IHint {
+  active: boolean;
+  current: number;
+  descriptions: Array<string>;
+}
+
+interface IModal {
+  type: string;
+  trigger: {
+    type: string;
+    component: taskGraphPath;
+  };
+  content: { header: string; body: string; buttons: [{ label: string; function: string; args: Array<string> }] };
+  active: boolean;
+}
+
 interface IComponent {
   type: string;
   name: string;
@@ -53,7 +69,8 @@ interface IComponent {
   isValid: boolean;
   dependencies?: IDependencies;
   methods?: { [key: string]: string };
-  actions?: [IAction];
+  actions?: Array<IAction>;
+  modals?: Array<IModal>;
 }
 
 interface IComponents {
@@ -71,6 +88,11 @@ export interface IReplay {
 export interface IInterjection {
   dependencies: { [dependencyName: string]: taskGraphPath | number };
   method: string;
+<<<<<<< HEAD
+  applied?: boolean;
+  component_id?: string;
+=======
+>>>>>>> origin/master
 }
 
 interface INodes {
@@ -78,6 +100,7 @@ interface INodes {
     | IDecisionNode
     | {
         layouts: ILayouts;
+        hints?: IHint;
         components: IComponents;
         zoomScale: number;
         interjections?: Array<IInterjection>;
@@ -85,6 +108,7 @@ interface INodes {
 }
 
 interface IState {
+  isLoading: boolean;
   previousNode: number;
   rootNode: number;
   currentTask: string;

@@ -15,5 +15,5 @@ RUN apt-get install -y postgresql postgresql-contrib
 
 COPY entrypoint.sh /entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+# ENTRYPOINT ["/entrypoint.sh"]
 CMD tail -f /dev/null

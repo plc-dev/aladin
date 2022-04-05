@@ -26,8 +26,14 @@
 </template>
 
 <script lang="ts">
+<<<<<<< HEAD
+import { onMounted, ref, computed } from "vue";
+import { delay } from "@/helpers/HelperFunctions.ts";
+import { evaluateRange } from "./validation";
+=======
 import { onMounted, ref } from "vue";
 import { delay } from "@/helpers/HelperFunctions.ts";
+>>>>>>> origin/master
 
 export default {
   name: "RangeFormField",
@@ -67,7 +73,7 @@ export default {
       delay(
         "formFill",
         () => {
-          evaluate();
+          evaluateRange(props);
           emit("updateElement", event);
         },
         500
@@ -75,10 +81,10 @@ export default {
     };
 
     onMounted(() => {
-      evaluate();
+      evaluateRange(props);
     });
 
-    return { emitEvent, lowerErrorMessage, upperErrorMessage };
+    return { emitEvent };
   },
 };
 </script>

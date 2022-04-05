@@ -3,48 +3,41 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import { BrokerConnection } from "rabbitmq-rpc-wrapper";
 import { TaskRouteManager, ISerializedTaskRoute } from "./api/TaskRouteManager";
+import { taskParts } from "./api/TaskGraphManager";
+import amqp, { Channel } from "amqplib";
 
 // load environment variables
 import * as dotenv from "dotenv";
 dotenv.config({ path: __dirname + "/.env" });
 
 const app: express.Application = express();
-const broker = new BrokerConnection("amqp://guest:guest@rabbitmq:5672" || process.env.AMQP_BROKER);
+// const broker = new BrokerConnection("amqp://guest:guest@rabbitmq:5672" || process.env.AMQP_BROKER);
 
-const serializedRoutes: Array<ISerializedTaskRoute> = [
-    {
-        task: "gozintograph",
-        name: "generateGraph",
-        httpMethod: "post",
-        params: {
-            parameters: "object",
-        },
-    },
-    {
-        task: "sql",
-        name: "generateQuery",
-        httpMethod: "post",
-        params: { parameters: "object", schema: "string", language: "string" },
-    },
-    {
-        task: "sql",
-        name: "validateQuery",
-        httpMethod: "post",
-        params: { parameters: "object" },
-    },
-    {
-        task: "sql",
-        name: "generateERD",
-        httpMethod: "post",
-        params: { parameters: "object" },
-    },
-    {
-        task: "geointerpolation",
-        name: "generateGeo",
-        httpMethod: "post",
-        params: { parameters: "object" },
-    },
-];
+const asyncSleep = async (fn: Function, timeOut: number = 2000): Promise<any> => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(fn()), timeOut);
+    });
+};
+let retries = 50;
+const establishBrokerConnection = async (): Promise<{ connection: any; channel: Channel }> => {
+    let connection;
+    let channel: Channel;
+    try {
+        connection = await amqp.connect("amqp://guest:guest@rabbitmq:5672"); //process.env.brokerConnection
+        channel = await connection.createChannel();
+    } catch (error) {
+        if (retries) {
+            retries--;
+            return await asyncSleep(establishBrokerConnection);
+        } else {
+            throw new Error(error);
+        }
+    }
+
+    return { connection, channel };
+};
+
+const serializedRoutes: Array<ISerializedTaskRoute> = taskParts.API;
 
 (async () => {
     try {
@@ -61,7 +54,7 @@ const serializedRoutes: Array<ISerializedTaskRoute> = [
         );
 
         // initialize API
-        const channel = await broker.establishConnection();
+        const { channel } = await establishBrokerConnection();
         const taskRouteManager = new TaskRouteManager(app, channel);
         taskRouteManager.addRoute(serializedRoutes);
 
