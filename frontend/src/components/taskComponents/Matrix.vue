@@ -63,6 +63,12 @@ export default {
 
     const initialize = async (instructions: IMatrixInstruction) => {
       Object.entries(instructions).forEach(([name, instructions]) => {
+        // TODO: change replay functionality for stepping in task to apply incremental changes behind loading screen
+        // fix for presentation; REMOVE AFTERWARDS
+        if (name === "user" && getProperty("restoredFromReplay")) {
+          return;
+        }
+
         const strip = (v) => JSON.parse(JSON.stringify(v));
         const { paths, operations } = instructions;
 
@@ -132,12 +138,11 @@ export default {
             isValid = false;
             return;
           }
-          if (!value) {
+          if (value === null || value === "") {
             element.classList.remove("valid");
             element.classList.remove("invalid");
-            return false;
-          }
-          if (validationData.value[i][j] == value) {
+            isValid = false;
+          } else if (validationData.value[i][j] == value) {
             element.classList.remove("invalid");
             element.classList.add("valid");
             return;
@@ -230,7 +235,7 @@ input::-webkit-inner-spin-button {
   position: absolute;
   width: 100%;
   min-height: 100%;
-  font-size: 150%;
+  font-size: 130%;
   text-align: center;
 }
 
@@ -242,7 +247,7 @@ th {
 }
 
 .matrix_label {
-  font-size: 150%;
+  font-size: 130%;
   width: 100%;
   text-align: center;
 }

@@ -70,7 +70,6 @@ interface IComponent {
   dependencies?: IDependencies;
   methods?: { [key: string]: string };
   actions?: Array<IAction>;
-  hints?: Array<IHint>;
   modals?: Array<IModal>;
 }
 
@@ -98,6 +97,7 @@ interface INodes {
     | IDecisionNode
     | {
         layouts: ILayouts;
+        hints?: IHint;
         components: IComponents;
         zoomScale: number;
         interjections?: Array<IInterjection>;

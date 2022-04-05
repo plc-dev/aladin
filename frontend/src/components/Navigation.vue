@@ -143,8 +143,11 @@ export default {
 }
 
 .validity {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
   margin-right: auto;
-  text-align: center;
   width: 2vw;
   background: green;
 }

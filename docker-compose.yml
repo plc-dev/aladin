@@ -35,6 +35,8 @@ services:
     #     volumes:
     #         - ./backend/services/schemaspy/output:/output
     #         - ./backend/services/schemaspy:/worker
+    #     tty: true
+    #     command: tail -f /dev/null
 
     postgres:
         build:

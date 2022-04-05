@@ -141,6 +141,7 @@ interface IOptions {
     forceHavingClause: boolean;
     forceOrderBy: boolean;
     schema: string;
+    seed: string;
 }
 
 type JoinType = "LEFT JOIN" | "LEFT OUTER JOIN" | "CROSS JOIN" | "INNER JOIN";
@@ -664,13 +665,13 @@ class SQLParser {
             const secondAlias = aliasDictionary[table];
             const { source, target } = columns;
 
-            let statement = `${type} ${schema}.${table} as ${secondAlias} ON ${firstAlias}.${target} = ${secondAlias}.${source}`;
+            let statement = `${type} ${schema}.${table} as ${secondAlias}\nON ${firstAlias}.${target} = ${secondAlias}.${source}`;
             if (type === "CROSS JOIN") {
                 statement = `${type} ${schema}.${table} as ${secondAlias}`;
             }
 
             if (seenAlias.includes(secondAlias)) {
-                statement = `${type} ${schema}.${table} ON ${firstAlias}.${target} = ${secondAlias}.${source}`;
+                statement = `${type} ${schema}.${table}\nON ${firstAlias}.${target} = ${secondAlias}.${source}`;
                 if (type === "CROSS JOIN") {
                     statement = `${type} ${schema}.${table}`;
                 }
@@ -680,7 +681,7 @@ class SQLParser {
             seenAlias.push(secondAlias);
             return statement;
         });
-        return `FROM ${schema}.${table} as ${alias} ${joins.join(" ")}`;
+        return `FROM ${schema}.${table} as ${alias}\n${joins.join("\n")}`;
     }
 
     private parseWhereClause(columns: IConstraintColumns, aliasDictionary: IAliasDictionary) {
@@ -1167,16 +1168,16 @@ interface SQLTaskDescription {
 }
 
 export const sqlQueryGenerator = async (taskDescription: SQLTaskDescription) => {
+    const { language, parameters } = taskDescription;
+    const { schema, seed } = parameters;
+
     const sqlTaskClient = new PgClient(SQL_TASK_DB);
-    const reflector = new SQLDBReflection(["northwind"], sqlTaskClient);
+    const reflector = new SQLDBReflection([schema], sqlTaskClient);
     const reflection = await reflector.reflectDB();
     const parser = new SQLMetaDataParser(reflection);
     const parsedMetaData = parser.parseMetaData();
 
-    const { language, parameters } = taskDescription;
-    const { schema } = parameters;
-
-    const qb = new QueryGenerator(parsedMetaData, parameters, sqlTaskClient, schema, new RNG());
+    const qb = new QueryGenerator(parsedMetaData, parameters, sqlTaskClient, schema, new RNG(seed));
     const sqlParser = new SQLParser();
     const nlParser = new NLParser(templatesPerLanguage[language]);
 
@@ -1189,7 +1190,7 @@ export const sqlQueryGenerator = async (taskDescription: SQLTaskDescription) => 
             parsedQuery = sqlParser.parse(query, schema);
             result = await sqlTaskClient.queryDB(parsedQuery);
         } catch (error) {
-            console.log(error);
+            console.log("rewind");
         }
     }
     const nlQuery = nlParser.parse(query);
@@ -1285,4 +1286,10 @@ export const sqlQueryValidator = async (taskDescription: SQLTaskValidationDescri
 
 export const importDatabase = async (taskDescription: {}) => {
     minioClient;
+};
+
+export const fetchERD = async (taskDescription: { parameters: { schema: string } }) => {
+    const { schema } = taskDescription.parameters;
+    const dotDescription = await minioClient.getFile("erd", `${schema}.dot`);
+    return { dotDescription };
 };

@@ -3,11 +3,12 @@ import { PlanGraph, PlanVertex } from "./Graph";
 import { Constructor } from "../../genericGraphs/Utility";
 import { PlanGraphGenerator, PlanConfig } from "./GraphGenerator";
 
+const TABLECOLUMNS = ["Vorgang", "Dauer", "Vorgänger"];
+
 interface TerminationTuple {
     parent: PlanVertex;
     child: PlanVertex;
 }
-
 export class SchedulingTaskGenerator extends TaskGenerator<PlanGraph, PlanConfig> {
     constructor(
         graphConstructor: Constructor<PlanGraph> = PlanGraph,
@@ -44,9 +45,9 @@ export class SchedulingTaskGenerator extends TaskGenerator<PlanGraph, PlanConfig
 
     private generateTable(vertices: Array<PlanVertex>) {
         return vertices.map((vertex) => ({
-            Ereignis: vertex.getProperty("ps" as keyof PlanVertex),
-            Dauer: vertex.getProperty("d" as keyof PlanVertex),
-            Abhängigkeit: Object.values(vertex.getParents())
+            [TABLECOLUMNS[0]]: vertex.getProperty("ps" as keyof PlanVertex),
+            [TABLECOLUMNS[1]]: vertex.getProperty("d" as keyof PlanVertex),
+            [TABLECOLUMNS[2]]: Object.values(vertex.getParents())
                 .map((vertex) => vertex.getProperty("ps" as keyof PlanVertex))
                 .join(" "),
         }));

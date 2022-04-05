@@ -117,6 +117,8 @@ export default {
     const interjections = getProperty(interjectionPath) || [];
     interjectionHandler(props.storeObject, interjections, interjectionPath);
 
+    console.warn(store);
+
     // load modals
     const modals = getProperty(`nodes__${currentNode}__modals`);
 
@@ -172,7 +174,6 @@ export default {
       });
 
       document.querySelector(".canvas").addEventListener("panzoompan", (event: MouseEvent) => {
-        console.warn(event.target);
         if (event.target !== document.querySelector(".vue-grid-layout.grid")) {
           return;
         }

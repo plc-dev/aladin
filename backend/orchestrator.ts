@@ -1,7 +1,7 @@
 import { RPCConsumer } from "rabbitmq-rpc-wrapper";
 import amqp, { Channel } from "amqplib";
 import { GozintographTaskGenerator } from "./Tasks/gozintograph/Task";
-import { sqlQueryGenerator, sqlQueryValidator, importDatabase } from "./Tasks/SQL/SQLTaskWorker";
+import { sqlQueryGenerator, sqlQueryValidator, importDatabase, fetchERD } from "./Tasks/SQL/SQLTaskWorker";
 import { InterpolationTaskGenerator } from "./Tasks/geoInterpolation/GeoInterpolationWorker";
 import { ShortestPathTaskGenerator } from "./Tasks/shortestPath/MunkeltWorker";
 import { PostgresWorker } from "./workers/PostgresWorker";
@@ -19,6 +19,7 @@ const generators: { [key: string]: any } = {
     sqlQueryGenerator: sqlQueryGenerator,
     sqlQueryValidator: sqlQueryValidator,
     importDatabase: importDatabase,
+    fetchERD: fetchERD,
     InterpolationTaskGenerator: InterpolationTaskGenerator,
     ShortestPathTaskGenerator: ShortestPathTaskGenerator,
     EPKTaskGenerator: EPKTaskGenerator,

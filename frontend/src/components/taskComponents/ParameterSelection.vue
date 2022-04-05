@@ -13,6 +13,8 @@
           :key="key"
           :element="element"
           :elementId="key"
+          :storeObject="storeObject"
+          :componentID="componentID"
         />
       </div>
     </div>
@@ -102,8 +104,9 @@ export default {
 
     const currentTask = computed(() => getProperty("currentTask"));
 
-    const fetchData = (instruction) =>
+    const fetchData = (instruction) => {
       store.dispatch("fetchTaskData", { payload: preparePayload(instruction), endpoint: `${currentTask.value}/${instruction}` });
+    };
 
     const actionTypes = {
       fetchData,

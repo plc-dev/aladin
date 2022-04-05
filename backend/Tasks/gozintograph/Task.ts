@@ -24,10 +24,13 @@ export class GozintographTaskGenerator extends TaskGenerator<Gozintograph, Gozin
         const graphGenerator = new this.graphGeneratorConstructor(this.rng);
         this.graph = graphGenerator.generateGraph(this.graphConstructor, config);
 
-        const vertices = Object.values(this.graph.getVertices());
-        const valueVector = vertices.map((vertex) => vertex.getProperty("value" as keyof GozintographVertex));
-        const labelVector = vertices.map((vertex) => vertex.getProperty("label" as keyof GozintographVertex));
-        const solution = this.calculateSolution(this.graph.getAdjacencyMatrix(), valueVector);
+        const transpose = (adjacencyMatrix: Array<Array<number>>) =>
+            adjacencyMatrix[0].map((_, colIndex) => adjacencyMatrix.map((row) => row[colIndex]));
+        const [labelVector, valueVector, adjacencyMatrix] = this.orderGraphSemantically(this.graph);
+        // const vertices = Object.values(this.graph.getVertices());
+        // const valueVector = vertices.map((vertex) => vertex.getProperty("value" as keyof GozintographVertex));
+        // const labelVector = vertices.map((vertex) => vertex.getProperty("label" as keyof GozintographVertex));
+        const solution = this.calculateSolution(transpose(adjacencyMatrix), valueVector);
 
         const dotGraph = this.graph.dotGraph();
         const { nodes, edges, paths } = this.graph.serialize();
@@ -40,9 +43,48 @@ export class GozintographTaskGenerator extends TaskGenerator<Gozintograph, Gozin
             valueVector: [valueVector],
             labelVector,
             solution,
-            adjacencyMatrix: this.graph.getAdjacencyMatrix(),
+            adjacencyMatrix: transpose(adjacencyMatrix),
             longestPath: this.graph.getLongestPathLength(),
         };
+    }
+
+    private orderGraphSemantically(graph: Gozintograph) {
+        const labelOrder: { [key: string]: number } = { P: 400, B: 300, K: 200, R: 100 };
+        const vertices = Object.values(graph.getVertices());
+
+        const labelSort = (v1: GozintographVertex, v2: GozintographVertex) => {
+            const labels = [v1, v2].map((v) => v.getProperty("label" as keyof GozintographVertex));
+            const splitAtIndex = (s: string, index: number): [label: string, index: number] => [
+                s.substring(0, index),
+                parseInt(s.substring(index)),
+            ];
+            const [l1, l2] = labels.map((label) => splitAtIndex(label, 1));
+
+            return labelOrder[l2[0]] - labelOrder[l1[0]] + (l1[1] - l2[1]);
+        };
+        const edges = graph.getEdges();
+
+        return vertices.sort(labelSort).reduce(
+            (sortedGraph, vertex, i, sortedVertices) => {
+                sortedGraph[0].push(vertex.getProperty("label" as keyof GozintographVertex));
+                sortedGraph[1].push(vertex.getProperty("value" as keyof GozintographVertex));
+
+                const row = sortedVertices.map((sortedVertex) => {
+                    const parents = vertex.getParents();
+                    const vertexID = vertex.getId();
+                    const parentID = sortedVertex.getId();
+                    if (parentID in parents) {
+                        return parseInt(edges[`${parents[parentID].getId()}__${vertexID}`].getLabel());
+                    } else {
+                        return 0;
+                    }
+                });
+                sortedGraph[2].push(row);
+
+                return sortedGraph;
+            },
+            [[], [], []]
+        );
     }
 
     private longestPathLength() {
@@ -68,10 +110,8 @@ export class GozintographTaskGenerator extends TaskGenerator<Gozintograph, Gozin
         const paths = rootVertices.reduce((paths, root) => findPath(root, [], paths), []);
         this.graph.setPaths(paths);
 
-        const longestPathLength = paths.reduce(
-            (longestPath, path, i, paths) => (path.length > paths[longestPath].length ? i : longestPath),
-            0
-        );
+        const longestPathLength = paths.reduce((longestPath, path) => (path.length > longestPath ? path.length : longestPath), 0);
+
         this.graph.setLongestPathLength(longestPathLength);
         return longestPathLength;
     }

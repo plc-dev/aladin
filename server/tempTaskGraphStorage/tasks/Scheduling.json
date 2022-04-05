@@ -37,21 +37,12 @@
                     "sm": [{ "x": 12, "y": 5, "w": 2, "h": 5, "i": 1, "static": false }],
                     "md": [{ "x": 0, "y": 10, "w": 2, "h": 5, "i": 1, "static": false }],
                     "lg": [
-                        { "x": 30, "y": 29, "w": 8, "h": 4, "i": 0, "static": false },
-                        { "x": 38, "y": 29, "w": 2, "h": 2, "i": 1, "static": false },
-                        { "x": 38, "y": 31, "w": 2, "h": 2, "i": 2, "static": false }
+                        { "x": 32, "y": 29, "w": 2, "h": 2, "i": 0, "static": false },
+                        { "x": 34, "y": 29, "w": 2, "h": 4, "i": 1, "static": false }
                     ]
                 },
                 "components": {
                     "0": {
-                        "type": "DOTGraph",
-                        "name": "Scheduling",
-                        "isValid": true,
-                        "dependencies": {
-                            "DOTGraph": { "dotDescription": "taskData__dotDescription" }
-                        }
-                    },
-                    "1": {
                         "type": "TaskConfiguration",
                         "name": "Konfiguration",
                         "isValid": false,
@@ -113,7 +104,7 @@
                             }
                         }
                     },
-                    "2": {
+                    "1": {
                         "type": "Output",
                         "name": "Vorgangsliste",
                         "isValid": true,
@@ -129,14 +120,24 @@
             "1": {
                 "pathDescriptions": {
                     "2": {
-                        "title": "Netzplan",
+                        "title": "Metra-Potential-Methode (MPM)",
                         "image": "/img/tasks/scheduling/netzplan.png",
-                        "description": "Erstelle aus der Vorgangsliste einen Netzplan!"
+                        "description": "Führe eine Auftragsterminierung anhand der Metra-Potential-Methode (MPM) durch!"
                     },
                     "4": {
                         "title": "Gantt-Diagramm",
                         "image": "/img/tasks/scheduling/gantt_diagram.png",
-                        "description": "Erstelle aus der Vorgangsliste ein Gantt-Diagramm!"
+                        "description": "Führe eine Auftragsterminierung anhand eines Gantt-Diagramms durch!"
+                    },
+                    "5": {
+                        "title": "Critical-Path-Methode (CPM)",
+                        "image": "/img/tasks/scheduling/gantt_diagram.png",
+                        "description": "Führe eine Auftragsterminierung anhand der Critical-Path-Methode (CPM) durch!"
+                    },
+                    "6": {
+                        "title": "Program Evaluation and Review Technique (PERT)",
+                        "image": "/img/tasks/scheduling/gantt_diagram.png",
+                        "description": "Führe eine Auftragsterminierung anhand der Program Evaluation and Review Technique (PERT) durch!"
                     }
                 }
             },

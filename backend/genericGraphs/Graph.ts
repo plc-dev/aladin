@@ -25,7 +25,7 @@ export class Vertex {
     static resetCounter() {
         Vertex.counter = 0;
     }
-    public getId() {
+    public getId(): number {
         return this.id;
     }
     public addParents(parents: { [id: number]: Vertex }) {
