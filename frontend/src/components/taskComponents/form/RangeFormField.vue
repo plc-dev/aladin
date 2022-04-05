@@ -1,6 +1,7 @@
 <template>
   <div class="parameter_range">
     <input
+      v-tooltip.top-center="lowerErrorMessage"
       :class="`${elementId}__initial__lowerValue`"
       :type="element.type"
       :value="element.initial.lowerValue"
@@ -11,6 +12,7 @@
       @keyup="emitEvent"
     />
     <input
+      v-tooltip.top-center="upperErrorMessage"
       :class="`${elementId}__initial__upperValue`"
       :type="element.type"
       :value="element.initial.upperValue"
@@ -24,9 +26,14 @@
 </template>
 
 <script lang="ts">
+<<<<<<< HEAD
 import { onMounted, ref, computed } from "vue";
 import { delay } from "@/helpers/HelperFunctions.ts";
 import { evaluateRange } from "./validation";
+=======
+import { onMounted, ref } from "vue";
+import { delay } from "@/helpers/HelperFunctions.ts";
+>>>>>>> origin/master
 
 export default {
   name: "RangeFormField",
@@ -35,6 +42,33 @@ export default {
     elementId: String,
   },
   setup(props, { emit }) {
+    let lowerErrorMessage = ref("");
+    let upperErrorMessage = ref("");
+
+    const evaluate = () => {
+      const lowerInput: HTMLInputElement = document.querySelector(`.${props.elementId}__initial__lowerValue`);
+      const upperInput: HTMLInputElement = document.querySelector(`.${props.elementId}__initial__upperValue`);
+      const lowerValue = parseFloat(lowerInput.value.replace(",", "."));
+      const upperValue = parseFloat(upperInput.value.replace(",", "."));
+
+      const { min, max } = props.element.boundaries;
+
+      const lowerCondition = lowerValue >= min && lowerValue <= max && lowerValue <= upperValue;
+      const upperCondition = upperValue >= min && upperValue <= max && upperValue >= lowerValue;
+
+      const setValidity = (target: HTMLInputElement, isValid: boolean) => {
+        if (isValid) {
+          target.classList.remove("invalid");
+          target.classList.add("valid");
+        } else {
+          target.classList.remove("valid");
+          target.classList.add("invalid");
+        }
+      };
+      setValidity(lowerInput, lowerCondition);
+      setValidity(upperInput, upperCondition);
+    };
+
     const emitEvent = (event) => {
       delay(
         "formFill",

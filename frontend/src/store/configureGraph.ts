@@ -14,6 +14,9 @@ const state: IState = {
   nodes: {
     "0": {
       zoomScale: 1,
+      interjections: [
+        { method: "matrixSelfMultiplication", dependencies: { baseMatrix: "nodes__0__components__1", n: "taskData__longestPath" } },
+      ],
       layouts: {
         sm: [],
         md: [],

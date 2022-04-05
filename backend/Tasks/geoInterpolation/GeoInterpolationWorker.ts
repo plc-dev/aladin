@@ -50,6 +50,7 @@ export class InterpolationTaskGenerator {
         const dotDescription = this.generateDotDescription(graph);
         const thresholds = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1].map((v) => v * scale);
 
+<<<<<<< HEAD:backend/Tasks/geoInterpolation/GeoInterpolationWorker.ts
         const p = 2;
 
         const { distances, values } = graph.measurementPoints.reduce(
@@ -68,6 +69,9 @@ export class InterpolationTaskGenerator {
         };
 
         return { grid, thresholds, ...graph, dotDescription, p, distances, values, n: distances.length, result: result() };
+=======
+        return { grid, thresholds, ...graph, dotDescription };
+>>>>>>> origin/master:backend/workers/GeoInterpolationWorker.ts
     }
 
     private generateNoiseGrid(scale: number, gridRange: Array<number>, seed: number = Math.random()) {
@@ -86,6 +90,7 @@ export class InterpolationTaskGenerator {
 
         const columnIndices = randomSample(grid.keys(), measurementCount, true, this.rng);
         const measurementPoints: Array<IMeasurementPoint> = columnIndices.map((columnIndex, i) => {
+<<<<<<< HEAD:backend/Tasks/geoInterpolation/GeoInterpolationWorker.ts
             const [rowIndex] = randomSample(grid[columnIndex].keys(), 1, true, this.rng);
             return {
                 id: i + 1,
@@ -93,6 +98,15 @@ export class InterpolationTaskGenerator {
                 x: columnIndex,
                 y: rowIndex,
                 distance: this.euclidianDistance([unknownPoint.x, unknownPoint.y], [columnIndex, rowIndex]),
+=======
+            const [rowIndex] = randomSample(Object.keys(grid[columnIndex]), 1);
+            return {
+                id: i + 1,
+                value: grid[columnIndex][rowIndex],
+                x: columnIndex,
+                y: rowIndex,
+                distance: this.euclidianDistance([unknownPoint.x, unknownPoint.y], [x, y]),
+>>>>>>> origin/master:backend/workers/GeoInterpolationWorker.ts
             };
         });
 

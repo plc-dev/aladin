@@ -1,9 +1,15 @@
 import { RPCConsumer } from "rabbitmq-rpc-wrapper";
 import amqp, { Channel } from "amqplib";
+<<<<<<< HEAD
 import { GozintographTaskGenerator } from "./Tasks/gozintograph/Task";
 import { sqlQueryGenerator, sqlQueryValidator, importDatabase, fetchERD } from "./Tasks/SQL/SQLTaskWorker";
 import { InterpolationTaskGenerator } from "./Tasks/geoInterpolation/GeoInterpolationWorker";
 import { ShortestPathTaskGenerator } from "./Tasks/shortestPath/MunkeltWorker";
+=======
+import { GozintographGenerator } from "./graphLib/generators/gozintographGenerator";
+import { sqlQueryGenerator, sqlQueryValidator, importDatabase } from "./workers/SQLTaskWorker";
+import { InterpolationTaskGenerator } from "./workers/GeoInterpolationWorker";
+>>>>>>> origin/master
 import { PostgresWorker } from "./workers/PostgresWorker";
 import { EPKTaskGenerator } from "./Tasks/EPK/EPKTask";
 import { SchedulingTaskGenerator } from "./Tasks/scheduling/Task";
@@ -19,11 +25,15 @@ const generators: { [key: string]: any } = {
     sqlQueryGenerator: sqlQueryGenerator,
     sqlQueryValidator: sqlQueryValidator,
     importDatabase: importDatabase,
+<<<<<<< HEAD
     fetchERD: fetchERD,
     InterpolationTaskGenerator: InterpolationTaskGenerator,
     ShortestPathTaskGenerator: ShortestPathTaskGenerator,
     EPKTaskGenerator: EPKTaskGenerator,
     SchedulingTaskGenerator: SchedulingTaskGenerator,
+=======
+    InterpolationTaskGenerator: InterpolationTaskGenerator,
+>>>>>>> origin/master
 };
 
 // load environment variables
@@ -44,6 +54,10 @@ interface ISerializedQueues {
 
 const asyncSleep = async (fn: Function, timeOut: number = 2000): Promise<any> => {
     return new Promise((resolve) => {
+<<<<<<< HEAD
+=======
+        // wait 3s before calling fn(par)
+>>>>>>> origin/master
         setTimeout(() => resolve(fn()), timeOut);
     });
 };

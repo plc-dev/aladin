@@ -3,6 +3,9 @@
 </template>
 
 <script lang="ts">
+import Equation from "@/components/taskComponents/math/Equation.vue";
+import { mathlex } from "@/helpers/FormulaGenerator";
+
 export default {
   name: "Settings",
   setup() {
