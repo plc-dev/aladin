@@ -76,7 +76,6 @@ export default {
   width: 8vw;
   background: #57636b;
   border-radius: 50%;
-<<<<<<< HEAD
   text-decoration: none;
   box-shadow: 2px 3px 9px 0px rgba(0, 0, 0, 1);
   text-shadow: 1px 1px 1px #b1b2b4;
@@ -95,26 +94,14 @@ export default {
   background: #e8edf1;
   filter: brightness(70%);
   color: #57636b;
-=======
-  color: #e8edf1;
-  text-decoration: none;
-  box-shadow: 2px 3px 9px 0px rgba(0, 0, 0, 1);
-  text-shadow: 1px 1px 1px #b1b2b4;
-  transition: all 1s ease;
->>>>>>> origin/master
 }
 
 .taskOverview_taskNode:hover {
   filter: brightness(85%);
-<<<<<<< HEAD
   transition: all 0.5s ease;
   color: #f1ad2d;
   font-size: 20px;
   transform: scale(1.02);
   background: #57636b;
-=======
-  transition: all 1s ease;
-  color: #f1ad2d;
->>>>>>> origin/master
 }
 </style>

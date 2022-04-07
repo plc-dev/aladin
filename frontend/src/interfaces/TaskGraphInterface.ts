@@ -88,11 +88,8 @@ export interface IReplay {
 export interface IInterjection {
   dependencies: { [dependencyName: string]: taskGraphPath | number };
   method: string;
-<<<<<<< HEAD
   applied?: boolean;
   component_id?: string;
-=======
->>>>>>> origin/master
 }
 
 interface INodes {

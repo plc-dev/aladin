@@ -41,7 +41,6 @@ const delay = (label: string, callback: Function, time: number = 500) => {
   }, time);
 };
 
-<<<<<<< HEAD
 /**
  * throttle decorator/HOF
  * use to limit high frequency events
@@ -85,6 +84,3 @@ const pollGraphRender = (selector, fn) => {
 };
 
 export { isEqualArrayContent, delay, pollGraphRender };
-=======
-export { isEqualArrayContent, delay };
->>>>>>> origin/master
