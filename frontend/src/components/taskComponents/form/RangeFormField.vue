@@ -26,14 +26,9 @@
 </template>
 
 <script lang="ts">
-<<<<<<< HEAD
 import { onMounted, ref, computed } from "vue";
 import { delay } from "@/helpers/HelperFunctions.ts";
 import { evaluateRange } from "./validation";
-=======
-import { onMounted, ref } from "vue";
-import { delay } from "@/helpers/HelperFunctions.ts";
->>>>>>> origin/master
 
 export default {
   name: "RangeFormField",
