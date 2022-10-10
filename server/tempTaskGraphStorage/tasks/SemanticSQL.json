@@ -1,45 +1,41 @@
 {
     "API": [
         {
-            "task": "sql",
+            "task": "semanticsql",
             "name": "generateQuery",
             "httpMethod": "post",
             "params": { "parameters": "object", "schema": "string", "language": "string" }
         },
         {
-            "task": "sql",
+            "task": "semanticsql",
             "name": "validateQuery",
             "httpMethod": "post",
             "params": { "parameters": "object" }
         },
         {
-            "task": "sql",
+            "task": "semanticsql",
             "name": "generateERD",
             "httpMethod": "post",
             "params": { "parameters": "object" }
         },
         {
-            "task": "sql",
+            "task": "semanticsql",
             "name": "fetchERD",
             "httpMethod": "post",
             "params": { "parameters": "object" }
         }
     ],
     "Worker": {
-        "sqlTask": {
+        "semanticsqlTask": {
             "minConsumers": 1,
             "consumerInstructions": {
                 "generateQuery": {
-                    "dependencies": ["sqlQueryGenerator"],
-                    "body": "async (taskDescription) => { return await sqlQueryGenerator(taskDescription); }"
+                    "dependencies": ["semanticSqlQueryGenerator"],
+                    "body": "async (taskDescription) => { return await semanticSqlQueryGenerator(taskDescription); }"
                 },
                 "validateQuery": {
-                    "dependencies": ["sqlQueryValidator"],
-                    "body": "async (taskDescription) => { return await sqlQueryValidator(taskDescription); }"
-                },
-                "importDatabase": {
-                    "dependencies": ["importDatabase"],
-                    "body": "async (taskDescription) => { return await importDatabase(taskDescription); }"
+                    "dependencies": ["semanticSqlQueryValidator"],
+                    "body": "async (taskDescription) => { return await semanticSqlQueryValidator(taskDescription); }"
                 },
                 "fetchERD": {
                     "dependencies": ["fetchERD"],
@@ -49,7 +45,7 @@
         }
     },
     "UI": {
-        "currentTask": "sql",
+        "currentTask": "semanticsql",
         "taskData": {},
         "rootNode": 0,
         "topology": [[0, null, null]],
@@ -86,9 +82,7 @@
                 "hints": {
                     "active": false,
                     "current": 0,
-                    "descriptions": [
-                        "Generiere eine beliebige SQL-Abfrage. <br>Ermittle nun anhand der Aufgabenstellung und des Datenbankdiagramms die nötigen Felder, Tabellen und Joins um die Abfrage zu bilden. <br>Trage das Statement in das Code-Widget ein und klicke auf 'Ausführen' um das Ergebnis zu überprüfen."
-                    ]
+                    "descriptions": ["Generate a random SQL Query and try to solve it with the help of the ERD."]
                 },
                 "modals": [
                     {
@@ -96,12 +90,12 @@
                             "type": "success"
                         },
                         "content": {
-                            "header": "Herzlichen Glückwunsch!",
-                            "body": "Sie haben die Aufgabe erfolgreich gelöst!",
+                            "header": "Congrats!",
+                            "body": "You solved the task successfully.",
                             "footer": {
                                 "buttons": [
-                                    { "type": "close", "label": "Zurück", "parameters": {} },
-                                    { "type": "route", "label": "Zur Übersicht", "parameters": { "route": "TaskOverview" } }
+                                    { "type": "close", "label": "Back", "parameters": {} },
+                                    { "type": "route", "label": "Overview", "parameters": { "route": "TaskOverview" } }
                                 ]
                             }
                         },
@@ -118,27 +112,27 @@
                     },
                     "1": {
                         "type": "TaskConfiguration",
-                        "name": "Konfiguration",
+                        "name": "Configuration",
                         "isValid": true,
                         "component": {
-                            "title": "Parameter Konfiguration",
+                            "title": "Parameter configuration",
                             "actions": [
                                 {
                                     "instruction": "generateQuery",
                                     "type": "fetchData",
-                                    "label": "Generieren!",
+                                    "label": "Generate!",
                                     "dependsOn": ["joinRange", "columnRange", "constraintRange"]
                                 }
                             ],
                             "form": {
                                 "schema": {
                                     "formType": "DropdownFormField",
-                                    "label": "Datenbank",
+                                    "label": "Database",
                                     "type": "string",
-                                    "description": "Zur Verfügung stehende Datenbanken",
+                                    "description": "Available databases",
                                     "action": { "instruction": "fetchERD", "type": "fetchData", "key": "schema" },
                                     "initial": "northwind",
-                                    "options": ["northwind", "sports", "airport"],
+                                    "options": ["northwind"],
                                     "presets": {
                                         "easy": "airport",
                                         "medium": "northwind",
@@ -147,9 +141,9 @@
                                 },
                                 "joinRange": {
                                     "formType": "RangeFormField",
-                                    "label": "Anzahl Joins",
+                                    "label": "Join amount",
                                     "type": "number",
-                                    "description": "Bestimmt die Anzahl an Joins",
+                                    "description": "Set the amount of joins",
                                     "initial": {
                                         "lowerValue": 0,
                                         "upperValue": 2
@@ -164,9 +158,9 @@
                                 },
                                 "columnRange": {
                                     "formType": "RangeFormField",
-                                    "label": "Anzahl Spalten",
+                                    "label": "Column amount",
                                     "type": "number",
-                                    "description": "Bestimmt die Anzahl an Spalten",
+                                    "description": "Set the amount of columns",
                                     "initial": {
                                         "lowerValue": 1,
                                         "upperValue": 4
@@ -181,9 +175,9 @@
                                 },
                                 "constraintRange": {
                                     "formType": "RangeFormField",
-                                    "label": "Anzahl Bedingungen",
+                                    "label": "Constraint amount",
                                     "type": "number",
-                                    "description": "Bestimmt die Anzahl an Bedingungen",
+                                    "description": "Set the amount of constraints",
                                     "initial": {
                                         "lowerValue": 0,
                                         "upperValue": 3
@@ -198,9 +192,9 @@
                                 },
                                 "allowAggregates": {
                                     "formType": "CheckboxFormField",
-                                    "label": "Aggregat",
+                                    "label": "Aggregates",
                                     "type": "checkbox",
-                                    "description": "Bestimmt ob Aggregationen generiert werden",
+                                    "description": "Choose if aggregates should be possible",
                                     "initial": false,
                                     "presets": {
                                         "easy": false,
@@ -210,9 +204,9 @@
                                 },
                                 "forceHavingClause": {
                                     "formType": "CheckboxFormField",
-                                    "label": "Having-Clause",
+                                    "label": "Having-clause",
                                     "type": "checkbox",
-                                    "description": "Bestimmt ob eine Having Clause generiert wird",
+                                    "description": "Choose if a having-clause should be generated",
                                     "initial": false,
                                     "presets": {
                                         "easy": false,
@@ -224,7 +218,7 @@
                                     "formType": "CheckboxFormField",
                                     "label": "OrderBy",
                                     "type": "checkbox",
-                                    "description": "Bestimmt ob ein Order By Statement generiert wird",
+                                    "description": "Choose if a order-by-statement should be generated",
                                     "initial": true,
                                     "presets": {
                                         "easy": true,
@@ -236,7 +230,7 @@
                                     "formType": "ValueFormField",
                                     "label": "Seed",
                                     "type": "text",
-                                    "description": "Setze einen beliebigen Wert um die Generierung deterministisch und reproduzierbar zu machen",
+                                    "description": "Set an arbitrary value to enable deterministic generation",
                                     "value": "",
                                     "presets": {
                                         "easy": "",
@@ -252,14 +246,14 @@
                         "name": "SQL-Query",
                         "isValid": true,
                         "methods": {
-                            "showSolution": "Zeig mir die Lösung",
-                            "copyToClipboard": "Kopieren!"
+                            "showSolution": "Show solution",
+                            "copyToClipboard": "Copy"
                         },
                         "actions": [
                             {
                                 "type": "execute",
                                 "instruction": "validateQuery",
-                                "label": "Ausführen!",
+                                "label": "Execute",
                                 "parameters": {
                                     "expectedResult": "taskData__result",
                                     "schema": "nodes__0__components__1__component__form__schema__initial",
@@ -281,7 +275,7 @@
                             "Output": { "serverOutput": "taskData__userResult", "validOutput": "taskData__isMatchingResult" }
                         },
                         "component": {
-                            "header": "SQL-Rückgabe"
+                            "header": "SQL-Output"
                         }
                     },
                     "4": {
@@ -290,7 +284,7 @@
                         "isValid": true,
                         "dependencies": { "Output": { "serverOutput": "taskData__description", "validOutput": "isMatchingResult" } },
                         "component": {
-                            "header": "Aufgabenstellung"
+                            "header": "Task description"
                         }
                     }
                 }

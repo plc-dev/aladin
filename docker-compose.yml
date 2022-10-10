@@ -51,6 +51,21 @@ services:
         volumes:
             - ./backend/services/postgres/data:/var/lib/postgresql/data/
 
+
+    # postgres_MA:
+    #     container_name: postgres_MA
+    #     build:
+    #         context: backend/services/postgres
+    #         dockerfile: postgres.Dockerfile
+    #     environment:
+    #         POSTGRES_USER: "admin"
+    #         POSTGRES_PASSWORD: "admin"
+    #         POSTGRES_DB: "aladin"
+    #     ports:
+    #         - "5430:5430"
+    #     volumes:
+    #         - C:/Users/pcr/Desktop/postgres_MA/:/var/lib/postgresql/data/
+
     # mongodb:
     #     build:
     #         context: backend/services/mongodb

@@ -8,16 +8,20 @@
 </template>
 
 <script lang="ts">
-import { computed, onMounted } from "vue";
-import { store } from "../store/taskOverview";
+import { computed, onMounted, onBeforeMount, watch } from "vue";
+import { store as taskOverviewStore } from "../store/taskOverview";
+import stores from "@/helpers/TaskGraphUtility";
 
 export default {
   setup() {
+    const taskStore = stores.taskStore.store;
+
     const taskList = computed(() => {
-      return store.state.taskList;
+      return taskOverviewStore.state.taskList;
     });
 
     const circularLayout = (circleElements, spread = 300) => {
+      if (!taskList.value.length) return;
       const elementSize = circleElements[0].offsetWidth / 2;
 
       const centerX = window.innerWidth / 2 - elementSize;
@@ -34,6 +38,7 @@ export default {
         y = spread * Math.sin(angle) + centerY;
         element.style.left = `${x}px`;
         element.style.top = `${y}px`;
+        element.style.opacity = "1";
         angle += increase;
       });
     };
@@ -48,12 +53,26 @@ export default {
       element.style.top = `${y}px`;
     };
 
-    onMounted(() => {
-      const circleElements = Array.from(document.querySelectorAll(".taskOverview_taskNode"));
-      circularLayout(circleElements);
-
+    const renderLayout = () => {
       const centerNode = document.querySelector(".center");
       centreElement(centerNode);
+      setTimeout(() => {
+        const circleElements = Array.from(document.querySelectorAll(".taskOverview_taskNode"));
+        circularLayout(circleElements);
+      }, 5);
+    };
+
+    onBeforeMount(() => {
+      taskOverviewStore.dispatch("fetchTasks");
+      taskStore.dispatch("resetStore");
+    });
+
+    onMounted(() => {
+      renderLayout();
+    });
+
+    watch(taskList, (newTaskList) => {
+      renderLayout();
     });
 
     return { taskList };
@@ -90,10 +109,11 @@ export default {
 }
 
 .taskOverview_taskNode {
-  transition: all 0.5s ease;
+  transition: all 0.2s ease;
   background: #e8edf1;
   filter: brightness(70%);
   color: #57636b;
+  opacity: 0;
 }
 
 .taskOverview_taskNode:hover {
