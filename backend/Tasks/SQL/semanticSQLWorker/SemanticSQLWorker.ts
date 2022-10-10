@@ -1,45 +1,15 @@
-import { MinioClientWrapper } from "../../database/minio/minioDAO";
-import { PgClient } from "../../database/postgres/postgresDAO";
-import { templateString, toPascalCase } from "../../helpers/helperFunctions";
-import { RNG, randomSample } from "../../helpers/NumberGenerators";
-import { errorCodes } from "./pgErrorCodes";
+import { PgClient } from "../../../database/postgres/postgresDAO";
+import { templateString, toPascalCase } from "../../../helpers/helperFunctions";
+import { RNG, randomSample } from "../../../helpers/NumberGenerators";
+import { errorCodes } from "../pgErrorCodes";
+import fs from "fs";
+import { parse } from "path";
+import { MinioClientWrapper } from "../../../database/minio/minioDAO";
+import { knowledgeGraph, structuredKnowledgeGraph, IStructuredKnowledgeGraph } from "./knowledgeGraph";
+import { SQLDBReflection } from "./SQLDBReflection";
 
 const minioClient = new MinioClientWrapper();
-const SQL_TASK_DB = "test";
-
-const reflectionQueries = {
-    tables: `SELECT columns.table_name,
-                    columns.column_name,
-                    columns.data_type
-            FROM information_schema.columns
-            WHERE table_name in 
-                    (SELECT tables.table_name
-                    FROM information_schema.tables
-                    WHERE tables.table_schema = '\${schema}' 
-                    AND tables.table_name != 'schema_version' 
-                    AND tables.table_type = 'BASE TABLE');`,
-    foreignKeys: `SELECT m.relname AS source_table,
-                        (SELECT a.attname FROM pg_attribute a WHERE a.attrelid = m.oid AND a.attnum = o.conkey[1] AND a.attisdropped = false) AS source_column,
-                        f.relname AS target_table,
-                        (SELECT a.attname FROM pg_attribute a WHERE a.attrelid = f.oid AND a.attnum = o.confkey[1] AND a.attisdropped = false) AS target_column
-                FROM pg_constraint o LEFT JOIN pg_class f ON f.oid = o.confrelid LEFT JOIN pg_class m ON m.oid = o.conrelid
-                WHERE o.contype = 'f' AND o.conrelid IN (SELECT oid FROM pg_class c WHERE c.relkind = 'r')
-                and o.connamespace::regnamespace::text = '\${schema}';`,
-};
-
-class SQLDBReflection {
-    constructor(private schema: Array<string>, private dbClient: PgClient) {}
-
-    public async reflectDB() {
-        return { foreignKeys: await this.reflectForeignKeys(), tables: await this.reflectTables() };
-    }
-    public async reflectForeignKeys() {
-        return await this.dbClient.queryDB(templateString(reflectionQueries.foreignKeys, { schema: this.schema }));
-    }
-    public async reflectTables() {
-        return await this.dbClient.queryDB(templateString(reflectionQueries.tables, { schema: this.schema }));
-    }
-}
+const SQL_TASK_DB = "imdb";
 
 type Await<T> = T extends {
     then(onfulfilled?: (value: infer U) => unknown): unknown;
@@ -64,6 +34,38 @@ interface IParsedTable {
     };
 }
 
+interface IParsedForeignKeys {
+    source: {
+        table: any;
+        columns: {
+            source: any;
+            target: any;
+        };
+    };
+    target: {
+        table: any;
+        columns: {
+            source: any;
+            target: any;
+        };
+    };
+}
+
+interface IParsedPrimaryKey {
+    [tableName: string]: {
+        keyColumns: Array<string>;
+    };
+}
+
+interface IMetaData {
+    tables: IParsedTable;
+    foreignKeys: Array<IParsedForeignKeys>;
+    primaryKeys: IParsedPrimaryKey;
+    primaryTables?: Array<string>;
+    junctionTables?: Array<string>;
+    attributeTables?: Array<string>;
+}
+
 class SQLMetaDataParser {
     private typeMap = {
         number: ["real", "int", "decimal", "numeric", "double", "precision", "serial"],
@@ -77,10 +79,11 @@ class SQLMetaDataParser {
 
     constructor(private metadata: Await<ReturnType<SQLDBReflection["reflectDB"]>>) {}
 
-    public parseMetaData() {
+    public parseMetaData(): IMetaData {
         const tables = this.parseTables();
         const foreignKeys = this.parseForeignKeys(tables);
-        return { tables, foreignKeys };
+        const primaryKeys = this.parsePrimaryKeys();
+        return { tables, foreignKeys, primaryKeys };
     }
 
     private harmonizeType(dataType: string) {
@@ -109,7 +112,7 @@ class SQLMetaDataParser {
         }, {});
     }
 
-    private parseForeignKeys(tables: ReturnType<SQLMetaDataParser["parseTables"]>) {
+    private parseForeignKeys(tables: ReturnType<SQLMetaDataParser["parseTables"]>): Array<IParsedForeignKeys> {
         const { foreignKeys } = this.metadata;
         const edges = foreignKeys.map((foreignKey) => {
             const { source_table, source_column, target_column, target_table } = foreignKey;
@@ -131,6 +134,20 @@ class SQLMetaDataParser {
         });
         return edges;
     }
+
+    private parsePrimaryKeys(): IParsedPrimaryKey {
+        const { primaryKeys } = this.metadata;
+        const parsedPrimaryKeys = primaryKeys.reduce((parsedPrimaryKeys, primaryKey) => {
+            const { table_name, key_column } = primaryKey;
+            if (table_name in parsedPrimaryKeys) {
+                parsedPrimaryKeys[table_name].push(key_column);
+            } else {
+                parsedPrimaryKeys[table_name] = [key_column];
+            }
+            return parsedPrimaryKeys;
+        }, {});
+        return parsedPrimaryKeys;
+    }
 }
 
 interface IOptions {
@@ -144,7 +161,7 @@ interface IOptions {
     seed: string;
 }
 
-type JoinType = "LEFT JOIN" | "LEFT OUTER JOIN" | "CROSS JOIN" | "INNER JOIN";
+type JoinType = "RIGHT OUTER JOIN" | "LEFT OUTER JOIN" | "INNER JOIN";
 
 interface IEdge {
     table: keyof IParsedTable;
@@ -166,7 +183,7 @@ interface IJoinInstruction {
 interface IColumn {
     name: string;
     type: string;
-    aggregation?: aggregateType;
+    aggregation?: AggregateType;
 }
 
 interface IColumns {
@@ -191,7 +208,7 @@ interface IConstraintColumns extends IColumns {
 interface IDestructuredColumn extends IColumn {
     table: string;
     constraint?: IConstraint;
-    aggregation?: aggregateType;
+    aggregation?: AggregateType;
 }
 
 interface IDestructuredColumns {
@@ -201,7 +218,7 @@ interface IDestructuredColumns {
 
 interface IHavingClauseColumn extends IColumn {
     constraint: IConstraint;
-    aggregation: aggregateType;
+    aggregation: AggregateType;
 }
 
 interface IHavingClause extends IColumns {
@@ -231,14 +248,16 @@ interface IStructuredQuery {
     aliasDictionary: IAliasDictionary;
 }
 
-type aggregateType = "MAX" | "MIN" | "AVG" | "COUNT" | "SUM" | null;
+type AggregateType = "MAX" | "MIN" | "AVG" | "COUNT" | "SUM" | null;
 
 class QueryGenerator {
     public aliasDictionary = {};
     private numericOperators = ["BETWEEN", "<>", "<", ">", "<=", ">=", "="];
     private textOperators = ["LIKE", "NOT LIKE", "<>", "="];
-    private aggregateTypes: Array<aggregateType> = ["MAX", "MIN", "AVG", "COUNT", "SUM"];
-    private joinTypes = ["LEFT JOIN", "LEFT OUTER JOIN", "CROSS JOIN", "INNER JOIN"];
+    private aggregateTypes: Array<AggregateType> = ["MAX", "MIN", "AVG", "COUNT", "SUM"];
+    private joinTypes: Array<JoinType> = ["RIGHT OUTER JOIN", "LEFT OUTER JOIN", "INNER JOIN"];
+    private metaData: ReturnType<SQLMetaDataParser["parseMetaData"]>;
+    private pathsPerTable: IJoinables;
 
     constructor(
         private parsedMetaData: ReturnType<SQLMetaDataParser["parseMetaData"]>,
@@ -248,6 +267,7 @@ class QueryGenerator {
         private rng: RNG = new RNG()
     ) {
         const { tables } = parsedMetaData;
+        this.metaData = parsedMetaData;
         this.aliasDictionary = Object.keys(tables).reduce((aliasDictionary, table) => {
             let alias = toPascalCase(table).match(/[A-Z]/g).join("").toLowerCase();
             let bandWidth = 1;
@@ -259,35 +279,42 @@ class QueryGenerator {
             aliasDictionary[table] = alias;
             return aliasDictionary;
         }, {} as { [key: string]: string });
+
+        this.pathsPerTable = this.findAllPaths();
     }
 
     public async generateQuery(): Promise<IStructuredQuery> {
         const { joinRange, columnRange, constraintRange, allowAggregates, forceHavingClause, forceOrderBy } = this.options;
-        const pathsPerTable = this.findAllPaths();
-        const possibleTables = this.findPossibleTables(pathsPerTable, joinRange);
 
-        const selectedJoin = this.selectJoin(possibleTables);
+        const selectedJoin = this.selectJoin(joinRange);
 
-        let { sampledColumns, columnAmount } = this.selectColumns(selectedJoin, columnRange);
+        // let { sampledColumns, columnAmount } = this.selectColumns(selectedJoin, columnRange);
+        let { sampledColumns } = this.selectColumns(selectedJoin, columnRange);
+
+        let aggregationColumns: Array<{ table: string; column: string }> = [];
         if (allowAggregates) {
-            sampledColumns = this.setAggregateColumns(sampledColumns);
-        }
-        let havingClause = {};
-        if (forceHavingClause) {
-            havingClause = await this.generateHavingClause(selectedJoin);
-            // if no aggregatable column is available, rerun the query generation
-            if (!havingClause) return this.generateQuery();
+            const aggregationResult = this.setAggregateColumns(sampledColumns);
+            ({ columns: sampledColumns, aggregationColumns } = aggregationResult);
         }
 
-        const adjustedConstraintRange = this.adjustRange(constraintRange, columnAmount);
-        const whereClause = await this.generateWhereClause(sampledColumns, adjustedConstraintRange);
+        // const adjustedConstraintRange = this.adjustRange(constraintRange, columnAmount);
+        // eligibleColumns instead of sampledColumns as constraints can apply to non SELECT-columns
+        const eligibleColumns = this.joinInstructionToColumns(selectedJoin);
+        const whereClause = await this.generateWhereClause(eligibleColumns, constraintRange);
 
         let orderBy = {};
         if (forceOrderBy) {
             orderBy = this.generateOrderBy(selectedJoin);
         }
 
-        const groupBy = this.generateGroupBy(sampledColumns, havingClause, orderBy);
+        let havingClause = {};
+        if (forceHavingClause && aggregationColumns.length) {
+            havingClause = await this.generateHavingClause(selectedJoin, sampledColumns, aggregationColumns);
+        }
+        let groupBy = {};
+        if (forceHavingClause && aggregationColumns.length) {
+            groupBy = this.generateGroupBy(sampledColumns, havingClause, orderBy);
+        }
 
         return {
             columns: sampledColumns,
@@ -340,33 +367,47 @@ class QueryGenerator {
         });
 
         // TODO havingClause not needed ?
-        // if (havingClause) {
-        //     const [[table, columns]] = Object.entries(havingClause);
-        //     if (groupByColumns.hasOwnProperty(table)) groupByColumns[table] = [...groupByColumns[table], ...columns];
-        //     else groupByColumns[table] = columns;
-        // }
+        if (havingClause) {
+            const [[table, columns]] = Object.entries(havingClause);
+            if (groupByColumns.hasOwnProperty(table)) groupByColumns[table] = [...groupByColumns[table], ...columns];
+            else groupByColumns[table] = columns;
+        }
 
         return groupByColumns;
     }
 
-    private async generateHavingClause(joinInstruction: IJoinInstruction): Promise<IHavingClause> {
-        const [aggregateType] = randomSample(this.aggregateTypes, 1, true, this.rng);
+    private async generateHavingClause(
+        joinInstruction: IJoinInstruction,
+        columns: IColumns,
+        aggregationColumns: Array<{ table: string; column: string }>
+    ): Promise<IHavingClause> {
+        // !TODO!
+        //  REWORK AT THE END;
+        //  DONT FETCH COLUMNRESULTS; BUT AGGREGATE-RESULT WITH REMAINING QUERY TO ESTIMATE ELIGIBLE VALUES FOR NUMERIC CONSTRAINT
+        // REBUILD COLUMN TO IHavingClause
+
+        // const [aggregateType] = randomSample(this.aggregateTypes, 1, true, this.rng);
         const columnsPerTable = this.joinInstructionToColumns(joinInstruction);
 
-        const { tables, columns } = this.destructureColumnsPerTable(columnsPerTable);
-        const numberColumns = columns.filter((column) => column.type === "number");
-        if (!numberColumns.length) return null;
+        const { tables } = this.destructureColumnsPerTable(columnsPerTable);
+        // const numberColumns = columns.filter((column) => column.type === "number");
+        // if (!numberColumns.length) return null;
 
-        const sampledColumns: Array<IDestructuredColumn> = randomSample(numberColumns, 1, true, this.rng).map((column) => ({
-            ...column,
-            aggregation: aggregateType,
-        }));
-        const [sampledColumn] = sampledColumns;
-        const { table, name } = sampledColumn;
-        const result = (await this.fetchColumnResults(table, name)).map((row) => Object.values(row)[0]);
+        // const sampledColumns: Array<IDestructuredColumn> = randomSample(numberColumns, 1, true, this.rng).map((column) => ({
+        //     ...column,
+        //     aggregation: aggregateType,
+        // }));
+
+        const { table: aggregationTable, column: aggregationColumn } = randomSample(aggregationColumns, 1, true, this.rng)[0];
+        const sampledAggregationColumn: IColumn = {
+            ...columns[aggregationTable].filter((column) => column.name === aggregationColumn)[0],
+        };
+
+        const { name } = sampledAggregationColumn;
+        const result = (await this.fetchColumnResults(aggregationTable, name)).map((row) => Object.values(row)[0]);
         const filteredResult = result.filter((value) => value !== null);
         const constraint = this.generateConstraint("number", filteredResult);
-        const constraintColumn = { ...sampledColumn, constraint };
+        const constraintColumn = { ...sampledAggregationColumn, constraint, table: aggregationTable };
         const sampledColumnsPerTable = this.restructureColumnsPerTable({ tables, columns: [constraintColumn] }) as IHavingClause;
 
         return sampledColumnsPerTable;
@@ -416,7 +457,7 @@ class QueryGenerator {
             currency: this.numericConstraint.bind(this),
             string: this.stringConstraint.bind(this),
             date: this.numericConstraint.bind(this),
-            boolean: () => {},
+            boolean: this.booleanConstraint.bind(this),
             uuid: () => {},
             binary: () => {},
             unknown: () => {},
@@ -424,6 +465,11 @@ class QueryGenerator {
 
         const constraint: IConstraint = constraintMap[columnType](valueList);
         return constraint;
+    }
+
+    private booleanConstraint(): IConstraint {
+        const value = this.rng.coinFlip() ? "true" : "false";
+        return { operator: "=", values: [value] };
     }
 
     private nullConstraint(): IConstraint {
@@ -484,7 +530,7 @@ class QueryGenerator {
     }
 
     private async fetchColumnResults(table: string, column: string): Promise<Array<any>> {
-        const columnResult = await this.dbClient.queryDB(`SELECT ${column} FROM ${this.schema}.${table};`);
+        const columnResult = await this.dbClient.queryDB(`SELECT "${column}" FROM ${this.schema}."${table}" LIMIT 500;`);
         return columnResult;
     }
 
@@ -506,7 +552,6 @@ class QueryGenerator {
                 destructuredColumnsPerTable.tables[table] = [];
                 return destructuredColumnsPerTable;
             },
-            // TODO workaround conversion to shut the compiler up - fix with proper type assertion
             { columns: [], tables: [] as unknown } as IDestructuredColumns
         );
     }
@@ -531,9 +576,24 @@ class QueryGenerator {
         joinInstruction: IJoinInstruction,
         columnRange: Array<number>
     ): { sampledColumns: IColumns; columnAmount: number } {
+        const filterDuplicateKeys = (columns: IColumns, metaData: IMetaData) => {
+            const { junctionTables, attributeTables, primaryKeys } = metaData;
+
+            Object.entries(columns).reduce((filteredColumns, [table, columns]) => {
+                if (table in junctionTables || table in attributeTables) {
+                    filteredColumns[table] = columns.filter((column) => !primaryKeys[table].keyColumns.includes(column.name));
+                }
+                return filteredColumns;
+            }, {} as IColumns);
+
+            return columns;
+        };
+
         let columnAmount = this.rng.intBetween(columnRange[0], columnRange[1]);
-        const columns = this.joinInstructionToColumns(joinInstruction);
-        const sampledColumns = this.sampleColumns(columns, columnAmount);
+        const columnsEligibleByJoinInstruction = this.joinInstructionToColumns(joinInstruction);
+
+        const eligibleColumns = filterDuplicateKeys(columnsEligibleByJoinInstruction, this.metaData);
+        const sampledColumns = this.sampleColumns(eligibleColumns, columnAmount);
         return { sampledColumns, columnAmount };
     }
 
@@ -550,31 +610,80 @@ class QueryGenerator {
         return columns;
     }
 
-    private setAggregateColumns(columns: IColumns, force: boolean = false): IColumns {
-        return Object.entries(columns).reduce((columns, [table, columnsPerTable]) => {
-            const aggregatedColumns = columnsPerTable.map((column) => {
+    private setAggregateColumns(columns: IColumns): { columns: IColumns; aggregationColumns: Array<{ table: string; column: string }> } {
+        let aggregationColumns: Array<{ table: string; column: string }> = [];
+
+        const aggregationConditions = {
+            isNumericNonKeyAttribute: (columnType: string, rng: RNG) => columnType === "number" && rng.coinFlip(),
+            isEligibleForCount: (rng: RNG) => rng.coinFlip(),
+        };
+
+        const setAggregationColumnsPerTable = (table: string, columnsPerTable: Array<IColumn>) => {
+            return columnsPerTable.map((column) => {
                 let aggregation = null;
-                if ((column.type === "number" && this.rng.coinFlip()) || force) {
+                if (aggregationConditions.isNumericNonKeyAttribute(column.type, this.rng)) {
                     const aggregationIndex = this.rng.intBetween(0, this.aggregateTypes.length - 1);
                     aggregation = this.aggregateTypes[aggregationIndex];
+                    aggregationColumns.push({ table, column: column.name });
+                } else if (aggregationConditions.isEligibleForCount(this.rng)) {
+                    const countAggregation = this.aggregateTypes[3];
+                    aggregation = countAggregation;
+                    aggregationColumns.push({ table, column: column.name });
                 }
                 return { ...column, aggregation };
             });
-            columns = { ...columns, [table]: aggregatedColumns };
-            return columns;
-        }, {} as IColumns);
+        };
+
+        const setAggregationColumns = (columns: IColumns) => {
+            return Object.entries(columns).reduce((columns, [table, columnsPerTable]) => {
+                const aggregatedColumns = setAggregationColumnsPerTable(table, columnsPerTable);
+                columns = { ...columns, [table]: aggregatedColumns };
+                return columns;
+            }, {} as IColumns);
+        };
+
+        return { columns: setAggregationColumns(columns), aggregationColumns };
     }
 
-    private selectJoin(tables: IJoinables): IJoinInstruction {
-        const tableList = Object.entries(tables);
-        const tableAmount = tableList.length - 1;
-        const tableIndex = this.rng.intBetween(0, tableAmount);
+    private selectJoin(joinRange: Array<number>): IJoinInstruction {
+        const primaryTables = this.metaData.primaryTables;
+        const junctionTables = this.metaData.junctionTables;
+        const findEligiblePaths = (joinRange: Array<number>) => {
+            const joinAmount = this.rng.intBetween(joinRange[0], joinRange[1]);
+            const pathsPerTable = Object.assign({}, this.pathsPerTable);
+
+            const eligiblePaths = Object.entries(pathsPerTable).reduce((eligiblePaths, [table, paths]) => {
+                if (primaryTables.includes(table)) {
+                    const validPathsByLength = paths.filter((path) => path.length === joinAmount);
+                    // filter paths that end on a junction table
+                    const validPathsByCardinality = validPathsByLength.filter((path) => {
+                        return !junctionTables.includes(path[path.length - 1].table as string);
+                    });
+
+                    if (validPathsByCardinality.length) eligiblePaths[table] = validPathsByCardinality;
+                }
+                return eligiblePaths;
+            }, {} as IJoinables);
+            return eligiblePaths;
+        };
+
+        const eligiblePaths = findEligiblePaths(joinRange);
+        const tableList = Object.entries(eligiblePaths);
+
         if (!tableList.length) {
             const path: Array<IEdge> = [];
-            const tableNames = Object.keys(this.parsedMetaData.tables);
-            const table = randomSample(tableNames, 1, true, this.rng)[0];
+            const table = randomSample(primaryTables, 1, true, this.rng)[0];
             return { table, path };
         } else {
+            const tableNames = Object.keys(eligiblePaths);
+            const startTable = randomSample(tableNames, 1, true, this.rng)[0];
+            const tableIndex = tableList.reduce((index, [tableName, paths], i) => {
+                if (tableName === startTable) {
+                    index = i;
+                }
+                return index;
+            }, 0);
+
             const [table, paths] = tableList[tableIndex];
             const pathIndex = this.rng.intBetween(0, paths.length - 1);
             const path = paths[pathIndex].map((edge) => {
@@ -583,16 +692,6 @@ class QueryGenerator {
             });
             return { table, path };
         }
-    }
-
-    private findPossibleTables(pathsPerTable: IJoinables, joinRange: Array<number>) {
-        const joinAmount = this.rng.intBetween(joinRange[0], joinRange[1]);
-        const possibleTables = Object.entries(pathsPerTable).reduce((possibleTables, [table, paths]) => {
-            const validPaths = paths.filter((path) => path.length === joinAmount);
-            if (validPaths.length) possibleTables[table] = validPaths;
-            return possibleTables;
-        }, {} as IJoinables);
-        return possibleTables;
     }
 
     private findAllPathsFromTable(
@@ -636,9 +735,10 @@ class SQLParser {
         const havingStatement = this.parseHavingClause(havingClause, aliasDictionary);
         const orderByStatement = this.parseOrderBy(orderBy, aliasDictionary);
 
-        return [selectStatement, joinStatement, whereStatement, groupByStatement, havingStatement, orderByStatement]
+        return `${[selectStatement, joinStatement, whereStatement, groupByStatement, havingStatement, orderByStatement]
             .filter((statement) => !!statement)
-            .join("\n");
+            .join("\n")
+            .replace("/^s*\n/gm", "")};`;
 
         // return `${selectStatement} ${joinStatement} ${whereStatement} ${groupByStatement} ${havingStatement} ${orderByStatement};`;
     }
@@ -648,8 +748,8 @@ class SQLParser {
             const alias = aliasDictionary[table];
             const columnsPerTable = columns.map((column) => {
                 const { name, aggregation } = column;
-                if (aggregation) return `${aggregation}(${alias}.${name})`;
-                return `${alias}.${name}`;
+                if (aggregation) return `${aggregation}(${alias}."${name}")`;
+                return `${alias}."${name}"`;
             });
             return [...flattened, ...columnsPerTable];
         }, []);
@@ -665,23 +765,23 @@ class SQLParser {
             const secondAlias = aliasDictionary[table];
             const { source, target } = columns;
 
-            let statement = `${type} ${schema}.${table} as ${secondAlias}\nON ${firstAlias}.${target} = ${secondAlias}.${source}`;
-            if (type === "CROSS JOIN") {
-                statement = `${type} ${schema}.${table} as ${secondAlias}`;
-            }
+            let statement = `${type} ${schema}."${table}" as ${secondAlias}\nON ${firstAlias}."${target}" = ${secondAlias}."${source}"`;
+            // if (type === "CROSS JOIN") {
+            //     statement = `${type} ${schema}.${table} as ${secondAlias}`;
+            // }
 
             if (seenAlias.includes(secondAlias)) {
-                statement = `${type} ${schema}.${table}\nON ${firstAlias}.${target} = ${secondAlias}.${source}`;
-                if (type === "CROSS JOIN") {
-                    statement = `${type} ${schema}.${table}`;
-                }
+                statement = `${type} ${schema}."${table}"\nON ${firstAlias}."${target}" = ${secondAlias}."${source}"`;
+                // if (type === "CROSS JOIN") {
+                //     statement = `${type} ${schema}.${table}`;
+                // }
             }
 
             firstAlias = secondAlias;
             seenAlias.push(secondAlias);
             return statement;
         });
-        return `FROM ${schema}.${table} as ${alias}\n${joins.join("\n")}`;
+        return `FROM ${schema}."${table}" as ${alias}\n${joins.join("\n")}`;
     }
 
     private parseWhereClause(columns: IConstraintColumns, aliasDictionary: IAliasDictionary) {
@@ -698,7 +798,7 @@ class SQLParser {
                     operatorStatement = `${operator}`;
                 }
 
-                const statement = `${alias}.${name} ${operatorStatement} ${conjunction}`;
+                const statement = `${alias}."${name}" ${operatorStatement} ${conjunction}`;
                 return statement;
             });
 
@@ -717,7 +817,7 @@ class SQLParser {
     private parseGroupBy(groupBy: IColumns, aliasDictionary: IAliasDictionary) {
         const flattened = Object.entries(groupBy).reduce((flattened, [table, columnsPerTable]) => {
             const alias = aliasDictionary[table];
-            const columns = columnsPerTable.map((column) => `${alias}.${column.name}`);
+            const columns = columnsPerTable.map((column) => `${alias}."${column.name}"`);
 
             return [...flattened, ...columns];
         }, []);
@@ -742,7 +842,7 @@ class SQLParser {
                     operatorStatement = `BETWEEN '${values[0]}' AND '${values[1]}'`;
                 }
 
-                const statement = `${aggregation}(${alias}.${name}) ${operatorStatement}`;
+                const statement = `${aggregation}(${alias}."${name}") ${operatorStatement}`;
                 return statement;
             });
 
@@ -762,7 +862,7 @@ class SQLParser {
     private parseOrderBy(orderBy: IOrderByColumns, aliasDictionary: IAliasDictionary) {
         const flattened = Object.entries(orderBy).reduce((flattened, [table, columnsPerTable]) => {
             const alias = aliasDictionary[table];
-            const columns = columnsPerTable.map((column) => `${alias}.${column.name} ${column.orderBy}`);
+            const columns = columnsPerTable.map((column) => `${alias}."${column.name}" ${column.orderBy}`);
 
             return [...flattened, ...columns];
         }, []);
@@ -864,73 +964,71 @@ interface IOrderByTemplate {
 const templatesPerLanguage: ITemplates = {
     de: {
         conjunctions: {
-            "&": " und ",
-            "|": " oder ",
+            "&": " and ",
+            "|": " or ",
         },
         joinTemplate: {
-            nonJoinStartingPhrase: "Verwende die Tabelle ${table}.",
-            joinStartingPhrase: "Bilde",
+            nonJoinStartingPhrase: "",
+            joinStartingPhrase: "",
             joinTypes: {
-                "LEFT JOIN": "die Schnittmenge, welche die korrespondierenden Einträge der beiden Tabellen ${source} und ${target} enthält",
-                "LEFT OUTER JOIN":
-                    "die Schnittmenge, welche alle Einträge von ${source} und die korrespondierenden Einträge von ${target} enthält",
-                "CROSS JOIN": "das kartesische Produkt der Tabellen ${source} und ${target}",
-                "INNER JOIN":
-                    "die Schnittmenge, welche die korrespondierenden Einträge der beiden Tabellen ${source} und ${target} enthält",
+                "RIGHT OUTER JOIN": "${target} and <prep> ${source}, even if <prep> have no ${target}",
+                "LEFT OUTER JOIN": "${source} and <prep> ${target}, even if <prep> have no ${source}",
+                // "CROSS JOIN": "das kartesische Produkt der Tabellen ${source} und ${target}",
+                "INNER JOIN": "${source} and <prep> corresponding ${target}",
             },
         },
         aggregationTemplate: {
-            SUM: "die Summe von ${column}",
-            AVG: "den Durchschnitt von ${column}",
-            MAX: "das Maximum von ${column}",
-            MIN: "das Minimum von ${column}",
-            COUNT: "die Anzahl von ${column}",
+            SUM: "the sum of ${column}",
+            AVG: "the average of ${column}",
+            MAX: "the maximum of ${column}",
+            MIN: "the minimum of ${column}",
+            COUNT: "the count of ${column}",
         },
         operatorTemplate: {
-            BETWEEN: "zwischen ${value1} und ${value2} liegt",
-            "<>": "ungleich",
-            "<": "kleiner",
-            ">": "größer",
-            "<=": "kleiner oder gleich",
-            ">=": "größer oder gleich",
-            "=": "gleich",
+            BETWEEN: "is between ${value1} and ${value2}",
+            "<>": "is not",
+            "<": "is smaller than",
+            ">": "is larger than",
+            "<=": "is smaller or the same as",
+            ">=": "is greater or the same as",
+            "=": "is",
             LIKE: {
-                0: "'${value}' enthält",
-                1: "mit '${value}' endet",
-                2: "mit '${value}' beginnt",
+                0: "contains '${value}'",
+                1: "ends with '${value}'",
+                2: "starts with  '${value}'",
             },
             "NOT LIKE": {
-                0: "nicht '${value}' enthält",
-                1: "nicht mit '${value}' endet",
-                2: "nicht mit '${value}' beginnt",
+                0: "doesn't contain '${value}'",
+                1: "doesn't end with '${value}'",
+                2: "doesn't start with  '${value}'",
             },
             NULL: "NULL",
-            "NOT NULL": "nicht NULL",
+            "NOT NULL": "not NULL",
         },
         columnTemplate: {
-            columnStartingPhrasePlural: "Gib die Spalten",
-            columnStartingPhraseSingular: "Gib die Spalte",
-            columnEndingPhrase: "aus",
+            columnStartingPhrasePlural: "",
+            columnStartingPhraseSingular: "",
+            columnEndingPhrase: "",
         },
         constraintTemplate: {
-            startingPhrase: "Es sollen nur Daten ausgegeben werden für die",
-            endingPhrase: "gilt",
-            LIKEOperatorFallback: { exclude: "eine beliebige Zeichenkette enthält", include: "eine leere Zeichenkette enthält" },
+            startingPhrase: "",
+            endingPhrase: "",
+            LIKEOperatorFallback: { exclude: "contains any string", include: "contains an empty string" },
         },
         groupByTemplate: {
-            startingPhrase: "Gruppiere das Ergebnis nach",
+            startingPhrase: "Group the result by",
             endingPhrase: "",
         },
         havingTemplate: {
-            startingPhrase: "Zudem muss gelten, dass",
+            startingPhrase: "Another restriction is",
             endingPhrase: "",
         },
         orderByTemplate: {
-            startingPhrase: "Sortiere das Ergebnis",
+            startingPhrase: "Sort the result by ",
             endingPhrase: "",
             direction: {
-                ASC: "aufsteigend nach",
-                DESC: "absteigend nach",
+                ASC: "in ascending order",
+                DESC: "in descending order",
             },
         },
     },
@@ -939,7 +1037,7 @@ const templatesPerLanguage: ITemplates = {
 class NLParser {
     constructor(private template: INLTemplate) {}
 
-    public parse({ columns, join, whereClause, havingClause, groupBy, orderBy }: IStructuredQuery) {
+    public parse({ columns, join, whereClause, havingClause, groupBy, orderBy, aliasDictionary }: IStructuredQuery) {
         const {
             joinTemplate,
             conjunctions,
@@ -951,14 +1049,13 @@ class NLParser {
             havingTemplate,
             orderByTemplate,
         } = this.template;
-        const parsedJoin = this.parseJoin(join, joinTemplate, conjunctions);
+        const parsedJoin = this.parseJoin(join, joinTemplate, conjunctions, aliasDictionary);
         const parsedColumns = this.parseColumns(columns, columnTemplate, aggregationTemplate, conjunctions);
         const parsedWhereClause = this.parseWhereClause(whereClause, constraintTemplate, operatorTemplate, conjunctions);
-        const parsedGroupBy = this.parseGroupBy(groupBy, groupByTemplate, conjunctions);
         const parsedHavingClause = this.parseHavingClause(havingClause, havingTemplate, aggregationTemplate, operatorTemplate);
         const parsedOrderBy = this.parseOrderBy(orderBy, orderByTemplate, conjunctions);
 
-        const nlQuery = `${parsedJoin} ${parsedColumns} ${parsedWhereClause} ${parsedHavingClause} ${parsedGroupBy} ${parsedOrderBy}`;
+        const nlQuery = `Find all ${parsedJoin} [MASK] ${parsedWhereClause} ${parsedHavingClause}Display ${parsedColumns} ${parsedOrderBy}`;
         return nlQuery;
     }
 
@@ -973,20 +1070,62 @@ class NLParser {
         return parsedColumns;
     }
 
-    private parseJoin(joinInstruction: IJoinInstruction, joinTemplate: IJoinTemplate, conjunctions: IConjunctions) {
+    private parseJoin(
+        joinInstruction: IJoinInstruction,
+        joinTemplate: IJoinTemplate,
+        conjunctions: IConjunctions,
+        aliasDictionary: IAliasDictionary
+    ) {
+        const junctionTables = ["Title_Episode", "Person_Profession", "Title_Genre"];
         const { table, path } = joinInstruction;
+
+        const tableTypeLookup = Object.entries(structuredKnowledgeGraph).reduce((tableTypeLookup, [tableType, tables]) => {
+            Object.keys(tables).forEach((tableName) => (tableTypeLookup[tableName] = tableType));
+            return tableTypeLookup;
+        }, {} as { [key: string]: string });
+
+        const tablesInJoin = [table, ...path.map((node) => node.table)];
+        const { majorEntities, minorEntities, majorAttributes, minorAttributes, semanticEdges } = tablesInJoin.reduce(
+            (mappedTables, table) => {
+                const tableType = tableTypeLookup[table];
+
+                if (tableType) {
+                    if (!(tableType in mappedTables)) {
+                        mappedTables[tableType] = {};
+                    }
+                    mappedTables[tableType][table] = structuredKnowledgeGraph[tableType][table];
+                }
+
+                return mappedTables;
+            },
+            {} as IStructuredKnowledgeGraph
+        );
+
+        if (Object.keys(majorEntities).length === 1) {
+            const majorTable = Object.values(majorEntities)[0];
+            const { sing, plur } = majorTable.alias[0];
+            return `${plur}`;
+        }
+
         let source = table;
         const joins = path.map((edge) => {
             const target = edge.table as string;
             const joinType = joinTemplate.joinTypes[edge.type];
-            const join = templateString(joinType, { source: [source], target: [target] });
+            let join = "";
+            if (junctionTables.includes(source)) {
+                join = target;
+            } else if (junctionTables.includes(target)) {
+                join = source;
+            } else {
+                join = templateString(joinType, { source: [source], target: [target] });
+            }
             source = target;
             return join;
         });
 
         let joinStatement = templateString(joinTemplate.nonJoinStartingPhrase, { table: [table] });
         if (joins.length) {
-            joinStatement = `${joinTemplate.joinStartingPhrase} ${joins.join(conjunctions["&"])}.`;
+            joinStatement = `${joins.join(conjunctions["&"])} <prep>`;
         }
 
         return joinStatement;
@@ -998,10 +1137,16 @@ class NLParser {
         aggregationTemplate: IAggregationTemplate,
         conjunctions: IConjunctions
     ) {
+        const { minorAttributes } = structuredKnowledgeGraph;
+
         const flattened = Object.entries(columnsPerTable).reduce((flattened, [table, columns]) => {
             const parsedColumns = columns.map((column) => {
                 const { aggregation, name } = column;
-                let parsedColumn = name;
+
+                const semanticName = minorAttributes[name].alias[0].plur;
+                const booleanColumns = ["isAdult", "isOriginalTitle"];
+                const determiner = booleanColumns.includes(name) ? "" : "the ";
+                let parsedColumn = `${determiner}${semanticName}`;
                 if (aggregation) {
                     parsedColumn = templateString(aggregationTemplate[aggregation], { column: [name] });
                 }
@@ -1015,7 +1160,7 @@ class NLParser {
 
         let parsedColumns = this.handleConjunction(flattened.join(", "), conjunctions);
 
-        return `${startingPhrase} ${parsedColumns} ${columnTemplate.columnEndingPhrase}.`;
+        return `${startingPhrase}${parsedColumns}${columnTemplate.columnEndingPhrase}.`;
     }
 
     // TODO cleanup this messy code
@@ -1025,14 +1170,17 @@ class NLParser {
         operatorTemplate: IOperatorTemplate,
         conjunctions: IConjunctions
     ) {
+        const { minorAttributes } = structuredKnowledgeGraph;
+
         const likeConstraints: Array<string> = [];
         const flattened = Object.entries(columnsPerTable).reduce((flattened, [table, columns]) => {
             const parsedColumns = columns.reduce((parsedConstraints, column) => {
                 const { constraint, name } = column;
                 const operator = constraint.operator as keyof IOperatorTemplate;
                 const values = constraint.values as Array<string>;
+                const semanticName = minorAttributes[name].alias[0].sing;
 
-                let parsedConstraint = `${name} ${operatorTemplate[operator]} '${values[0]}'`;
+                let parsedConstraint = `the ${semanticName} ${operatorTemplate[operator]} '${values[0]}'`;
                 if (operator === "BETWEEN") {
                     const [value1, value2] = values;
                     parsedConstraint = templateString(operatorTemplate["BETWEEN"], { value1: [value1], value2: [value2] });
@@ -1043,9 +1191,9 @@ class NLParser {
                     if (!value) {
                         const exclude = /NOT/i.test(operator);
                         if (exclude) {
-                            likeConstraint = `${name} ${constraintTemplate.LIKEOperatorFallback.exclude}`;
+                            likeConstraint = `the ${semanticName} ${constraintTemplate.LIKEOperatorFallback.exclude}`;
                         } else {
-                            likeConstraint = `${name} ${constraintTemplate.LIKEOperatorFallback.include}`;
+                            likeConstraint = `the ${semanticName} ${constraintTemplate.LIKEOperatorFallback.include}`;
                         }
                     } else {
                         let option;
@@ -1053,12 +1201,12 @@ class NLParser {
                         else if (/\w+%/i.test(value)) option = 1;
                         else option = 0;
                         const constraint = templateString(operatorTemplate[operator][option], { value: [cleanedValue] });
-                        likeConstraint = `${name} ${constraint}`;
+                        likeConstraint = `the ${semanticName} ${constraint}`;
                     }
                     likeConstraints.push(likeConstraint);
                     parsedConstraint = "";
                 } else if (/NULL/i.test(operator)) {
-                    parsedConstraint = `${name} ${operatorTemplate[operator]}`;
+                    parsedConstraint = `the ${semanticName} ${operatorTemplate[operator]}`;
                 }
 
                 if (parsedConstraint) parsedConstraints.push(parsedConstraint);
@@ -1073,10 +1221,10 @@ class NLParser {
         else if (!flattened.length) {
             return `${constraintTemplate.startingPhrase} ${joinedLikeConstraints}.`;
         } else if (!likeConstraints.length) {
-            return `${constraintTemplate.startingPhrase} ${constraints} ${constraintTemplate.endingPhrase}.`;
+            return `${constraintTemplate.startingPhrase} ${constraints}${constraintTemplate.endingPhrase}.`;
         }
 
-        return `${constraintTemplate.startingPhrase} ${constraints} ${constraintTemplate.endingPhrase} ${conjunctions[
+        return `${constraintTemplate.startingPhrase}${constraints} ${constraintTemplate.endingPhrase} ${conjunctions[
             "&"
         ].trim()} ${joinedLikeConstraints}.`;
     }
@@ -1130,11 +1278,18 @@ class NLParser {
     }
 
     private parseOrderBy(orderBy: IOrderByColumns, orderByTemplate: IOrderByTemplate, conjunctions: IConjunctions) {
+        const { minorAttributes } = structuredKnowledgeGraph;
         const flattened = Object.entries(orderBy).reduce((flattened, [table, columns]) => {
             const parsedColumns = columns.map((column) => {
                 const { name } = column;
+                const semanticName = minorAttributes[name].alias[0].sing;
+
                 const orderBy = column.orderBy as keyof IOrderByTemplate["direction"];
-                return `${orderByTemplate.direction[orderBy]} ${name}`;
+
+                const booleanColumns = ["isAdult", "isOriginalTitle"];
+                const determiner = booleanColumns.includes(name) ? "" : "the ";
+
+                return `${determiner}${semanticName} ${orderByTemplate.direction[orderBy]}`;
             });
 
             return [...flattened, ...parsedColumns];
@@ -1144,7 +1299,7 @@ class NLParser {
 
         let parsedColumns = this.handleConjunction(flattened.join(", "), conjunctions);
 
-        return `${orderByTemplate.startingPhrase} ${parsedColumns}${orderByTemplate.endingPhrase}.`;
+        return `${orderByTemplate.startingPhrase}${parsedColumns}${orderByTemplate.endingPhrase}.`;
     }
 }
 
@@ -1153,36 +1308,69 @@ interface SQLTaskDescription {
     parameters: IOptions;
 }
 
-export const sqlQueryGenerator = async (taskDescription: SQLTaskDescription) => {
+export const semanticSqlQueryGenerator = async (taskDescription: SQLTaskDescription) => {
     const { language, parameters } = taskDescription;
     const { schema, seed } = parameters;
 
-    const sqlTaskClient = new PgClient(SQL_TASK_DB);
+    const sqlTaskClient = new PgClient(SQL_TASK_DB, "postgresql://admin:admin@localhost:5432/");
     const reflector = new SQLDBReflection([schema], sqlTaskClient);
     const reflection = await reflector.reflectDB();
     const parser = new SQLMetaDataParser(reflection);
     const parsedMetaData = parser.parseMetaData();
+    parsedMetaData.tables = Object.entries(parsedMetaData.tables).reduce<IParsedTable>((reducedTables, [k, v]) => {
+        const allowedTables = [
+            "Person_Profession",
+            "Title_Genre",
+            "Title_Localization",
+            "Title_Episode",
+            "Title",
+            "Profession",
+            "Genre",
+            "Person",
+            "Types",
+            "Attributes",
+        ];
+        if (allowedTables.includes(k)) {
+            reducedTables[k] = v;
+        }
+        return reducedTables;
+    }, {});
+    parsedMetaData.primaryTables = ["Title", "Profession", "Genre", "Person"];
+    parsedMetaData.junctionTables = ["Title_Episode", "Person_Profession", "Title_Genre"];
+    parsedMetaData.attributeTables = ["Title_Localization"];
+
+    // console.dir(parsedMetaData, { depth: null });
 
     const qb = new QueryGenerator(parsedMetaData, parameters, sqlTaskClient, schema, new RNG(seed));
     const sqlParser = new SQLParser();
     const nlParser = new NLParser(templatesPerLanguage[language]);
 
-    let result = [];
-    let query;
-    let parsedQuery;
-    while (!result.length) {
-        try {
-            query = await qb.generateQuery();
-            parsedQuery = sqlParser.parse(query, schema);
-            result = await sqlTaskClient.queryDB(parsedQuery);
-        } catch (error) {
-            console.log("rewind");
-        }
-    }
+    const query = await qb.generateQuery();
+    const parsedQuery = sqlParser.parse(query, schema);
     const nlQuery = nlParser.parse(query);
 
-    const dotDescription = await minioClient.getFile("erd", `${schema}.dot`);
-    return { query: parsedQuery, description: nlQuery, result, dotDescription };
+    // console.dir(query, { depth: null });
+    console.log(parsedQuery);
+    console.log(nlQuery);
+
+    // fs.appendFileSync("query_samples.jsonl", JSON.stringify({ query: parsedQuery, nl: nlQuery }) + "\n", "utf8");
+
+    // let result = [];
+    // let query;
+    // let parsedQuery;
+    // while (!result.length) {
+    //     try {
+    //         query = await qb.generateQuery();
+    //         parsedQuery = sqlParser.parse(query, schema);
+    //         result = await sqlTaskClient.queryDB(parsedQuery);
+    //     } catch (error) {
+    //         console.log("rewind");
+    //     }
+    // }
+    // const nlQuery = nlParser.parse(query);
+
+    // const dotDescription = await minioClient.getFile("erd", `${schema}.dot`);
+    // return { query: parsedQuery, description: nlQuery, result, dotDescription };
 };
 
 interface SQLTaskValidationDescription {
@@ -1247,7 +1435,7 @@ const fuzzyEqual = (a: { [key: string]: any }, b: { [key: string]: any }, maxDif
     return truth;
 };
 
-export const sqlQueryValidator = async (taskDescription: SQLTaskValidationDescription) => {
+export const semanticSqlQueryValidator = async (taskDescription: SQLTaskValidationDescription) => {
     const { schema, query, expectedResult } = taskDescription.parameters;
     const parsedExpectedResult = expectedResult;
 
@@ -1270,12 +1458,18 @@ export const sqlQueryValidator = async (taskDescription: SQLTaskValidationDescri
     }
 };
 
-export const importDatabase = async (taskDescription: {}) => {
-    minioClient;
-};
-
-export const fetchERD = async (taskDescription: { parameters: { schema: string } }) => {
-    const { schema } = taskDescription.parameters;
-    const dotDescription = await minioClient.getFile("erd", `${schema}.dot`);
-    return { dotDescription };
-};
+// (async () => {
+//     const queryGenerator = semanticSqlQueryGenerator({
+//         language: "de",
+//         parameters: {
+//             joinRange: [1, 4],
+//             columnRange: [1, 3],
+//             constraintRange: [1, 3],
+//             allowAggregates: false,
+//             forceHavingClause: false,
+//             forceOrderBy: true,
+//             schema: "imdb",
+//             seed: "",
+//         },
+//     });
+// })();

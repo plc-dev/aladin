@@ -117,8 +117,6 @@ export default {
     const interjections = getProperty(interjectionPath) || [];
     interjectionHandler(props.storeObject, interjections, interjectionPath);
 
-    console.warn(store);
-
     // load modals
     const modals = getProperty(`nodes__${currentNode}__modals`);
 

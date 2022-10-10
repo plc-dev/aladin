@@ -2,6 +2,21 @@ import { createStore, createLogger } from "vuex";
 import axios from "axios";
 import { IState, IReplay } from "@/interfaces/TaskGraphInterface";
 
+const baseState: IState = {
+  isLoading: false,
+  currentTask: null,
+  layoutSize: "lg",
+  currentNode: null,
+  previousNode: null,
+  rootNode: null,
+  topology: [],
+  edges: {},
+  nodes: {},
+  taskData: {},
+  taskReplay: { steps: [], mouse: [], panning: [], zooming: [], meta: {} },
+  restoredFromReplay: false,
+};
+
 const extractMetaInformation = (state: IState, replay: IReplay) => {
   const calcDuration = (replay: IReplay) => {
     const times = { start: new Date().getTime(), duration: 0, end: 0, date: "" };
@@ -28,23 +43,10 @@ const extractMetaInformation = (state: IState, replay: IReplay) => {
   return { task, completion, date, duration };
 };
 
-const state: IState = {
-  isLoading: false,
-  currentTask: null,
-  layoutSize: "lg",
-  currentNode: null,
-  previousNode: null,
-  rootNode: null,
-  topology: [],
-  edges: {},
-  nodes: {},
-  taskData: {},
-  taskReplay: { steps: [], mouse: [], panning: [], zooming: [], meta: {} },
-  restoredFromReplay: false,
-};
+const state: IState = { ...baseState };
 const mutations = {
   RESET(state: IState) {
-    Object.keys(state.taskData).forEach((key) => delete state.taskData[key]);
+    state = { ...baseState };
   },
   TOGGLE_LOADING(state: IState) {
     state.isLoading = !state.isLoading;
@@ -104,7 +106,11 @@ const actions = {
   restoredFromReplay: async ({ commit }) => {
     commit("RESTORED_FROM_REPLAY");
   },
-  fetchTaskData: async ({ commit }, payloadObject: { [key: string]: any }) => {
+  resetStore: async ({ commit }) => {
+    commit("RESET");
+  },
+  fetchTaskData: async ({ commit, dispatch }, payloadObject: { [key: string]: any }) => {
+    // await dispatch("fetchTaskGraph");
     const { endpoint, payload } = payloadObject;
     // TODO extract language to seperate user module
     const result = await axios.post(`/api/${endpoint}`, { ...payload, language: "de" });
